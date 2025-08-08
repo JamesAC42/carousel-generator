@@ -80,24 +80,19 @@ export const CheatSheet: React.FC<CheatSheetProps> = ({ onGenerate }) => {
 
   return (
     <div className="mb-8">
-      <h2 className="text-2xl font-bold mb-4">📋 Korean Vocabulary Cheat Sheet</h2>
-      <p className="text-gray-600 mb-6">Generate a vocabulary cheat sheet for any topic</p>
-      
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Topic Input */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Cheat Sheet Topic
-          </label>
+          <label className="nb-label mb-2 block">Cheat Sheet Topic</label>
           <input
             type="text"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="Enter topic (e.g., ordering food, weather, colors, emotions)..."
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            className="nb-input"
             required
           />
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm nb-muted mt-2">
             Examples: Restaurant Menu, Weather Words, Family Members, Numbers 1-20, Emotions, Colors, etc.
           </p>
         </div>
@@ -106,7 +101,7 @@ export const CheatSheet: React.FC<CheatSheetProps> = ({ onGenerate }) => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full px-6 py-3 bg-green-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-600 transition-colors font-medium"
+          className="w-full nb-button px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Generating Cheat Sheet...' : 'Generate Korean Cheat Sheet'}
         </button>

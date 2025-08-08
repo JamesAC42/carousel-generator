@@ -22,7 +22,7 @@ app.use(express.json());
 
 // Add request logging middleware
 app.use((req, res, next) => {
-  console.log(`[SERVER] ${new Date().toISOString()} - ${req.method} ${req.url}`);
+  //console.log(`[SERVER] ${new Date().toISOString()} - ${req.method} ${req.url}`);
   
   // Special logging for /api/generate
   if (req.url.includes('/api/generate')) {

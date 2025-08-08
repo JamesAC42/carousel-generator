@@ -153,26 +153,24 @@ export const NewLesson: React.FC<NewLessonProps> = ({ onGenerate }) => {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Language Selection */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            Choose Language
-          </label>
+          <label className="nb-label mb-3 block">Choose Language</label>
           {loadingLanguages ? (
-            <div className="text-gray-500">Loading languages...</div>
+            <div className="nb-muted">Loading languages...</div>
           ) : (
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-3">
               {languages.map((language) => (
                 <button
                   key={language.id}
                   type="button"
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
+                  className={`flex items-center gap-3 px-4 py-2 rounded-md transition-all ${
                     selectedLanguage === language.id
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'nb-nav nb-nav--active'
+                      : 'nb-nav'
                   }`}
                   onClick={() => setSelectedLanguage(language.id)}
                 >
                   <span className="text-xl">{language.flag}</span>
-                  <span className="font-medium">{language.name}</span>
+                  <span className="font-semibold">{language.name}</span>
                 </button>
               ))}
             </div>
@@ -181,15 +179,13 @@ export const NewLesson: React.FC<NewLessonProps> = ({ onGenerate }) => {
 
         {/* Topic Input */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Lesson Topic
-          </label>
+          <label className="nb-label mb-2 block">Lesson Topic</label>
           <input
             type="text"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder={getTopicPlaceholder()}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="nb-input"
             required
           />
         </div>
@@ -198,36 +194,12 @@ export const NewLesson: React.FC<NewLessonProps> = ({ onGenerate }) => {
         <button
           type="submit"
           disabled={loading || !selectedLanguage || loadingLanguages}
-          className="w-full px-6 py-3 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors font-medium"
+          className="w-full nb-button px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Generating...' : `Generate ${selectedLanguage === 'korean' ? 'Korean' : 'Japanese'} Lesson`}
         </button>
       </form>
 
-      {/* Debug Buttons */}
-      <div className="flex gap-2 mt-4">
-        <button
-          type="button"
-          onClick={testConnection}
-          className="px-4 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-        >
-          Test Connection
-        </button>
-        <button
-          type="button"
-          onClick={testGenerate}
-          className="px-4 py-1 bg-yellow-500 text-white rounded text-sm hover:bg-yellow-600"
-        >
-          Test Generate
-        </button>
-        <button
-          type="button"
-          onClick={() => console.log('[CLIENT] 🔍 Current state:', { topic, selectedLanguage })}
-          className="px-4 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
-        >
-          Log State
-        </button>
-      </div>
     </div>
   );
 };

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface Lesson {
   id: string;
@@ -24,7 +25,7 @@ export const LessonLibrary: React.FC<LessonLibraryProps> = ({ lessons }) => {
           <div
             key={lesson.id}
             onClick={() => setSelected(lesson)}
-            className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-lg transition-shadow"
+            className="nb-card p-4 cursor-pointer hover:brightness-110 transition"
           >
             <div className="relative">
               <img 
@@ -34,19 +35,19 @@ export const LessonLibrary: React.FC<LessonLibraryProps> = ({ lessons }) => {
               />
               <div className="absolute top-2 left-2 flex gap-2">
                 {/* Language indicator */}
-                <div className="bg-white bg-opacity-90 rounded-full px-2 py-1 text-sm">
+                <div className="rounded-full px-2 py-1 text-sm bg-[var(--nb-panel)] border-2 border-[var(--nb-border)]">
                   {lesson.language === 'japanese' ? '🇯🇵' : '🇰🇷'}
                 </div>
                 {/* Type indicator */}
-                <div className={`bg-opacity-90 rounded-full px-2 py-1 text-sm text-white font-medium ${
-                  lesson.type === 'cheat-sheet' ? 'bg-green-500' : 'bg-blue-500'
+                <div className={`rounded-full px-2 py-1 text-sm text-black font-medium border-2 border-[var(--nb-border)] ${
+                  lesson.type === 'cheat-sheet' ? 'bg-emerald-400' : 'bg-violet-400'
                 }`}>
                   {lesson.type === 'cheat-sheet' ? '📋' : '📚'}
                 </div>
               </div>
             </div>
             <h3 className="mt-2 font-semibold">{lesson.title || lesson.topic}</h3>
-            <p className="text-gray-600">
+            <p className="nb-muted">
               {lesson.type === 'cheat-sheet' ? (
                 `📋 Cheat Sheet • ${lesson.slides} slides • ${lesson.language === 'japanese' ? 'Japanese' : 'Korean'}`
               ) : (
@@ -57,13 +58,13 @@ export const LessonLibrary: React.FC<LessonLibraryProps> = ({ lessons }) => {
         ))}
       </div>
 
-      {selected && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setSelected(null)}>
-          <div className="bg-white rounded-lg p-8 max-w-4xl max-h-screen overflow-y-auto" onClick={e => e.stopPropagation()}>
+      {selected && createPortal(
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" role="dialog" aria-modal="true" onClick={() => setSelected(null)}>
+          <div className="nb-card-alt p-8 w-full max-w-3xl md:max-w-4xl max-h-[calc(100vh-6rem)] overflow-y-auto mx-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
               <h2 className="text-2xl font-bold">{selected.title || selected.topic}</h2>
-              <div className={`rounded-full px-3 py-1 text-sm text-white font-medium ${
-                selected.type === 'cheat-sheet' ? 'bg-green-500' : 'bg-blue-500'
+              <div className={`rounded-full px-3 py-1 text-sm text-black font-medium border-2 border-[var(--nb-border)] ${
+                selected.type === 'cheat-sheet' ? 'bg-emerald-400' : 'bg-violet-400'
               }`}>
                 {selected.type === 'cheat-sheet' ? '📋 Cheat Sheet' : '📚 Lesson'}
               </div>
@@ -80,12 +81,13 @@ export const LessonLibrary: React.FC<LessonLibraryProps> = ({ lessons }) => {
             </div>
             <button
               onClick={() => setSelected(null)}
-              className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+              className="mt-4 px-4 py-2 nb-button"
             >
               Close
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
