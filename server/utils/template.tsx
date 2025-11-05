@@ -2,6 +2,10 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import fs from 'fs';
 import path from 'path';
+import {
+  ClassicLessonSlideDocument,
+  ClassicLessonSlideData
+} from '../../shared/templates/classicLesson.tsx';
 
 // Helper function to convert image to base64
 function imageToBase64(imagePath: string): string {
@@ -117,171 +121,13 @@ function getShuffledImages(dir: string): string[] {
   }
 }
 
-// Function to detect and wrap Korean and Japanese text
-function wrapAsianText(text: string): React.ReactElement {
-  // Korean character ranges: \uAC00-\uD7AF (Hangul syllables) + \u1100-\u11FF (Hangul Jamo) + \u3130-\u318F (Hangul compatibility Jamo)
-  // Japanese character ranges: \u3040-\u309F (Hiragana) + \u30A0-\u30FF (Katakana) + \u4E00-\u9FAF (CJK Unified Ideographs/Kanji)
-  const asianRegex = /[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/g;
-  
-  const parts = text.split(asianRegex);
-  const asianMatches = text.match(asianRegex) || [];
-  
-  let result: (string | React.ReactElement)[] = [];
-  
-  for (let i = 0; i < parts.length; i++) {
-    if (parts[i]) {
-      result.push(parts[i]);
-    }
-    if (asianMatches[i]) {
-      result.push(
-        <span 
-          key={i}
-          style={{
-            fontFamily: 'Hahmlet, serif',
-            backgroundColor: 'rgba(255, 215, 0, 0.9)', // Gold background
-            color: '#000',
-            padding: '0.2rem 0.5rem', // Slightly increased for bigger images
-            borderRadius: '0.5rem',    // Slightly increased
-            fontWeight: '400',
-            display: 'inline-block',
-            textShadow: 'none',
-            margin: '0 0.2rem'
-          }}
-        >
-          {asianMatches[i]}
-        </span>
-      );
-    }
-  }
-  
-  return <>{result}</>;
-}
-
-interface SlideProps {
-  text: string;
-  slideNumber: number;
-  totalSlides: number;
-  isHookSlide: boolean;
-  isCtaSlide: boolean;
-  backgroundImagePath?: string; // Pre-selected image path for this slide
-}
-
-const Slide: React.FC<SlideProps> = ({ text, slideNumber, totalSlides, isHookSlide, isCtaSlide, backgroundImagePath }) => {
-  const fontCSS = generateFontCSS();
-  
-  // Use pre-selected background image path, or pick one if not provided
-  let imagePath = backgroundImagePath;
-  if (!imagePath) {
-    let imageDir = 'assets/content-slides'; // Default to content slides
-    if (isHookSlide) {
-      imageDir = 'assets/hook-slides';
-    }
-    // CTA slides now use content-slides folder like other content slides
-    imagePath = pickRandomImage(imageDir);
-  }
-  
-  const backgroundBase64 = imagePath ? imageToBase64(imagePath) : '';
-
-  const containerStyle: React.CSSProperties = {
-    width: '1080px',  // Increased from 700px for crispness
-    height: '1350px', // Increased from 800px - maintaining 4:5 aspect ratio
-    position: 'relative',
-    overflow: 'hidden',
-    backgroundImage: backgroundBase64 ? `url(${backgroundBase64})` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    fontFamily: 'TikTokSans, Arial Black, Helvetica, sans-serif',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center'
-  };
-
-  // Dark tint overlay
-  const overlayStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Dark tint for text legibility
-    zIndex: 1
-  };
-
-  const textContainerStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '85%',
-    maxWidth: '900px', // Increased from 600px
-    zIndex: 10
-  };
-
-  const textBubbleStyle: React.CSSProperties = {
-    padding: '3rem 2.5rem',  // Increased padding for bigger images
-  };
-
-  const textStyle: React.CSSProperties = {
-    fontSize: '4rem', // Increased from 3.2rem for better crispness
-    fontWeight: '600',
-    color: '#ffffff',
-    textAlign: 'center',
-    lineHeight: '1.3',
-    margin: 0,
-    fontFamily: 'TikTokSans, Arial Black, sans-serif',
-    textShadow: '4px 4px 0px #000000, -4px -4px 0px #000000, 4px -4px 0px #000000, -4px 4px 0px #000000', // Increased shadow for bigger text
-    WebkitTextStroke: '0px transparent'
-  };
-
-  const progressContainerStyle: React.CSSProperties = {
-    position: 'absolute',
-    bottom: '2rem',   // Increased spacing
-    left: '50%',
-    transform: 'translateX(-50%)',
-    display: 'flex',
-    gap: '1rem',      // Increased gap
-    zIndex: 10
-  };
-
-  const progressDotStyle = (isActive: boolean): React.CSSProperties => ({
-    width: '16px',       // Increased from 12px
-    height: '16px',      // Increased from 12px
-    borderRadius: '50%',
-    backgroundColor: isActive ? '#fff' : 'rgba(255, 255, 255, 0.5)',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)' // Enhanced shadow
-  });
-
-  return (
-    <html>
-      <head>
-        <style dangerouslySetInnerHTML={{ __html: fontCSS }} />
-      </head>
-      <body style={{ margin: 0, padding: 0 }}>
-        <div style={containerStyle}>
-          {/* Dark tint overlay */}
-          <div style={overlayStyle} />
-          
-          {/* Text content */}
-          <div style={textContainerStyle}>
-            <div style={textBubbleStyle}>
-              <div style={textStyle}>
-                {wrapAsianText(text)}
-              </div>
-            </div>
-          </div>
-        </div>
-      </body>
-    </html>
-  );
-};
-
 export function renderSlidesToHTML(slides: any[]) {
   console.log(`[TEMPLATE] Rendering ${slides.length} slides with unique image system`);
   
   // Get shuffled content slide images for non-hook slides
   const contentImages = getShuffledImages('assets/content-slides');
   let contentImageIndex = 0;
+  const fontCSS = generateFontCSS();
   
   return slides.map((slide, index) => {
     const isHookSlide = index === 0; // First slide is hook slide
@@ -292,24 +138,32 @@ export function renderSlidesToHTML(slides: any[]) {
     
     if (isHookSlide) {
       slideType = 'hook';
-      // Hook slides pick their own random image from hook-slides
-      backgroundImagePath = undefined;
+      backgroundImagePath = pickRandomImage('assets/hook-slides');
     } else {
       // Content slides (including CTA) use shuffled content images
       slideType = isCtaSlide ? 'cta' : 'content';
-      backgroundImagePath = isCtaSlide ? pickRandomImage('assets/cta-slides') : contentImages[contentImageIndex % contentImages.length];
-      contentImageIndex++;
+      if (isCtaSlide) {
+        backgroundImagePath = pickRandomImage('assets/cta-slides');
+      } else if (contentImages.length > 0) {
+        backgroundImagePath = contentImages[contentImageIndex % contentImages.length];
+        contentImageIndex++;
+      }
     }
     
     console.log(`[TEMPLATE] Rendering slide ${index + 1}: "${slide.text}" (${slideType} slide) with image: ${backgroundImagePath ? path.basename(backgroundImagePath) : 'random'}`);
+    const backgroundImageData = backgroundImagePath ? imageToBase64(backgroundImagePath) : undefined;
+    const slideData: ClassicLessonSlideData = {
+      text: slide.text,
+      type: slide.type
+    };
+
     return ReactDOMServer.renderToString(
-      <Slide 
-        text={slide.text} 
+      <ClassicLessonSlideDocument
+        slide={slideData}
         slideNumber={index}
         totalSlides={slides.length}
-        isHookSlide={isHookSlide}
-        isCtaSlide={isCtaSlide}
-        backgroundImagePath={backgroundImagePath}
+        visual={{ backgroundImage: backgroundImageData }}
+        fontCSS={fontCSS}
       />
     );
   });
@@ -559,4 +413,320 @@ export function renderCheatSheetToHTML(slides: any[]) {
       />
     );
   });
+}
+
+// Sentence Analysis Components and Renderer
+interface SentenceAnalysisSlideProps {
+  analysis: any; // full JSON
+  token: any;    // current token being analyzed
+  tokenIndex: number; // index of current token
+  slideNumber: number;
+  totalSlides: number;
+}
+
+const SentenceAnalysisSlide: React.FC<SentenceAnalysisSlideProps> = ({ analysis, token, tokenIndex, slideNumber, totalSlides }) => {
+  const fontCSS = generateFontCSS();
+
+  // Colors and theme
+  const primary = analysis?.render_hints?.primary_color || '#F2C14E';
+  const secondary = analysis?.render_hints?.secondary_color || '#8FA3BF';
+  const theme = analysis?.render_hints?.theme || 'notebook_dark_overlay';
+
+  const containerStyle: React.CSSProperties = {
+    width: '1080px',
+    height: '1350px',
+    position: 'relative',
+    overflow: 'hidden',
+    background: theme === 'notebook_dark_overlay' ? '#0f172a' : '#111827',
+    fontFamily: 'TikTokSans, Arial Black, Helvetica, sans-serif',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
+  };
+
+  const contentStyle: React.CSSProperties = {
+    position: 'absolute',
+    inset: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 10,
+    padding: '3rem',
+    boxSizing: 'border-box',
+    display: 'flex',
+    alignItems: 'stretch',
+    justifyContent: 'stretch'
+  };
+
+  const cardStyle: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    background: 'transparent',
+    border: 'none',
+    borderRadius: '0',
+    padding: '0',
+    boxShadow: 'none'
+  };
+
+  const headerStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '1.5rem'
+  };
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: '4rem',
+    color: '#fff',
+    fontWeight: 700,
+    margin: 0
+  };
+
+  const sentenceStyle: React.CSSProperties = {
+    fontSize: '4rem',
+    color: '#fff',
+    fontFamily: 'Hahmlet, serif',
+    lineHeight: 1.3 as unknown as string,
+    margin: '0 0 2rem 0'
+  };
+
+  const subStyle: React.CSSProperties = {
+    fontSize: '2rem',
+    color: 'rgba(255,255,255,0.8)',
+    margin: '0 0 0.5rem 0'
+  };
+
+  const badgeStyle = (bg: string): React.CSSProperties => ({
+    display: 'inline-block',
+    fontSize: '1.25rem',
+    color: '#111827',
+    background: bg,
+    padding: '0.4rem 0.8rem',
+    borderRadius: '0.6rem',
+    fontWeight: 700
+  });
+
+  const textStyle: React.CSSProperties = {
+    fontSize: '2.6rem',
+    color: '#e5e7eb'
+  };
+
+  const progressContainerStyle: React.CSSProperties = {
+    position: 'absolute',
+    bottom: '2rem',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    display: 'flex',
+    gap: '0.6rem',
+    zIndex: 10
+  };
+  const progressDotStyle = (isActive: boolean): React.CSSProperties => ({
+    width: '18px',
+    height: '18px',
+    borderRadius: '9999px',
+    backgroundColor: isActive ? primary : 'rgba(255,255,255,0.25)',
+    border: `3px solid ${isActive ? '#fff' : 'rgba(255,255,255,0.4)'}`
+  });
+
+  // Helper to get token color from highlight_map
+  const getTokenColor = (token: any) => {
+    const highlightMap = analysis?.render_hints?.highlight_map || {};
+    return highlightMap[token.role] || primary;
+  };
+
+  // Render sentence with highlighted current token
+  const renderHighlightedSentence = () => {
+    const tokens = analysis?.tokens || [];
+    const sentence = analysis?.sentence?.hangul || '';
+    
+    return (
+      <div style={{ 
+        fontSize: '3.5rem', 
+        color: '#fff', 
+        fontFamily: 'Hahmlet, serif',
+        lineHeight: 1.4,
+        marginBottom: '2rem',
+        textAlign: 'center'
+      }}>
+        {tokens.map((t: any, i: number) => (
+          <span 
+            key={i}
+            style={{
+              color: i === tokenIndex ? getTokenColor(token) : '#fff',
+              backgroundColor: i === tokenIndex ? 'rgba(255,255,255,0.1)' : 'transparent',
+              padding: i === tokenIndex ? '0.2rem 0.4rem' : '0',
+              borderRadius: i === tokenIndex ? '0.5rem' : '0',
+              fontWeight: i === tokenIndex ? 700 : 400,
+              position: 'relative'
+            }}
+          >
+            {t.surface}
+            {i === tokenIndex && (
+              <div style={{
+                position: 'absolute',
+                bottom: '-1rem',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '0.2rem',
+                height: '3rem',
+                backgroundColor: getTokenColor(token),
+                borderRadius: '0.1rem'
+              }} />
+            )}
+          </span>
+        ))}
+      </div>
+    );
+  };
+
+  const renderTokenAnalysis = () => (
+    <div style={cardStyle}>
+      <div style={headerStyle}>
+        <h3 style={titleStyle}>Token Analysis</h3>
+        <span style={badgeStyle(getTokenColor(token))}>{token?.pos || 'Token'}</span>
+      </div>
+      
+      {/* Translation at the top */}
+      <div style={{ 
+        fontSize: '2.4rem', 
+        color: 'rgba(255,255,255,0.9)', 
+        marginBottom: '3rem',
+        textAlign: 'center',
+        fontStyle: 'italic'
+      }}>
+        {analysis?.sentence?.translation?.natural_en}
+      </div>
+
+      {/* Highlighted sentence */}
+      {renderHighlightedSentence()}
+
+      {/* Token information box */}
+      <div style={{
+        background: 'rgba(31,41,55,0.9)',
+        border: `2px solid ${getTokenColor(token)}`,
+        borderRadius: '1.5rem',
+        padding: '2.5rem',
+        marginTop: '2rem',
+        position: 'relative'
+      }}>
+        {/* Connection line from highlighted token to info box */}
+        <div style={{
+          position: 'absolute',
+          top: '-2rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '0.3rem',
+          height: '2rem',
+          backgroundColor: getTokenColor(token),
+          borderRadius: '0.15rem'
+        }} />
+        
+        <div style={{ 
+          fontSize: '4.5rem', 
+          color: '#fff', 
+          fontFamily: 'Hahmlet, serif',
+          marginBottom: '1rem',
+          textAlign: 'center'
+        }}>
+          {token?.surface}
+        </div>
+        
+        <div style={{ 
+          fontSize: '2.2rem', 
+          color: 'rgba(255,255,255,0.8)',
+          textAlign: 'center',
+          marginBottom: '1.5rem'
+        }}>
+          {token?.romanization}
+        </div>
+        
+        <div style={{ 
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '1rem',
+          marginBottom: '1.5rem'
+        }}>
+          <span style={badgeStyle(secondary)}>{token?.pos}</span>
+          <span style={badgeStyle(getTokenColor(token))}>{token?.role}</span>
+        </div>
+        
+        {token?.gloss_en && (
+          <div style={{ 
+            fontSize: '2.4rem', 
+            color: '#e5e7eb', 
+            textAlign: 'center',
+            marginBottom: '1rem',
+            fontWeight: 600
+          }}>
+            {token.gloss_en}
+          </div>
+        )}
+        
+        {token?.morphology && Object.keys(token.morphology).length > 0 && (
+          <div style={{ 
+            fontSize: '1.8rem', 
+            color: 'rgba(255,255,255,0.75)',
+            textAlign: 'center',
+            marginBottom: '1rem'
+          }}>
+            {Object.entries(token.morphology).map(([key, value]) => (
+              `${key}: ${value}`
+            )).join(' • ')}
+          </div>
+        )}
+        
+        {token?.notes && (
+          <div style={{ 
+            fontSize: '1.6rem', 
+            color: 'rgba(255,255,255,0.75)',
+            textAlign: 'center',
+            fontStyle: 'italic'
+          }}>
+            {token.notes}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <html>
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: fontCSS }} />
+      </head>
+      <body style={{ margin: 0, padding: 0 }}>
+        <div style={containerStyle}>
+          <div style={contentStyle}>{renderTokenAnalysis()}</div>
+          <div style={progressContainerStyle}>
+            {Array.from({ length: totalSlides }).map((_, i) => (
+              <div key={i} style={progressDotStyle(i === slideNumber)} />
+            ))}
+          </div>
+        </div>
+      </body>
+    </html>
+  );
+};
+
+export function renderSentenceAnalysisToHTML(analysis: any) {
+  const tokens = analysis?.tokens || [];
+  console.log(`[TEMPLATE] Rendering ${tokens.length} token slides for sentence analysis`);
+  console.log(`[TEMPLATE] Tokens:`, tokens.map((t: any) => t.surface).join(', '));
+  
+  // Generate one slide per token
+  const slides = tokens.map((token: any, index: number) => {
+    console.log(`[TEMPLATE] Rendering slide ${index + 1} for token: ${token.surface}`);
+    return ReactDOMServer.renderToString(
+      <SentenceAnalysisSlide
+        analysis={analysis}
+        token={token}
+        tokenIndex={index}
+        slideNumber={index}
+        totalSlides={tokens.length}
+      />
+    );
+  });
+  
+  console.log(`[TEMPLATE] Generated ${slides.length} slides total`);
+  return slides;
 }

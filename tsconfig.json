@@ -4,6 +4,10 @@
       "module": "ESNext",
       "lib": ["ES2020", "DOM", "DOM.Iterable"],
       "moduleResolution": "node",
+      "baseUrl": ".",
+      "paths": {
+        "@shared/*": ["shared/*"]
+      },
       "allowSyntheticDefaultImports": true,
       "esModuleInterop": true,
       "allowImportingTsExtensions": true,

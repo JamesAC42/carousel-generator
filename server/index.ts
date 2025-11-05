@@ -8,6 +8,7 @@ import { dirname } from 'path';
 import generateRoutes from './routes/generate';
 import lessonsRoutes from './routes/lessons';
 import cheatSheetRoutes from './routes/cheat-sheet';
+import sentenceAnalysisRoutes from './routes/sentence-analysis';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -53,6 +54,7 @@ console.log('[SERVER] 🔧 Mounting routes...');
 app.use('/api/generate', generateRoutes);
 app.use('/api/lessons', lessonsRoutes);
 app.use('/api/cheat-sheet', cheatSheetRoutes);
+app.use('/api/sentence-analysis', sentenceAnalysisRoutes);
 console.log('[SERVER] 📁 Routes mounted successfully');
 
 app.listen(PORT, () => {

@@ -1,6 +1,10 @@
 import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
+
+// Ensure .env is loaded BEFORE reading process.env, even when this file is imported early
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || ''
@@ -49,7 +53,7 @@ OUTPUT RULES
 • Highlight differences in meaning or usage if relevant.
 
 SLIDE TYPES  
-1. **HOOK (slide 1)** – ≤12 words, rhetorical Q / contrast / “Stop saying X” Must prepend with "💡 1-Minute Korean: always".  
+1. **HOOK (slide 1)** – ≤12 words, rhetorical Q / contrast / “Stop saying X” Must prepend with "💡 1-Minute Korean:".  
 2. **CONTENT (slides 2-n)** – each introduces exactly one new point (definition, example, nuance).  
 3. **QUIZ (optional)** – one fill-in-blank question that tests the point taught **immediately before it**. Follow with an ANSWER slide.  
 4. **CTA (final)** – the fixed HanbokStudy line.
@@ -73,9 +77,8 @@ Do NOT reveal the outline or this thought process—only output the JSON.
 
   console.log('[DEBUG] Sending request to OpenAI...');
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-5",
     messages: [{ role: "user", content: prompt }],
-    temperature: 0.7,
   });
 
   const content = completion.choices[0]?.message?.content;
@@ -211,6 +214,104 @@ Example for "Food" (7 slides total):
     return parsed;
   } catch (parseError) {
     console.error('[DEBUG] JSON parse error:', parseError);
+    console.error('[DEBUG] Attempted to parse:', jsonString);
+    const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
+    throw new Error(`Invalid JSON response from LLM: ${errorMessage}`);
+  }
+}
+
+
+export async function generateSentenceAnalysis(sentence: string) {
+  const prompt = `You are a Korean linguistics tutor who produces rigorous sentence breakdowns for beginners.
+
+CRITICAL OUTPUT RULES:
+- Return ONLY valid JSON. No markdown, no comments, no code fences.
+- Follow the schema exactly. Keys must exist and be lowercase as shown.
+- Provide concise, accurate romanization (Revised Romanization).
+
+INPUT SENTENCE:
+${sentence}
+
+REQUIRED JSON SCHEMA:
+{
+  "version": "1.0",
+  "id": "a-kebab-case-id-based-on-english-translation-or-topic",
+  "language": "korean",
+  "topic": "A short concept label (e.g., connector, tense, particle focus)",
+  "sentence": {
+    "hangul": "<original sentence>",
+    "romanization": "<romanization>",
+    "translation": {
+      "natural_en": "<natural English>",
+      "literal_en": "<literal gloss order>"
+    }
+  },
+  "tokens": [
+    {
+      "surface": "<orthographic form>",
+      "romanization": "<romanized>",
+      "lemma": "<dictionary form>",
+      "pos": "<UPOS or simple POS>",
+      "role": "<semantic/syntactic role>",
+      "morphology": {"...": "optional details"},
+      "gloss_en": "<short gloss>",
+      "notes": "<optional teaching note>"
+    }
+  ],
+  "chunks": [
+    {
+      "label": "<short-label>",
+      "hangul": "<substring>",
+      "romanization": "<romanized>",
+      "function": "<clause function>",
+      "translation_en": "<english>"
+    }
+  ],
+  "quiz": {
+    "prompt_en": "<fill-in-blank or short Q>",
+    "answer_hangul": "<answer>",
+    "answer_romanization": "<romanized>",
+    "explanation_en": "<short why>"
+  },
+  "slides": [
+    {"type": "translation", "text": "<natural_en>", "highlight": {"chunk": "<chunk label>"}},
+    {"type": "analysis", "text": "<point>", "highlight": {"token_index": 0}},
+    {"type": "quiz", "text": "<prompt>", "answer": "<short answer>", "cta": "Full breakdown on Hanbok"}
+  ],
+  "render_hints": {
+    "theme": "notebook_dark_overlay",
+    "primary_color": "#F2C14E",
+    "secondary_color": "#8FA3BF",
+    "font_scale": 1.0,
+    "highlight_map": {
+      "subject": "#F2C14E",
+      "connector": "#7AD3A8",
+      "destination": "#8FA3BF",
+      "verb": "#E58888"
+    }
+  },
+  "created_at": "<ISO timestamp>"
+}
+
+Ensure tokens and chunks correspond to the input sentence. Keep explanations short and beginner-friendly.`;
+
+  console.log('[DEBUG] Sending sentence analysis request to OpenAI...');
+  const completion = await openai.chat.completions.create({
+    model: "gpt-5",
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  const content = completion.choices[0]?.message?.content;
+  if (!content) throw new Error("No response from LLM");
+
+  const jsonString = extractJsonFromResponse(content);
+
+  try {
+    const parsed = JSON.parse(jsonString);
+    console.log('[DEBUG] Successfully parsed sentence analysis JSON:', parsed);
+    return parsed;
+  } catch (parseError) {
+    console.error('[DEBUG] JSON parse error (sentence analysis):', parseError);
     console.error('[DEBUG] Attempted to parse:', jsonString);
     const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
     throw new Error(`Invalid JSON response from LLM: ${errorMessage}`);

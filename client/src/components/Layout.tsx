@@ -9,10 +9,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const isLesson = location.pathname.startsWith('/generate/lesson');
   const isCheat = location.pathname.startsWith('/generate/cheat-sheet');
+  const isSentence = location.pathname.startsWith('/generate/sentence');
 
   // Monochrome accents per mode (hover is darker for better contrast)
-  const accent = isLesson ? '#9AA4B2' : isCheat ? '#B0B0B0' : '#9AA4B2';
-  const accentHover = isLesson ? '#6b7480' : isCheat ? '#8a8a8a' : '#6b7480';
+  const accent = isLesson ? '#9AA4B2' : isCheat ? '#B0B0B0' : isSentence ? '#A3D9A5' : '#9AA4B2';
+  const accentHover = isLesson ? '#6b7480' : isCheat ? '#8a8a8a' : isSentence ? '#6FB773' : '#6b7480';
 
   return (
     <div
@@ -51,6 +52,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 className={({ isActive }) => `nb-nav ${isActive ? 'nb-nav--active' : ''}`}
               >
                 Cheat Sheet
+              </NavLink>
+              <NavLink
+                to="/generate/sentence"
+                className={({ isActive }) => `nb-nav ${isActive ? 'nb-nav--active' : ''}`}
+              >
+                Sentence Analysis
               </NavLink>
             </nav>
           </div>

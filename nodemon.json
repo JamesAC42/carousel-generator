@@ -1,5 +1,8 @@
 {
-    "exec": "node --loader ts-node/esm --experimental-specifier-resolution=node",
-    "watch": ["server"],
-    "ext": "ts"
+  "exec": "node --require dotenv/config --loader ts-node/esm --experimental-specifier-resolution=node",
+  "watch": ["server"],
+  "ext": "ts",
+  "env": {
+    "DOTENV_CONFIG_PATH": ".env"
   }
+}
