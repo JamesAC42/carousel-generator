@@ -49,7 +49,11 @@ router.get('/:id', (req, res) => {
     episodeNumber: metadata.episodeNumber || 1,
     type: metadata.type || 'lesson',
     slides,
-    assets: metadata.assets || []
+    assets: metadata.assets || [],
+    caption: metadata.caption,
+    bioLink: metadata.bioLink,
+    hooks: metadata.hooks,
+    altCovers: (metadata.altCovers || []).map((f: string) => `/output/${id}/${f}`)
   });
 });
 

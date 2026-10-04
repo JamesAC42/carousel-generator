@@ -17,6 +17,13 @@ interface LessonLibraryProps {
 
 export const LessonLibrary: React.FC<LessonLibraryProps> = ({ lessons }) => {
   const [selected, setSelected] = useState<Lesson | null>(null);
+  const [detail, setDetail] = useState<{ caption?: string; bioLink?: string; altCovers?: string[] } | null>(null);
+
+  useEffect(() => {
+    setDetail(null);
+    if (!selected || selected.type !== 'line-breakdown') return;
+    fetch(`/api/lessons/${selected.id}`).then(r => r.json()).then(setDetail).catch(() => {});
+  }, [selected]);
 
   return (
     <>
@@ -78,6 +85,19 @@ export const LessonLibrary: React.FC<LessonLibraryProps> = ({ lessons }) => {
                   className="w-full"
                 />
               ))}
+              {detail?.altCovers?.map((src, i) => (
+                <div key={src}>
+                  <p className="nb-label mb-2">Alternate cover {i + 1}</p>
+                  <img src={src} alt={`Alternate cover ${i + 1}`} className="w-full" />
+                </div>
+              ))}
+              {detail?.caption && (
+                <div>
+                  <p className="nb-label mb-2">Caption</p>
+                  <textarea readOnly className="nb-input w-full h-32" value={detail.caption} />
+                  <p className="text-sm nb-muted mt-2">Bio link for this account: {detail.bioLink}</p>
+                </div>
+              )}
             </div>
             <button
               onClick={() => setSelected(null)}

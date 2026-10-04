@@ -6,6 +6,11 @@ import {
   ClassicLessonSlideDocument,
   ClassicLessonSlideData
 } from '../../shared/templates/classicLesson.tsx';
+import {
+  LineBreakdownSlideDocument,
+  LineBreakdownData,
+  lineBreakdownSlides
+} from '../../shared/templates/lineBreakdown.tsx';
 
 // Helper function to convert image to base64
 function imageToBase64(imagePath: string): string {
@@ -729,4 +734,19 @@ export function renderSentenceAnalysisToHTML(analysis: any) {
   
   console.log(`[TEMPLATE] Generated ${slides.length} slides total`);
   return slides;
+}
+// "What they actually said" carousel. Returns the main slides (first hook as the cover)
+// plus one alternate cover per extra hook, for A/B testing across posts or accounts.
+export function renderLineBreakdownToHTML(data: LineBreakdownData, hooks: string[]) {
+  const fontCSS = generateFontCSS();
+  const slides = lineBreakdownSlides(hooks[0]);
+  const render = (slide: (typeof slides)[number], index: number) =>
+    ReactDOMServer.renderToString(
+      <LineBreakdownSlideDocument slide={slide} data={data} index={index} total={slides.length} fontCSS={fontCSS} />
+    );
+
+  return {
+    slides: slides.map(render),
+    altCovers: hooks.slice(1).map(hook => render({ kind: 'hook', hook }, 0))
+  };
 }

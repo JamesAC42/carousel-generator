@@ -59,6 +59,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 Sentence Analysis
               </NavLink>
+              <NavLink
+                to="/generate/line"
+                className={({ isActive }) => `nb-nav ${isActive ? 'nb-nav--active' : ''}`}
+              >
+                What They Said
+              </NavLink>
             </nav>
           </div>
         </header>
