@@ -9,6 +9,8 @@ import {
 import {
   LineBreakdownSlideDocument,
   LineBreakdownData,
+  LineBreakdownAssets,
+  LineBreakdownStyle,
   lineBreakdownSlides
 } from '../../shared/templates/lineBreakdown.tsx';
 
@@ -37,13 +39,15 @@ function fontToBase64(fontPath: string): string {
 }
 
 // Generate CSS for embedded fonts
-function generateFontCSS(): string {
+function generateFontCSS(only?: string[]): string {
   const fontsDir = 'assets/fonts';
   let fontCSS = '';
   
   try {
     if (fs.existsSync(fontsDir)) {
-      const fontFiles = fs.readdirSync(fontsDir).filter(f => f.match(/\.(ttf|otf)$/i));
+      const fontFiles = fs.readdirSync(fontsDir)
+        .filter(f => f.match(/\.(ttf|otf)$/i))
+        .filter(f => !only || only.includes(path.basename(f, path.extname(f))));
       
       fontFiles.forEach(fontFile => {
         const fontPath = path.join(fontsDir, fontFile);
@@ -737,12 +741,31 @@ export function renderSentenceAnalysisToHTML(analysis: any) {
 }
 // "What they actually said" carousel. Returns the main slides (first hook as the cover)
 // plus one alternate cover per extra hook, for A/B testing across posts or accounts.
-export function renderLineBreakdownToHTML(data: LineBreakdownData, hooks: string[]) {
-  const fontCSS = generateFontCSS();
-  const slides = lineBreakdownSlides(hooks[0]);
+const LINE_BREAKDOWN_FONTS: Record<LineBreakdownStyle, string[]> = {
+  storybook: ['TikTokSans', 'Jua'],
+  variety: ['LilitaOne', 'BlackHanSans', 'Jua'],
+  notes: ['Caveat', 'NanumPenScript', 'Jua']
+};
+
+function loadImageDir(dir: string): Record<string, string> {
+  if (!fs.existsSync(dir)) return {};
+  return Object.fromEntries(
+    fs.readdirSync(dir)
+      .filter(f => f.match(/\.(png|jpe?g)$/i))
+      .map(f => [path.basename(f, path.extname(f)), imageToBase64(path.join(dir, f))])
+  );
+}
+
+export function renderLineBreakdownToHTML(data: LineBreakdownData, hooks: string[], style: LineBreakdownStyle = 'storybook') {
+  const fontCSS = generateFontCSS(LINE_BREAKDOWN_FONTS[style] || LINE_BREAKDOWN_FONTS.storybook);
+  const assets: LineBreakdownAssets = {
+    backgrounds: loadImageDir('assets/line-breakdown/backgrounds'),
+    characters: loadImageDir('assets/line-breakdown/characters')
+  };
+  const slides = lineBreakdownSlides(hooks[0], data.parts.length);
   const render = (slide: (typeof slides)[number], index: number) =>
     ReactDOMServer.renderToString(
-      <LineBreakdownSlideDocument slide={slide} data={data} index={index} total={slides.length} fontCSS={fontCSS} />
+      <LineBreakdownSlideDocument style={style} slide={slide} data={data} assets={assets} index={index} fontCSS={fontCSS} />
     );
 
   return {

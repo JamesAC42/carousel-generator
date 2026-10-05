@@ -10,6 +10,7 @@ export const LineBreakdown: React.FC<LineBreakdownProps> = ({ onGenerate }) => {
   const [source, setSource] = useState('');
   const [language, setLanguage] = useState('korean');
   const [account, setAccount] = useState(ACCOUNTS[0].id);
+  const [style, setStyle] = useState('storybook');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -44,7 +45,7 @@ export const LineBreakdown: React.FC<LineBreakdownProps> = ({ onGenerate }) => {
     const response = await fetch('/api/line-breakdown', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ line: line.trim(), source, language, account })
+      body: JSON.stringify({ line: line.trim(), source, language, account, style })
     });
     if (response.ok) setLoading(true);
     else setError(`Request failed: ${response.status}`);
@@ -61,7 +62,7 @@ export const LineBreakdown: React.FC<LineBreakdownProps> = ({ onGenerate }) => {
         <input className="nb-input" value={source} onChange={e => setSource(e.target.value)} placeholder="e.g. Squid Game, NewJeans – Ditto" />
         <p className="text-sm nb-muted mt-2">Quote the line as text only. Don't use clips or screenshots from the show.</p>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div>
           <label className="nb-label mb-2 block">Language</label>
           <select className="nb-input" value={language} onChange={e => setLanguage(e.target.value)}>
@@ -73,6 +74,14 @@ export const LineBreakdown: React.FC<LineBreakdownProps> = ({ onGenerate }) => {
           <label className="nb-label mb-2 block">Account</label>
           <select className="nb-input" value={account} onChange={e => setAccount(e.target.value)}>
             {ACCOUNTS.map(a => <option key={a.id} value={a.id}>{a.label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="nb-label mb-2 block">Style</label>
+          <select className="nb-input" value={style} onChange={e => setStyle(e.target.value)}>
+            <option value="storybook">Storybook (Hanbok art)</option>
+            <option value="variety">Variety-show captions</option>
+            <option value="notes">Study notes</option>
           </select>
         </div>
       </div>

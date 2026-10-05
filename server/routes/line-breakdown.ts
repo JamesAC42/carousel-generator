@@ -5,6 +5,7 @@ import { generateLineBreakdown } from '../utils/llm';
 import { renderLineBreakdownToHTML } from '../utils/template';
 import { renderHTMLToPNG } from '../utils/render';
 import { getAccount, bioLink } from '../../shared/accounts';
+import { LINE_BREAKDOWN_STYLES, LineBreakdownStyle } from '../../shared/templates/lineBreakdown';
 
 const router = express.Router();
 
@@ -19,11 +20,12 @@ function makeId(line: string): string {
 }
 
 router.post('/', async (req, res) => {
-  const { line, source = '', language = 'korean', account: accountId } = req.body || {};
+  const { line, source = '', language = 'korean', account: accountId, style: requestedStyle } = req.body || {};
   if (!line || typeof line !== 'string') {
     return res.status(400).json({ error: 'Missing line' });
   }
 
+  const style: LineBreakdownStyle = LINE_BREAKDOWN_STYLES.includes(requestedStyle) ? requestedStyle : 'storybook';
   const id = makeId(line);
   res.status(202).json({ id, status: 'processing' });
 
@@ -31,7 +33,7 @@ router.post('/', async (req, res) => {
     const breakdown = await generateLineBreakdown(line, source, language);
     const account = getAccount(accountId);
     const data = { ...breakdown, source: source.trim() };
-    const { slides, altCovers } = renderLineBreakdownToHTML(data, breakdown.hooks);
+    const { slides, altCovers } = renderLineBreakdownToHTML(data, breakdown.hooks, style);
 
     const outputDir = path.join('output', id);
     fs.mkdirSync(outputDir, { recursive: true });
@@ -62,6 +64,7 @@ router.post('/', async (req, res) => {
         altCovers: altCoverFiles,
         caption,
         account: account.id,
+        style,
         bioLink: bioLink(account),
         language,
         type: 'line-breakdown',

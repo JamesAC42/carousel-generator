@@ -11,7 +11,7 @@ export const LineBreakdownGenerator: React.FC = () => {
     <>
       <section className="nb-card px-6 py-6 animate-fade-in-up">
         <h2 className="text-xl font-bold mb-4">🎬 What They Actually Said</h2>
-        <p className="nb-muted mb-6">Break down a real line from a drama, song or meme. Makes 6 slides, 2 alternate hook covers and a caption.</p>
+        <p className="nb-muted mb-6">Break down a real line from a drama, song or meme. One slide per piece of the line, 2 alternate hook covers and a caption.</p>
         <LineBreakdown onGenerate={refreshLessons} />
       </section>
       <section className="nb-card px-6 py-6 animate-fade-in-up" style={{animationDelay: '60ms'}}>

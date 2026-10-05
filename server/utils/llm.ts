@@ -347,10 +347,10 @@ RULES
 - Return ONLY valid JSON matching the schema. No markdown, no code fences.
 - Be accurate. If you are unsure of the source context, describe the line generically instead of inventing plot details.
 - "common_translation" is the short, flattened English a subtitle would typically give. Do not claim it is the official subtitle.
-- "nuance" explains what that translation loses (tone, politeness level, slang, wordplay). If nothing is lost, explain the most interesting grammar instead. Max 30 words.
-- "parts" splits the line, in order, into 2 to 5 meaningful chunks (word + particle or ending together). Together they must cover the whole line.
+- "nuance" explains what that translation loses (tone, politeness level, slang, wordplay). If nothing is lost, explain the most interesting grammar instead. Max 16 words, conversational.
+- "parts" splits the line, in order, into 2 to 4 meaningful chunks (word + particle or ending together). Together they must cover the whole line. Each part becomes its own slide.
 - Romanization uses ${romanizationName}.
-- "hooks": 3 different first-slide hooks, each at most 10 words, each a different angle:
+- "hooks": 3 different first-slide hooks, each at most 8 words, each a different angle:
   1. the translation misses something ("Subtitles got this line wrong")
   2. curiosity about the source ("What [character/artist] really said here")
   3. a learner pain ("You've heard this 100 times. Here's what it means")
@@ -371,9 +371,9 @@ SCHEMA
     "natural": "<what it really conveys, natural English>"
   },
   "parts": [
-    { "native": "<chunk>", "romanization": "<romanized>", "meaning": "<short gloss, max 6 words>", "note": "<optional, max 12 words>" }
+    { "native": "<chunk>", "romanization": "<romanized>", "meaning": "<short gloss, max 4 words>", "note": "<optional, max 8 words, casual tone>" }
   ],
-  "nuance": "<max 30 words>",
+  "nuance": "<max 16 words>",
   "use_it": { "native": "<sentence>", "romanization": "<romanized>", "english": "<english>" },
   "caption": "<caption>",
   "hashtags": ["#tag"]
