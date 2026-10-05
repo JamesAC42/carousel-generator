@@ -19,13 +19,29 @@ function makeId(line: string): string {
   return `line-${slug || 'x'}-${Date.now()}`;
 }
 
+// "rotate" picks the style used least so far, so an A/B test across styles stays even.
+function leastUsedStyle(): LineBreakdownStyle {
+  const counts = Object.fromEntries(LINE_BREAKDOWN_STYLES.map(s => [s, 0])) as Record<LineBreakdownStyle, number>;
+  if (fs.existsSync('output')) {
+    for (const dir of fs.readdirSync('output')) {
+      const metadataPath = path.join('output', dir, 'metadata.json');
+      if (!fs.existsSync(metadataPath)) continue;
+      try {
+        const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+        if (metadata.type === 'line-breakdown' && metadata.style in counts) counts[metadata.style as LineBreakdownStyle]++;
+      } catch {}
+    }
+  }
+  return LINE_BREAKDOWN_STYLES.reduce((min, s) => (counts[s] < counts[min] ? s : min));
+}
+
 router.post('/', async (req, res) => {
   const { line, source = '', language = 'korean', account: accountId, style: requestedStyle } = req.body || {};
   if (!line || typeof line !== 'string') {
     return res.status(400).json({ error: 'Missing line' });
   }
 
-  const style: LineBreakdownStyle = LINE_BREAKDOWN_STYLES.includes(requestedStyle) ? requestedStyle : 'storybook';
+  const style: LineBreakdownStyle = LINE_BREAKDOWN_STYLES.includes(requestedStyle) ? requestedStyle : leastUsedStyle();
   const id = makeId(line);
   res.status(202).json({ id, status: 'processing' });
 
@@ -51,7 +67,7 @@ router.post('/', async (req, res) => {
     const caption = `${breakdown.caption}\n\n${hashtags.join(' ')}`;
     fs.writeFileSync(
       path.join(outputDir, 'caption.txt'),
-      `${caption}\n\n---\nAccount: ${account.label}\nBio link: ${bioLink(account)}\nHooks:\n${breakdown.hooks.map((h, i) => `${i + 1}. ${h}`).join('\n')}\n`
+      `${caption}\n\n---\nAccount: ${account.label}\nStyle: ${style}\nBio link: ${bioLink(account)}\nHooks:\n${breakdown.hooks.map((h, i) => `${i + 1}. ${h}`).join('\n')}\n`
     );
 
     fs.writeFileSync(

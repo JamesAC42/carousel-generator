@@ -10,7 +10,7 @@ export const LineBreakdown: React.FC<LineBreakdownProps> = ({ onGenerate }) => {
   const [source, setSource] = useState('');
   const [language, setLanguage] = useState('korean');
   const [account, setAccount] = useState(ACCOUNTS[0].id);
-  const [style, setStyle] = useState('storybook');
+  const [style, setStyle] = useState('rotate');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -79,6 +79,7 @@ export const LineBreakdown: React.FC<LineBreakdownProps> = ({ onGenerate }) => {
         <div>
           <label className="nb-label mb-2 block">Style</label>
           <select className="nb-input" value={style} onChange={e => setStyle(e.target.value)}>
+            <option value="rotate">Rotate (A/B test all three)</option>
             <option value="storybook">Storybook (Hanbok art)</option>
             <option value="variety">Variety-show captions</option>
             <option value="notes">Study notes</option>

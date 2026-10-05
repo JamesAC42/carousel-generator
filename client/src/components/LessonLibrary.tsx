@@ -9,6 +9,7 @@ interface Lesson {
   language: string;
   episodeNumber: number;
   type: string; // 'lesson' or 'cheat-sheet'
+  style?: string;
 }
 
 interface LessonLibraryProps {
@@ -55,7 +56,9 @@ export const LessonLibrary: React.FC<LessonLibraryProps> = ({ lessons }) => {
             </div>
             <h3 className="mt-2 font-semibold">{lesson.title || lesson.topic}</h3>
             <p className="nb-muted">
-              {lesson.type === 'cheat-sheet' ? (
+              {lesson.type === 'line-breakdown' ? (
+                `${lesson.style || 'storybook'} style • ${lesson.slides} slides`
+              ) : lesson.type === 'cheat-sheet' ? (
                 `📋 Cheat Sheet • ${lesson.slides} slides • ${lesson.language === 'japanese' ? 'Japanese' : 'Korean'}`
               ) : (
                 `Ep. ${lesson.episodeNumber || 1} • ${lesson.slides} slides • ${lesson.language === 'japanese' ? 'Japanese' : 'Korean'}`
