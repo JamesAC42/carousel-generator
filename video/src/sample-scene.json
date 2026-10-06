@@ -1,0 +1,20 @@
+{
+  "hook": "My friend said 우리는 깐부잖아 and took my chicken",
+  "slides": ["sample/slides/slide-1.jpg", "sample/slides/slide-2.jpg", "sample/slides/slide-3.jpg", "sample/slides/slide-4.jpg", "sample/slides/slide-5.jpg", "sample/slides/slide-6.jpg", "sample/slides/slide-7.jpg", "sample/slides/slide-8.jpg"],
+  "characters": {
+    "learner": { "name": "Sora", "side": "left", "expressions": { "neutral": "sample/characters/reading.png", "confused": "sample/characters/thinking.png", "surprised": "sample/characters/thinking.png", "happy": "sample/characters/music.png" } },
+    "tutor": { "name": "Kkachi", "side": "right", "expressions": { "neutral": "sample/characters/magpie.png" } }
+  },
+  "beats": [
+    { "speaker": "learner", "expression": "confused", "slide": 0, "text": "My friend said 우리는 깐부잖아 and walked off with my chicken." },
+    { "speaker": "tutor", "expression": "smug", "slide": 0, "text": "Ah. You got 깐부'd." },
+    { "speaker": "learner", "expression": "confused", "slide": 1, "text": "Netflix said it means \"we're friends, right?\"" },
+    { "speaker": "tutor", "expression": "explaining", "slide": 2, "text": "Not quite. 우리는 is \"as for us\"." },
+    { "speaker": "tutor", "expression": "explaining", "slide": 3, "text": "깐부 is kids' slang for your marble partner. You share everything." },
+    { "speaker": "tutor", "expression": "explaining", "slide": 4, "text": "And 잖아 means \"you know\". It reminds you of a promise." },
+    { "speaker": "learner", "expression": "surprised", "slide": 5, "text": "So it's a guilt trip!" },
+    { "speaker": "tutor", "expression": "happy", "slide": 5, "text": "Exactly. \"We're ride-or-die, remember?\"" },
+    { "speaker": "tutor", "expression": "happy", "slide": 6, "text": "Try it: 내일 시험이잖아. The test is tomorrow, you know!" },
+    { "speaker": "learner", "expression": "happy", "slide": 7, "text": "Paste any line into Hanbok for a breakdown like this." }
+  ]
+}
