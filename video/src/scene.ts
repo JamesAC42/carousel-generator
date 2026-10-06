@@ -52,7 +52,11 @@ export interface Scene {
   characters: Record<Speaker, Character>;
   background?: string;
   gameplay?: string;
+  /** Screen recording of the site played in the slide card during the CTA, e.g. public/broll/site-cta.mp4. */
+  ctaBroll?: { src: string; seconds: number };
 }
+
+export const DEFAULT_CTA_BROLL = { src: 'broll/site-cta.mp4', seconds: 7.7 };
 
 // The line breakdown the carousel generator writes to output/<id>/metadata.json.
 export interface LineBreakdown {
@@ -147,5 +151,14 @@ export function timingsFromAlignment(text: string, a: Alignment, offset: number)
 
 export function sceneDuration(scene: Scene): number {
   const last = scene.beats[scene.beats.length - 1];
-  return (last ? last.end : 0) + 1.2;
+  const end = (last ? last.end : 0) + 1.2;
+  // Let the site b-roll finish (it ends on the hanbokstudy.com card) after the last line.
+  const start = ctaStart(scene);
+  return scene.ctaBroll && start !== undefined ? Math.max(end, start + scene.ctaBroll.seconds) : end;
+}
+
+/** When the CTA slide comes on screen, if the scene has one. */
+export function ctaStart(scene: Scene): number | undefined {
+  const index = scene.slides.findIndex(s => typeof s !== 'string' && s.kind === 'cta');
+  return scene.beats.find(b => b.slide === index)?.start;
 }

@@ -6,7 +6,7 @@
 // Needs GEMINI_API_KEY (in cloud sessions the proxy injects it).
 import fs from 'fs';
 import path from 'path';
-import { slidesFromBreakdown } from '../src/scene.ts';
+import { DEFAULT_CTA_BROLL, slidesFromBreakdown } from '../src/scene.ts';
 
 const MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 
@@ -123,7 +123,7 @@ if (missing.length) console.warn(`Warning: no beat for slide(s) ${missing.join('
 
 const base = path.basename(inFile) === 'metadata.json' ? path.basename(path.dirname(path.resolve(inFile))) : path.basename(inFile, '.json');
 const id = base.replace(/[^\w-]/g, '') || `scene-${Date.now()}`;
-const scene = { id, hook: slides[0].text, slides, characters: cast, background: 'art/palace.jpg', beats };
+const scene = { id, hook: slides[0].text, slides, characters: cast, background: 'art/palace.jpg', ctaBroll: DEFAULT_CTA_BROLL, beats };
 fs.mkdirSync(path.dirname(outFile), { recursive: true });
 fs.writeFileSync(outFile, JSON.stringify(scene, null, 2));
 console.log(beats.map(b => `[${b.slide}] ${cast[b.speaker].name} (${b.expression}): ${b.text}`).join('\n'));

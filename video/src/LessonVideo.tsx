@@ -3,8 +3,8 @@ import {
   AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, continueRender, delayRender,
   staticFile, useCurrentFrame, useVideoConfig
 } from 'remotion';
-import { Beat, Scene, Speaker } from './scene';
-import { SlideCard } from './Slides';
+import { Beat, Scene, Speaker, ctaStart } from './scene';
+import { CARD, SlideCard } from './Slides';
 
 // 1080x1920 layout, top to bottom: slide card, characters, dialogue box, gameplay.
 // TikTok covers the top ~130px, the bottom ~300px and the right ~150px with its UI,
@@ -103,6 +103,13 @@ const Gameplay: React.FC<{ src?: string; t: number }> = ({ src, t }) => (
   </div>
 );
 
+// The CTA shows the site itself: a screen recording in the slide card, ending on the URL card.
+const CtaBroll: React.FC<{ src: string }> = ({ src }) => (
+  <div style={{ position: 'absolute', top: CARD.top, left: CARD.left, right: CARD.right, aspectRatio: '16 / 9', borderRadius: 26, overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.35)', background: '#fff' }}>
+    <OffthreadVideo src={staticFile(src)} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+  </div>
+);
+
 export const LessonVideo: React.FC<{ scene: Scene }> = ({ scene }) => {
   useFonts();
   const frame = useCurrentFrame();
@@ -111,11 +118,15 @@ export const LessonVideo: React.FC<{ scene: Scene }> = ({ scene }) => {
   const beat = beatAt(scene.beats, t);
   const slideIndex = Math.min(beat?.slide ?? 0, scene.slides.length - 1);
   const slideSince = t - (scene.beats.find(b => b.slide === beat?.slide)?.start ?? 0);
+  const brollStart = ctaStart(scene);
+  const broll = brollStart !== undefined ? scene.ctaBroll : undefined;
 
   return (
     <AbsoluteFill style={{ background: '#000' }}>
       <Backdrop src={scene.background} />
-      {scene.slides[slideIndex] && <SlideCard key={slideIndex} slide={scene.slides[slideIndex]} since={slideSince} fps={fps} />}
+      {broll && t >= brollStart! ? (
+        <Sequence from={Math.round(brollStart! * fps)} layout="none"><CtaBroll src={broll.src} /></Sequence>
+      ) : scene.slides[slideIndex] && <SlideCard key={slideIndex} slide={scene.slides[slideIndex]} since={slideSince} fps={fps} />}
       <CharacterSprite scene={scene} who="learner" beat={beat} t={t} />
       <CharacterSprite scene={scene} who="tutor" beat={beat} t={t} />
       {beat && <DialogueBox scene={scene} beat={beat} t={t} />}
