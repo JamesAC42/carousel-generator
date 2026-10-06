@@ -28,3 +28,16 @@ npm run render -- out/<name>.json out/<name>.mp4
 - Keys: `GEMINI_API_KEY` and `ELEVENLABS_API_KEY`. In a cloud session behind the agent proxy,
   run node with `NODE_USE_ENV_PROXY=1` so `fetch` goes through it, and
   `CHROME_PATH=<headless_shell>` for rendering.
+
+## Publishing to the Drive outbox
+
+`npm run lesson -- <metadata.json> --gameplay <clip> --publish` (or `node scripts/publish.mjs out/<id>`)
+uploads `video.mp4`, `caption.txt` and `post.json` to `Hanbok TikTok outbox/<date>-<id>/` in Google
+Drive and adds the post to `index.json` there, newest first. The posting agent reads `index.json`,
+posts each new folder's video with its caption to the account in `post.json`, and keeps its own
+record of posted ids. Publishing refuses videos that still use the placeholder gameplay or art.
+
+Needs `GDRIVE_CLIENT_ID`, `GDRIVE_CLIENT_SECRET` and `GDRIVE_REFRESH_TOKEN`: an OAuth client
+(Google Cloud Console, Drive API enabled) and a refresh token for the `drive.file` scope, e.g. from
+the OAuth Playground with "Use your own OAuth credentials". Publish the consent screen to
+production, or Google expires the refresh token after 7 days.
