@@ -7,7 +7,8 @@
     "script": "node --experimental-strip-types scripts/write-script.mjs",
     "narrate": "node --experimental-strip-types scripts/narrate.mjs",
     "voices": "node scripts/voices.mjs",
-    "render": "node render.mjs"
+    "render": "node render.mjs",
+    "lesson": "node scripts/make-lesson.mjs"
   },
   "dependencies": {
     "@remotion/bundler": "4.0.533",

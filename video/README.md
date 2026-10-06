@@ -5,6 +5,10 @@ lesson slides, with gameplay in the bottom band. Built with Remotion.
 
 ```
 npm install
+# All of it in one go: writes out/<id>/video.mp4, caption.txt and post.json
+npm run lesson -- ../output/<id>/metadata.json [--hook N] [--gameplay <path in public/>]
+
+# Or step by step:
 # 1. Line breakdown (carousel generator output) -> scene with slides + dialogue (Gemini)
 npm run script -- ../output/<id>/metadata.json out/<name>.json [--hook N]
 # 2. Voice every line with ElevenLabs; writes real timings into the scene
