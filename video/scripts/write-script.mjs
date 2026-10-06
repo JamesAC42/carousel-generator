@@ -49,7 +49,9 @@ RULES
 - The first beat is ${learner.name}'s hook: a funny, specific everyday situation where the line confused or burned them, said in under 2 seconds of speech. It plays over slide 0. Make people want to hear the answer.
 - Then walk through every slide in order. Slide numbers never go backwards. Every slide gets at least one beat.
 - ${tutor.name} does the teaching. ${learner.name} reacts, asks the question a viewer would ask, or gets it wrong once in a funny way.
-- Each beat is at most 16 words. Total 9 to 14 beats. Spoken English, contractions, no lecture tone.
+- Each beat is at most 16 words. Total 9 to 14 beats.
+- Write it the way people talk out loud: always contract (it's, that's, you're, don't, can't, isn't, we're), short sentences, fragments are fine, casual openers like "wait", "okay so", "hold on" where they fit. Never "it is", "do not" or "you cannot" where a person would contract. No lecture tone or textbook phrasing.
+- ${learner.name} sounds like a real young person talking to a friend, not a narrator.
 - Write Korean words in Hangul exactly as on the slides, never romanized (the voice reads Hangul). Use at most one Korean phrase per beat.
 - No emoji, no stage directions in the text, no hashtags.
 - The last beat plays over the CTA slide and tells people to paste any line into Hanbok for a breakdown like this. Keep it casual.
@@ -90,6 +92,23 @@ const data = await res.json();
 const text = data.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('');
 const { beats } = JSON.parse(text);
 
+// TTS reads exactly what's written, and "it is" for "it's" sounds stiff out loud, so contract
+// anything the model left uncontracted. Only before another word: "that's what it is" stays.
+const CONTRACTIONS = [
+  [/\b(it|that|what|there|here|he|she|who|where|how) is (?=[a-z가-힯])/gi, "$1's "],
+  [/\b(you|we|they) are (?=[a-z가-힯])/gi, "$1're "],
+  [/\bI am (?=[a-z가-힯])/g, "I'm "],
+  [/\b(I|you|we|they|it|that) will (?=[a-z가-힯])/gi, "$1'll "],
+  [/\b(I|you|we|they) have (?=been|never|already|just|heard|seen)/gi, "$1've "],
+  [/\blet us\b/gi, "let's"],
+  [/\b(do|does|did|is|are|was|were|has|have|had|would|should|could) not\b/gi, "$1n't"],
+  [/\b(c)an ?not\b/gi, "$1an't"],
+  [/\b(w)ill not\b/gi, "$1on't"]
+];
+function contract(text) {
+  return CONTRACTIONS.reduce((out, [re, to]) => out.replace(re, to), text);
+}
+
 // Keep the model honest: clamp slides to range and never let them go backwards,
 // and fall back to neutral for an expression the cast doesn't have.
 let lastSlide = 0;
@@ -97,6 +116,7 @@ for (const beat of beats) {
   beat.slide = Math.min(slides.length - 1, Math.max(lastSlide, beat.slide | 0));
   lastSlide = beat.slide;
   if (!(beat.expression in cast[beat.speaker].expressions)) beat.expression = 'neutral';
+  beat.text = contract(beat.text);
 }
 const missing = slides.map((_, i) => i).filter(i => !beats.some(b => b.slide === i));
 if (missing.length) console.warn(`Warning: no beat for slide(s) ${missing.join(', ')}; they won't be shown.`);
