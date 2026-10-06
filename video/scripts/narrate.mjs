@@ -20,9 +20,9 @@ if (!sceneFile) {
   process.exit(1);
 }
 
-// { "model": "eleven_v3", "tutor": "<voice id>", "learner": "<voice id>" }
+// { "model": "eleven_v4", "tutor": "<voice id>", "learner": "<voice id>" }
 const voices = JSON.parse(fs.readFileSync(voicesFile, 'utf8'));
-const model = voices.model || 'eleven_v3';
+const model = voices.model || 'eleven_v4';
 // v3-style models take inline audio tags like [excited] and don't accept previous/next text.
 const usesTags = /eleven_v[3-9]/.test(model);
 

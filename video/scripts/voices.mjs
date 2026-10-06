@@ -2,7 +2,7 @@
 // the tutor and learner.
 //
 //   node scripts/voices.mjs                      list voices
-//   node scripts/voices.mjs --sample <id> [<id>...] [--model eleven_v3]
+//   node scripts/voices.mjs --sample <id> [<id>...] [--model eleven_v4]
 //                                                write out/voice-samples/<name>-<role>.mp3
 //
 // Each sampled voice reads one tutor line and one learner line, so it can be judged in
@@ -13,7 +13,7 @@ import path from 'path';
 const headers = { 'Content-Type': 'application/json', 'xi-api-key': process.env.ELEVENLABS_API_KEY || 'placeholder' };
 const args = process.argv.slice(2);
 const modelFlag = args.indexOf('--model');
-const model = modelFlag >= 0 ? args.splice(modelFlag, 2)[1] : 'eleven_v3';
+const model = modelFlag >= 0 ? args.splice(modelFlag, 2)[1] : 'eleven_v4';
 
 const LINES = {
   tutor: 'Ah. You got 깐부\'d. 잖아 means "you know". It reminds you of a promise.',
