@@ -9,6 +9,7 @@ import generateRoutes from './routes/generate';
 import lessonsRoutes from './routes/lessons';
 import cheatSheetRoutes from './routes/cheat-sheet';
 import sentenceAnalysisRoutes from './routes/sentence-analysis';
+import lineBreakdownRoutes from './routes/line-breakdown';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -55,6 +56,7 @@ app.use('/api/generate', generateRoutes);
 app.use('/api/lessons', lessonsRoutes);
 app.use('/api/cheat-sheet', cheatSheetRoutes);
 app.use('/api/sentence-analysis', sentenceAnalysisRoutes);
+app.use('/api/line-breakdown', lineBreakdownRoutes);
 console.log('[SERVER] 📁 Routes mounted successfully');
 
 app.listen(PORT, () => {

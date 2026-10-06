@@ -19,6 +19,7 @@ router.get('/', (req, res) => {
       language: metadata.language || 'korean', // Include language, default to korean for legacy lessons
       episodeNumber: metadata.episodeNumber || 1, // Include episode number, default to 1 for legacy lessons
       type: metadata.type || 'lesson', // Include type, default to 'lesson' for legacy lessons
+      style: metadata.style,
       createdAt: metadata.createdAt
     };
   }).filter(Boolean).sort((a, b) => {
@@ -49,7 +50,11 @@ router.get('/:id', (req, res) => {
     episodeNumber: metadata.episodeNumber || 1,
     type: metadata.type || 'lesson',
     slides,
-    assets: metadata.assets || []
+    assets: metadata.assets || [],
+    caption: metadata.caption,
+    bioLink: metadata.bioLink,
+    hooks: metadata.hooks,
+    altCovers: (metadata.altCovers || []).map((f: string) => `/output/${id}/${f}`)
   });
 });
 

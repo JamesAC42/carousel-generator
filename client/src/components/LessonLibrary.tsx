@@ -9,6 +9,7 @@ interface Lesson {
   language: string;
   episodeNumber: number;
   type: string; // 'lesson' or 'cheat-sheet'
+  style?: string;
 }
 
 interface LessonLibraryProps {
@@ -17,6 +18,13 @@ interface LessonLibraryProps {
 
 export const LessonLibrary: React.FC<LessonLibraryProps> = ({ lessons }) => {
   const [selected, setSelected] = useState<Lesson | null>(null);
+  const [detail, setDetail] = useState<{ caption?: string; bioLink?: string; altCovers?: string[] } | null>(null);
+
+  useEffect(() => {
+    setDetail(null);
+    if (!selected || selected.type !== 'line-breakdown') return;
+    fetch(`/api/lessons/${selected.id}`).then(r => r.json()).then(setDetail).catch(() => {});
+  }, [selected]);
 
   return (
     <>
@@ -48,7 +56,9 @@ export const LessonLibrary: React.FC<LessonLibraryProps> = ({ lessons }) => {
             </div>
             <h3 className="mt-2 font-semibold">{lesson.title || lesson.topic}</h3>
             <p className="nb-muted">
-              {lesson.type === 'cheat-sheet' ? (
+              {lesson.type === 'line-breakdown' ? (
+                `${lesson.style || 'storybook'} style • ${lesson.slides} slides`
+              ) : lesson.type === 'cheat-sheet' ? (
                 `📋 Cheat Sheet • ${lesson.slides} slides • ${lesson.language === 'japanese' ? 'Japanese' : 'Korean'}`
               ) : (
                 `Ep. ${lesson.episodeNumber || 1} • ${lesson.slides} slides • ${lesson.language === 'japanese' ? 'Japanese' : 'Korean'}`
@@ -78,6 +88,19 @@ export const LessonLibrary: React.FC<LessonLibraryProps> = ({ lessons }) => {
                   className="w-full"
                 />
               ))}
+              {detail?.altCovers?.map((src, i) => (
+                <div key={src}>
+                  <p className="nb-label mb-2">Alternate cover {i + 1}</p>
+                  <img src={src} alt={`Alternate cover ${i + 1}`} className="w-full" />
+                </div>
+              ))}
+              {detail?.caption && (
+                <div>
+                  <p className="nb-label mb-2">Caption</p>
+                  <textarea readOnly className="nb-input w-full h-32" value={detail.caption} />
+                  <p className="text-sm nb-muted mt-2">Bio link for this account: {detail.bioLink}</p>
+                </div>
+              )}
             </div>
             <button
               onClick={() => setSelected(null)}

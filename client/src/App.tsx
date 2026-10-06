@@ -6,6 +6,7 @@ import { CheatSheetGenerator } from './pages/CheatSheetGenerator';
 import { SentenceAnalysisDesigner } from './pages/SentenceAnalysisDesigner';
 import { LessonsProvider } from './context/LessonsContext';
 import { SentenceAnalysisTemplate } from './pages/SentenceAnalysisTemplate';
+import { LineBreakdownGenerator } from './pages/LineBreakdownGenerator';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/generate/cheat-sheet" element={<CheatSheetGenerator />} />
             <Route path="/generate/sentence-template" element={<SentenceAnalysisTemplate />} />
             <Route path="/generate/sentence" element={<SentenceAnalysisDesigner />} />
+            <Route path="/generate/line" element={<LineBreakdownGenerator />} />
             <Route path="*" element={<Navigate to="/generate/lesson" replace />} />
           </Routes>
         </Layout>

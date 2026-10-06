@@ -317,3 +317,79 @@ Ensure tokens and chunks correspond to the input sentence. Keep explanations sho
     throw new Error(`Invalid JSON response from LLM: ${errorMessage}`);
   }
 }
+export interface LineBreakdown {
+  title: string;
+  hooks: string[];
+  line: {
+    native: string;
+    romanization: string;
+    common_translation: string;
+    literal: string;
+    natural: string;
+  };
+  parts: { native: string; romanization: string; meaning: string; note?: string }[];
+  nuance: string;
+  use_it: { native: string; romanization: string; english: string };
+  caption: string;
+  hashtags: string[];
+}
+
+export async function generateLineBreakdown(line: string, source: string, language: string = 'korean'): Promise<LineBreakdown> {
+  const languageName = language === 'japanese' ? 'Japanese' : 'Korean';
+  const romanizationName = language === 'japanese' ? 'Hepburn romaji' : 'Revised Romanization';
+
+  const prompt = `You write "what they actually said" TikTok carousels: one real ${languageName} line from a show, song or meme, broken down so an English-speaking learner understands every part.
+
+LINE: ${line}
+SOURCE: ${source || 'unknown'}
+
+RULES
+- Return ONLY valid JSON matching the schema. No markdown, no code fences.
+- Be accurate. If you are unsure of the source context, describe the line generically instead of inventing plot details.
+- "common_translation" is the short, flattened English a subtitle would typically give. Do not claim it is the official subtitle.
+- "nuance" explains what that translation loses (tone, politeness level, slang, wordplay). If nothing is lost, explain the most interesting grammar instead. Max 16 words, conversational.
+- "parts" splits the line, in order, into 2 to 4 meaningful chunks (word + particle or ending together). Together they must cover the whole line. Each part becomes its own slide.
+- Romanization uses ${romanizationName}.
+- "hooks": 3 different first-slide hooks, each at most 8 words, each a different angle:
+  1. the translation misses something ("Subtitles got this line wrong")
+  2. curiosity about the source ("What [character/artist] really said here")
+  3. a learner pain ("You've heard this 100 times. Here's what it means")
+  Mention the source by name when known. No emoji. No clickbait about drama/plot spoilers.
+- "use_it": one everyday sentence that reuses the line's key word or pattern.
+- "caption": at most 150 characters, ends with a question that invites comments (e.g. which line to break down next).
+- "hashtags": 3 to 5 specific tags about the source (e.g. the show or group name), no generic ones.
+
+SCHEMA
+{
+  "title": "<short English title>",
+  "hooks": ["<hook 1>", "<hook 2>", "<hook 3>"],
+  "line": {
+    "native": "<the line in ${languageName} script>",
+    "romanization": "<romanization>",
+    "common_translation": "<flattened subtitle-style English>",
+    "literal": "<word-by-word gloss>",
+    "natural": "<what it really conveys, natural English>"
+  },
+  "parts": [
+    { "native": "<chunk>", "romanization": "<romanized>", "meaning": "<short gloss, max 4 words>", "note": "<optional, max 8 words, casual tone>" }
+  ],
+  "nuance": "<max 16 words>",
+  "use_it": { "native": "<sentence>", "romanization": "<romanized>", "english": "<english>" },
+  "caption": "<caption>",
+  "hashtags": ["#tag"]
+}`;
+
+  const completion = await openai.chat.completions.create({
+    model: "gpt-5",
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  const content = completion.choices[0]?.message?.content;
+  if (!content) throw new Error("No response from LLM");
+
+  const parsed = JSON.parse(extractJsonFromResponse(content));
+  if (!parsed?.line?.native || !Array.isArray(parsed.parts) || !Array.isArray(parsed.hooks) || parsed.hooks.length === 0) {
+    throw new Error('Line breakdown JSON is missing required fields');
+  }
+  return parsed;
+}
