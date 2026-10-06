@@ -1,0 +1,5 @@
+{
+  "model": "eleven_v3",
+  "tutor": "<voice id>",
+  "learner": "<voice id>"
+}

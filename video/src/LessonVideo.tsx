@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import {
-  AbsoluteFill, Audio, Img, OffthreadVideo, continueRender, delayRender,
+  AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, continueRender, delayRender,
   staticFile, useCurrentFrame, useVideoConfig
 } from 'remotion';
 import { Beat, Scene, Speaker } from './scene';
+import { SlideCard } from './Slides';
 
-// 1080x1920 layout. TikTok covers the bottom ~300px and the right ~150px with its UI,
-// so all text lives in the scene; gameplay fills the bottom.
-const H = 1920;
+// 1080x1920 layout, top to bottom: slide card, characters, dialogue box, gameplay.
+// TikTok covers the top ~130px, the bottom ~300px and the right ~150px with its UI,
+// so all text stays in the scene above the gameplay band.
 const SCENE_H = 1250;
-const GAMEPLAY_TOP = SCENE_H;
+const FLOOR = 1140;
+const SPRITE_H = 470;
 const HANGUL = /[㄰-㆏가-힯]/;
 
 const FONTS: [string, string][] = [
@@ -31,41 +33,56 @@ function beatAt(beats: Beat[], t: number): Beat | undefined {
   // Hold the previous beat during the short gaps so the screen never goes empty.
   let current: Beat | undefined;
   for (const b of beats) if (b.start <= t) current = b;
-  return current;
+  return current ?? beats[0];
 }
 
-const SlideBackdrop: React.FC<{ src: string }> = ({ src }) => (
-  <AbsoluteFill style={{ height: SCENE_H, overflow: 'hidden' }}>
-    <Img src={staticFile(src)} style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(28px) brightness(0.7)', transform: 'scale(1.1)' }} />
-    <Img src={staticFile(src)} style={{ position: 'absolute', left: '50%', top: 0, height: SCENE_H, transform: 'translateX(-50%)', boxShadow: '0 0 60px rgba(0,0,0,0.5)' }} />
+function isTalking(beat: Beat, t: number): boolean {
+  const spans = beat.talk ?? [[beat.start, beat.end]];
+  return spans.some(([s, e]) => t >= s && t <= e);
+}
+
+const Backdrop: React.FC<{ src?: string }> = ({ src }) => (
+  <AbsoluteFill style={{ height: SCENE_H, overflow: 'hidden', background: 'linear-gradient(#2B2F55, #6D4C6F)' }}>
+    {src && <Img src={staticFile(src)} style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(6px) brightness(0.75)', transform: 'scale(1.05)' }} />}
   </AbsoluteFill>
 );
 
 const CharacterSprite: React.FC<{ scene: Scene; who: Speaker; beat?: Beat; t: number }> = ({ scene, who, beat, t }) => {
   const character = scene.characters[who];
-  const speaking = !!beat && beat.speaker === who && t <= beat.end;
-  const expression = beat?.speaker === who ? beat.expression : 'neutral';
-  const src = character.expressions[expression] || character.expressions.neutral || Object.values(character.expressions)[0];
-  // Placeholder lip-sync: a quick bob while talking. Real mouth-open/closed frames replace this.
-  const bob = speaking ? Math.abs(Math.sin(t * 14)) * 10 : 0;
+  const active = beat?.speaker === who;
+  const talking = active && !!beat && isTalking(beat, t);
+  // Mouth flaps at ~6 per second while voicing; pauses in the narration close the mouth.
+  const mouthOpen = talking && Math.floor(t * 12) % 2 === 0;
+  const expression = active ? beat!.expression : 'neutral';
+  const base = character.expressions[expression] || character.expressions.neutral || Object.values(character.expressions)[0];
+  const talkFrame = character.expressions[`${expression}_talk`];
+  const src = mouthOpen && talkFrame ? talkFrame : base;
+  // Without a mouth-open frame, a small bob stands in for the mouth.
+  const bob = talking && !talkFrame ? Math.abs(Math.sin(t * 14)) * 10 : 0;
   return (
     <Img src={staticFile(src)} style={{
-      position: 'absolute', bottom: H - SCENE_H + 140 + bob, [character.side]: character.side === 'left' ? 0 : 120,
-      height: 470, filter: `drop-shadow(0 12px 20px rgba(0,0,0,0.45)) brightness(${speaking ? 1 : 0.6})`,
-      transform: `scale(${speaking ? 1.04 : 0.94})`, transformOrigin: 'bottom center', transition: 'none'
+      position: 'absolute', top: FLOOR - SPRITE_H - bob, [character.side]: character.side === 'left' ? 10 : 140,
+      height: SPRITE_H, filter: `drop-shadow(0 12px 20px rgba(0,0,0,0.45)) brightness(${active ? 1 : 0.6})`,
+      transform: `scale(${active ? 1.04 : 0.94})`, transformOrigin: 'bottom center'
     }} />
   );
 };
 
-const DialogueBox: React.FC<{ scene: Scene; beat: Beat; t: number }> = ({ scene, beat, t }) => {
+// Words appear as they're spoken (from the narration timestamps when there are any).
+function shownText(beat: Beat, t: number): string {
+  if (beat.words?.length) return beat.words.filter(w => w.start <= t).map(w => w.text).join(' ');
   const progress = Math.min(1, Math.max(0, (t - beat.start) / (beat.end - beat.start)));
   const chars = [...beat.text];
-  const shown = chars.slice(0, Math.ceil(chars.length * progress)).join('');
+  return chars.slice(0, Math.ceil(chars.length * progress)).join('');
+}
+
+const DialogueBox: React.FC<{ scene: Scene; beat: Beat; t: number }> = ({ scene, beat, t }) => {
+  const shown = shownText(beat, t);
   const name = scene.characters[beat.speaker].name;
   return (
-    <div style={{ position: 'absolute', left: 30, right: 160, top: SCENE_H - 270, height: 240 }}>
+    <div style={{ position: 'absolute', left: 30, right: 160, top: SCENE_H - 260, height: 236 }}>
       <div style={{ position: 'absolute', top: -34, left: 30, background: beat.speaker === 'tutor' ? '#FF8A00' : '#3D64E8', color: '#fff', fontFamily: 'LilitaOne', fontSize: 40, padding: '6px 26px', borderRadius: 16, zIndex: 2 }}>{name}</div>
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(15,18,35,0.82)', border: '4px solid rgba(255,255,255,0.85)', borderRadius: 28, padding: '40px 36px 24px', color: '#fff', fontFamily: 'TikTokSans, Jua', fontSize: 54, lineHeight: 1.22, fontWeight: 700 }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(15,18,35,0.86)', border: '4px solid rgba(255,255,255,0.85)', borderRadius: 28, padding: '40px 36px 24px', color: '#fff', fontFamily: 'TikTokSans, Jua', fontSize: 52, lineHeight: 1.22, fontWeight: 700 }}>
         {shown.split(/(\S+)/).map((part, i) => (
           <span key={i} style={HANGUL.test(part) ? { color: '#FFE14D', fontFamily: 'Jua, TikTokSans' } : undefined}>{part}</span>
         ))}
@@ -75,7 +92,7 @@ const DialogueBox: React.FC<{ scene: Scene; beat: Beat; t: number }> = ({ scene,
 };
 
 const Gameplay: React.FC<{ src?: string; t: number }> = ({ src, t }) => (
-  <div style={{ position: 'absolute', top: GAMEPLAY_TOP, left: 0, right: 0, bottom: 0, overflow: 'hidden', background: '#222' }}>
+  <div style={{ position: 'absolute', top: SCENE_H, left: 0, right: 0, bottom: 0, overflow: 'hidden', background: '#222' }}>
     {src ? (
       <OffthreadVideo src={staticFile(src)} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
     ) : (
@@ -92,16 +109,22 @@ export const LessonVideo: React.FC<{ scene: Scene }> = ({ scene }) => {
   const { fps } = useVideoConfig();
   const t = frame / fps;
   const beat = beatAt(scene.beats, t);
-  const slide = scene.slides[Math.min(beat?.slide ?? 0, scene.slides.length - 1)];
+  const slideIndex = Math.min(beat?.slide ?? 0, scene.slides.length - 1);
+  const slideSince = t - (scene.beats.find(b => b.slide === beat?.slide)?.start ?? 0);
 
   return (
     <AbsoluteFill style={{ background: '#000' }}>
-      {slide && <SlideBackdrop src={slide} />}
+      <Backdrop src={scene.background} />
+      {scene.slides[slideIndex] && <SlideCard key={slideIndex} slide={scene.slides[slideIndex]} since={slideSince} fps={fps} />}
       <CharacterSprite scene={scene} who="learner" beat={beat} t={t} />
       <CharacterSprite scene={scene} who="tutor" beat={beat} t={t} />
       {beat && <DialogueBox scene={scene} beat={beat} t={t} />}
       <Gameplay src={scene.gameplay} t={t} />
-      {scene.audio && <Audio src={staticFile(scene.audio)} />}
+      {scene.beats.map((b, i) => b.audio && (
+        <Sequence key={i} from={Math.round(b.start * fps)} layout="none">
+          <Audio src={staticFile(b.audio)} />
+        </Sequence>
+      ))}
     </AbsoluteFill>
   );
 };

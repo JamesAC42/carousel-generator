@@ -4,6 +4,9 @@
   "type": "module",
   "scripts": {
     "studio": "remotion studio src/index.ts",
+    "script": "node --experimental-strip-types scripts/write-script.mjs",
+    "narrate": "node --experimental-strip-types scripts/narrate.mjs",
+    "voices": "node scripts/voices.mjs",
     "render": "node render.mjs"
   },
   "dependencies": {

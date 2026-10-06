@@ -1,0 +1,22 @@
+{
+  "learner": {
+    "name": "Sora",
+    "side": "left",
+    "expressions": {
+      "neutral": "sample/characters/reading.png",
+      "confused": "sample/characters/thinking.png",
+      "surprised": "sample/characters/thinking.png",
+      "happy": "sample/characters/music.png"
+    }
+  },
+  "tutor": {
+    "name": "Kkachi",
+    "side": "right",
+    "expressions": {
+      "neutral": "sample/characters/magpie.png",
+      "explaining": "sample/characters/magpie.png",
+      "smug": "sample/characters/magpie.png",
+      "happy": "sample/characters/magpie.png"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "title": "We're 깐부, right?",
+  "source": "Squid Game",
+  "hooks": [
+    "Netflix flattened this Squid Game line",
+    "What Il-nam really meant by 깐부",
+    "You've heard 깐부 a hundred times. Here's why it hurts"
+  ],
+  "line": {
+    "native": "우리는 깐부잖아",
+    "romanization": "urineun kkanbujana",
+    "common_translation": "We're friends, right?",
+    "literal": "as for us / marble partners / you know",
+    "natural": "We're ride-or-die, remember? You can't turn on me."
+  },
+  "parts": [
+    { "native": "우리는", "romanization": "urineun", "meaning": "as for us", "note": "는 sets us up as the topic" },
+    { "native": "깐부", "romanization": "kkanbu", "meaning": "marble partner", "note": "kids' slang: you share everything" },
+    { "native": "잖아", "romanization": "jana", "meaning": "you know", "note": "reminds you of something you agreed on" }
+  ],
+  "nuance": "잖아 turns it into a guilt trip: you already promised.",
+  "use_it": { "native": "내일 시험이잖아", "romanization": "naeil siheomijana", "english": "The test is tomorrow, you know!" }
+}
