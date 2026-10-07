@@ -13,6 +13,7 @@
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { platformPosts } from './platforms.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, takesValue) => {
@@ -76,12 +77,14 @@ run('render.mjs', sceneFile, videoFile);
 const scene = JSON.parse(fs.readFileSync(sceneFile, 'utf8'));
 const caption = breakdown.caption || `${scene.hook}\n\n#learnkorean #korean #hanbokstudy`;
 fs.writeFileSync(path.join(dir, 'caption.txt'), `${caption}\n`);
+const account = breakdown.account || 'main';
 fs.writeFileSync(path.join(dir, 'post.json'), JSON.stringify({
   id,
   type: 'lesson-video',
-  account: breakdown.account || 'main',
+  account,
   hook: scene.hook,
   caption,
+  platforms: platformPosts({ id, account, hook: scene.hook, caption, title: breakdown.title, learnUrl: breakdown.learnUrl }),
   bioLink: breakdown.bioLink,
   durationSeconds: Math.round(scene.beats[scene.beats.length - 1].end),
   createdAt: new Date().toISOString()
