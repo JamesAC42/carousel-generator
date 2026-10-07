@@ -91,10 +91,10 @@ const DialogueBox: React.FC<{ scene: Scene; beat: Beat; t: number }> = ({ scene,
   );
 };
 
-const Gameplay: React.FC<{ src?: string; t: number }> = ({ src, t }) => (
+const Gameplay: React.FC<{ src?: string; start?: number; fps: number; t: number }> = ({ src, start = 0, fps, t }) => (
   <div style={{ position: 'absolute', top: SCENE_H, left: 0, right: 0, bottom: 0, overflow: 'hidden', background: '#222' }}>
     {src ? (
-      <OffthreadVideo src={staticFile(src)} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      <OffthreadVideo src={staticFile(src)} trimBefore={Math.round(start * fps)} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
     ) : (
       <div style={{ width: '100%', height: '100%', background: `repeating-linear-gradient(${110 + t * 10}deg, #3a7d2c 0 60px, #4f9a3b 60px 120px)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.75)', fontFamily: 'LilitaOne', fontSize: 52 }}>
         gameplay goes here
@@ -151,7 +151,7 @@ export const LessonVideo: React.FC<{ scene: Scene }> = ({ scene }) => {
         <CharacterSprite scene={scene} who="tutor" beat={beat} t={t} />
         {beat && <DialogueBox scene={scene} beat={beat} t={t} />}
       </>}
-      <Gameplay src={scene.gameplay} t={t} />
+      <Gameplay src={scene.gameplay} start={scene.gameplayStart} fps={fps} t={t} />
       {scene.dialogueAudio && (
         <Sequence from={Math.round(scene.dialogueAudio.start * fps)} layout="none">
           <Audio src={staticFile(scene.dialogueAudio.src)} />

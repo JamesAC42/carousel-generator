@@ -12,6 +12,10 @@ the finished video in the outbox for posting.
   script writer. The carousel generator (repo root) needs `GEMINI_API_KEY` too.
 - Remotion downloads its own headless Chrome on first render. If that's blocked, set `CHROME_PATH`.
 - Publishing pushes to the private repo JamesAC42/hanbok-outbox, so git needs push access to it.
+- Put the gameplay video (the Minecraft parkour video, `gameplay.webm`) in `video/public/gameplay/`.
+  It's too big for git, so that folder is git-ignored. Every video uses it automatically, starting at a
+  random point so each one shows different footage.
+- The character art is in the repo (`public/cast/`, listed in `src/cast.json`); nothing to set up.
 
 ## Per video
 
@@ -33,10 +37,9 @@ the finished video in the outbox for posting.
    ```
    WRITER_MODEL=<writer model> npm run lesson -- ../output/<id>/metadata.json \
      --clip /path/to/scene.mp4 --clip-start 83.2 --clip-end 86.9 \
-     --clip-context "Il-nam says it to Gi-hun during the marble game, where they have to play against each other" \
-     --gameplay gameplay/<clip>.mp4
+     --clip-context "Il-nam says it to Gi-hun during the marble game, where they have to play against each other"
    ```
-   `--gameplay` is a path under `video/public/`. Leave `--publish` off the first time.
+   Leave `--publish` off the first time. (`--gameplay <path under video/public/>` overrides the gameplay video.)
    `WRITER_MODEL` is the script writer (James is choosing between gpt-6.1-sol and others; the default
    is gemini-3.8-flash).
    Output: `out/<id>/video.mp4`, `caption.txt`, `post.json`, `scene.json`.
