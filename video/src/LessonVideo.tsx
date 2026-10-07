@@ -11,7 +11,7 @@ import { CARD, SlideCard } from './Slides';
 // so all text stays in the scene above the gameplay band.
 const SCENE_H = 1250;
 const FLOOR = 1140;
-const SPRITE_H = 470;
+const SPRITE_H = 530;
 const HANGUL = /[㄰-㆏가-힯]/;
 
 const FONTS: [string, string][] = [
@@ -36,9 +36,23 @@ function beatAt(beats: Beat[], t: number): Beat | undefined {
   return current ?? beats[0];
 }
 
-function isTalking(beat: Beat, t: number): boolean {
-  const spans = beat.talk ?? [[beat.start, beat.end]];
-  return spans.some(([s, e]) => t >= s && t <= e);
+// The mouth opens once per line and stays open until the line ends: closed for a moment
+// first, open from just after the first sound to the last, then closed again.
+const MOUTH_LEAD = 0.08;
+function mouthWindow(beat: Beat): [number, number] {
+  const spans = beat.talk?.length ? beat.talk : [[beat.start, beat.end] as [number, number]];
+  return [spans[0][0] + MOUTH_LEAD, spans[spans.length - 1][1]];
+}
+
+// A small hop each time the mouth opens or closes, so the swap reads as a reaction.
+const BOUNCE_S = 0.18;
+const BOUNCE_PX = 8;
+function bounce(t: number, at: number[]): number {
+  for (const a of at) {
+    const p = (t - a) / BOUNCE_S;
+    if (p >= 0 && p <= 1) return Math.sin(Math.PI * p) * BOUNCE_PX;
+  }
+  return 0;
 }
 
 const Backdrop: React.FC<{ src?: string }> = ({ src }) => (
@@ -50,18 +64,17 @@ const Backdrop: React.FC<{ src?: string }> = ({ src }) => (
 const CharacterSprite: React.FC<{ scene: Scene; who: Speaker; beat?: Beat; t: number }> = ({ scene, who, beat, t }) => {
   const character = scene.characters[who];
   const active = beat?.speaker === who;
-  const talking = active && !!beat && isTalking(beat, t);
-  // Mouth flaps at ~6 per second while voicing; pauses in the narration close the mouth.
-  const mouthOpen = talking && Math.floor(t * 12) % 2 === 0;
+  const [open, close] = active && beat ? mouthWindow(beat) : [Infinity, Infinity];
+  const mouthOpen = t >= open && t < close;
   const expression = active ? beat!.expression : 'neutral';
   const base = character.expressions[expression] || character.expressions.neutral || Object.values(character.expressions)[0];
   const talkFrame = character.expressions[`${expression}_talk`];
   const src = mouthOpen && talkFrame ? talkFrame : base;
-  // Without a mouth-open frame, a small bob stands in for the mouth.
-  const bob = talking && !talkFrame ? Math.abs(Math.sin(t * 14)) * 10 : 0;
+  const bob = bounce(t, [open, close]);
   return (
     <Img src={staticFile(src)} style={{
-      position: 'absolute', top: FLOOR - SPRITE_H - bob, [character.side]: character.side === 'left' ? 10 : 140,
+      position: 'absolute', top: FLOOR - SPRITE_H - bob, // The tutor stays clear of TikTok's like/comment buttons down the right edge.
+      [character.side]: character.side === 'left' ? 0 : 140,
       height: SPRITE_H, filter: `drop-shadow(0 12px 20px rgba(0,0,0,0.45)) brightness(${active ? 1 : 0.6})`,
       transform: `scale(${active ? 1.04 : 0.94})`, transformOrigin: 'bottom center'
     }} />
@@ -76,17 +89,16 @@ function shownText(beat: Beat, t: number): string {
   return chars.slice(0, Math.ceil(chars.length * progress)).join('');
 }
 
-const DialogueBox: React.FC<{ scene: Scene; beat: Beat; t: number }> = ({ scene, beat, t }) => {
+// The outline's color says who's speaking: orange for the tutor, blue for the learner.
+const SPEAKER_COLOR: Record<Speaker, string> = { tutor: '#FF8A00', learner: '#3D64E8' };
+
+const DialogueBox: React.FC<{ beat: Beat; t: number }> = ({ beat, t }) => {
   const shown = shownText(beat, t);
-  const name = scene.characters[beat.speaker].name;
   return (
-    <div style={{ position: 'absolute', left: 30, right: 160, top: SCENE_H - 260, height: 236 }}>
-      <div style={{ position: 'absolute', top: -34, left: 30, background: beat.speaker === 'tutor' ? '#FF8A00' : '#3D64E8', color: '#fff', fontFamily: 'LilitaOne', fontSize: 40, padding: '6px 26px', borderRadius: 16, zIndex: 2 }}>{name}</div>
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(15,18,35,0.86)', border: '4px solid rgba(255,255,255,0.85)', borderRadius: 28, padding: '40px 36px 24px', color: '#fff', fontFamily: 'TikTokSans, Jua', fontSize: 52, lineHeight: 1.22, fontWeight: 700 }}>
-        {shown.split(/(\S+)/).map((part, i) => (
-          <span key={i} style={HANGUL.test(part) ? { color: '#FFE14D', fontFamily: 'Jua, TikTokSans' } : undefined}>{part}</span>
-        ))}
-      </div>
+    <div style={{ position: 'absolute', left: 30, right: 160, top: SCENE_H - 260, height: 236, boxSizing: 'border-box', background: 'rgba(15,18,35,0.86)', border: `6px solid ${SPEAKER_COLOR[beat.speaker]}`, borderRadius: 28, padding: '18px 32px 32px', color: '#fff', fontFamily: 'TikTokSans, Jua', fontSize: 52, lineHeight: 1.22, fontWeight: 700 }}>
+      {shown.split(/(\S+)/).map((part, i) => (
+        <span key={i} style={HANGUL.test(part) ? { color: '#FFE14D', fontFamily: 'Jua, TikTokSans' } : undefined}>{part}</span>
+      ))}
     </div>
   );
 };
@@ -149,7 +161,7 @@ export const LessonVideo: React.FC<{ scene: Scene }> = ({ scene }) => {
         ) : scene.slides[slideIndex] && <SlideCard key={slideIndex} slide={scene.slides[slideIndex]} since={slideSince} fps={fps} />}
         <CharacterSprite scene={scene} who="learner" beat={beat} t={t} />
         <CharacterSprite scene={scene} who="tutor" beat={beat} t={t} />
-        {beat && <DialogueBox scene={scene} beat={beat} t={t} />}
+        {beat && <DialogueBox beat={beat} t={t} />}
       </>}
       <Gameplay src={scene.gameplay} start={scene.gameplayStart} fps={fps} t={t} />
       {scene.dialogueAudio && (
