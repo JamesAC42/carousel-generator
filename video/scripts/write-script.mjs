@@ -8,7 +8,8 @@
 // gpt-6.1-sol (OPENAI_API_KEY). In cloud sessions the proxy injects both keys.
 import fs from 'fs';
 import path from 'path';
-import { DEFAULT_CTA_BROLL, slidesFromBreakdown } from '../src/scene.ts';
+import './env.mjs';
+import { AUDIO_TAGS, DEFAULT_CTA_BROLL, slidesFromBreakdown } from '../src/scene.ts';
 
 const MODEL = process.env.WRITER_MODEL || process.env.GEMINI_MODEL || 'gpt-6.1-sol';
 
@@ -86,7 +87,7 @@ What makes these good (follow strictly):
 7. The last beat plays over the CTA slide: one short, natural line about pasting any line into Hanbok for a breakdown like this. No hype.
 8. Korean in Hangul exactly as on the slides (the voice reads Hangul), never romanized. At most one Korean phrase per beat.
 - "expression" must be one of: ${tutor.name} (tutor): ${moods(tutor).join(', ')}; ${learner.name} (learner): ${moods(learner).join(', ')}.
-- "delivery" is one plain word for the voice's tone (e.g. dry, curious, amused, matter-of-fact).
+- "delivery" is an optional voice direction, read by the voice model and never shown. Leave it "" on most beats: the plain, calm read is what we want. Use one only where the line clearly needs it, from: ${AUDIO_TAGS.join(', ')}. It is not the expression; never put an expression name here.
 
 This script for a different line has exactly the tone we want. Match its plainness and rhythm; don't copy its wording or facts:
 ${TONE_EXAMPLE}`;
@@ -102,7 +103,7 @@ const schema = {
           speaker: { type: 'string', enum: ['tutor', 'learner'] },
           slide: { type: 'integer' },
           expression: { type: 'string' },
-          delivery: { type: 'string' },
+          delivery: { type: 'string', enum: ['', ...AUDIO_TAGS] },
           text: { type: 'string' }
         },
         required: ['speaker', 'slide', 'expression', 'text']
@@ -178,6 +179,7 @@ for (const beat of beats) {
   lastSlide = beat.slide;
   if (!moods(cast[beat.speaker]).includes(beat.expression)) beat.expression = 'neutral';
   beat.text = contract(beat.text);
+  if (!AUDIO_TAGS.includes(beat.delivery)) delete beat.delivery;
 }
 const missing = slides.map((_, i) => i).filter(i => !beats.some(b => b.slide === i));
 if (missing.length) console.warn(`Warning: no beat for slide(s) ${missing.join(', ')}; they won't be shown.`);

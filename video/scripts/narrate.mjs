@@ -7,11 +7,13 @@
 // (/v1/text-to-dialogue), so the two voices react to each other; it sounds much less stitched
 // than voicing line by line. --per-line voices each beat separately (the old way; editing one
 // line then only re-voices that line). Audio goes to public/scenes/<scene id>/ and is cached by
-// its text. Needs ELEVENLABS_API_KEY (in cloud sessions the proxy injects it).
+// its text. Needs ELEVENLABS_API_KEY: in the environment, in the repo root's .env, or injected by a
+// proxy (then run node with NODE_USE_ENV_PROXY=1).
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { dialogueStart, timingsFromAlignment } from '../src/scene.ts';
+import './env.mjs';
+import { AUDIO_TAGS, dialogueStart, timingsFromAlignment } from '../src/scene.ts';
 
 const args = process.argv.slice(2);
 const voicesFlag = args.indexOf('--voices');
@@ -29,6 +31,8 @@ const voices = JSON.parse(fs.readFileSync(voicesFile, 'utf8'));
 const model = voices.model || 'eleven_v4';
 // v3-style models take inline audio tags like [excited] and don't accept previous/next text.
 const usesTags = /eleven_v[3-9]/.test(model);
+// The [tag] said before a beat, if it has a real one.
+const tagFor = beat => (usesTags && AUDIO_TAGS.includes(beat.delivery) ? `[${beat.delivery}] ` : '');
 
 const scene = JSON.parse(fs.readFileSync(sceneFile, 'utf8'));
 const id = scene.id || path.basename(sceneFile, '.json');
@@ -73,7 +77,7 @@ function stripPrefix(alignment, prefix) {
 
 if (!perLine) {
   const start = dialogueStart(scene);
-  const inputs = scene.beats.map(b => ({ text: (usesTags && b.delivery ? `[${b.delivery}] ` : '') + b.text, voice_id: voiceFor(b) }));
+  const inputs = scene.beats.map(b => ({ text: tagFor(b) + b.text, voice_id: voiceFor(b) }));
   const key = crypto.createHash('sha1').update(`${model}|${JSON.stringify(inputs)}`).digest('hex').slice(0, 10);
   const base = path.join(dir, `dialogue-${key}`);
   let take;
@@ -116,7 +120,7 @@ for (let i = 0; i < scene.beats.length; i++) {
   const beat = scene.beats[i];
   const voiceId = voiceFor(beat);
 
-  const prefix = usesTags && beat.delivery ? `[${beat.delivery}] ` : '';
+  const prefix = tagFor(beat);
   const spoken = prefix + beat.text;
   const key = crypto.createHash('sha1').update(`${model}|${voiceId}|${spoken}`).digest('hex').slice(0, 10);
   const base = path.join(dir, `${String(i).padStart(2, '0')}-${key}`);

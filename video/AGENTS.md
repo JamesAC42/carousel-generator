@@ -9,7 +9,14 @@ the finished video in the outbox for posting. The whole workflow, slideshows inc
 ## One-time setup
 
 - Node 22+, ffmpeg/ffprobe, git. `cd video && npm install`.
-- Keys in the environment: `ELEVENLABS_API_KEY`, and `OPENAI_API_KEY` for the script writer. The carousel generator (repo root) needs `GEMINI_API_KEY` too.
+- Keys: `ELEVENLABS_API_KEY`, and `OPENAI_API_KEY` for the script writer. The carousel generator (repo root) needs `GEMINI_API_KEY` too.
+  - Put them in the environment, or as `KEY=value` lines in `.env` at the repo root. That file is
+    git-ignored, and the video scripts and the generator server both read it.
+  - If your keys are injected by a proxy instead, leave them unset and run node with
+    `NODE_USE_ENV_PROXY=1`.
+- Always run the repo's scripts (`npm run lesson`, `npm run narrate`, ...). Never re-implement them
+  in another language. They do more than the API calls, for example dropping voice tags the voice
+  model doesn't know.
 - Remotion downloads its own headless Chrome on first render. If that's blocked, set `CHROME_PATH`.
 - Publishing pushes to the private repo JamesAC42/hanbok-outbox, so git needs push access to it.
 - Put the gameplay video (the Minecraft parkour video, `gameplay.webm`) in `video/public/gameplay/`.
