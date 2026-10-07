@@ -13,6 +13,7 @@
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import './env.mjs';
 import { platformPosts } from './platforms.mjs';
 
 const args = process.argv.slice(2);

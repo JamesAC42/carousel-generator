@@ -7,6 +7,14 @@
 
 export type Speaker = 'tutor' | 'learner';
 
+// ElevenLabs v3/v4 audio tags a beat may use as its `delivery`. Anything else (an expression name
+// like "explaining", or a made-up word) makes the voice act out a tag it doesn't know, so narration
+// drops it. Most beats should have none; the calm read is the default.
+export const AUDIO_TAGS = [
+  'curious', 'thoughtful', 'surprised', 'excited', 'happy', 'sad', 'annoyed',
+  'sarcastic', 'mischievously', 'laughs', 'chuckles', 'sighs'
+];
+
 export interface Beat {
   speaker: Speaker;
   expression: string;
@@ -14,7 +22,7 @@ export interface Beat {
   slide: number;
   start: number;
   end: number;
-  // Optional ElevenLabs audio tag for v3-style models, e.g. "excited". Never shown.
+  // Optional ElevenLabs audio tag (one of AUDIO_TAGS), e.g. "curious". Never shown.
   delivery?: string;
   // Narration clip for this beat, relative to public/.
   audio?: string;

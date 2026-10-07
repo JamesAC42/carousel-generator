@@ -29,7 +29,8 @@ npm run render -- out/<name>.json out/<name>.mp4
   slide changes. A character's `"<expression>_talk"` image in `src/cast.json` is used as the
   mouth-open frame; without one the sprite bobs instead.
 - Put a gameplay clip in `public/` and set `"gameplay": "<path>"` in the scene.
-- Keys: `GEMINI_API_KEY` and `ELEVENLABS_API_KEY`. In a cloud session behind the agent proxy,
+- Keys: `ELEVENLABS_API_KEY` and the writer's key (`OPENAI_API_KEY`, or `GEMINI_API_KEY`), from the
+  environment or the repo root's `.env`. In a cloud session behind the agent proxy,
   run node with `NODE_USE_ENV_PROXY=1` so `fetch` goes through it, and
   `CHROME_PATH=<headless_shell>` for rendering.
 
