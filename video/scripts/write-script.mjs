@@ -87,7 +87,7 @@ What makes these good (follow strictly):
 7. The last beat plays over the CTA slide: one short, natural line about pasting any line into Hanbok for a breakdown like this. No hype.
 8. Korean in Hangul exactly as on the slides (the voice reads Hangul), never romanized. At most one Korean phrase per beat.
 - "expression" must be one of: ${tutor.name} (tutor): ${moods(tutor).join(', ')}; ${learner.name} (learner): ${moods(learner).join(', ')}.
-- "delivery" is an optional voice direction, read by the voice model and never shown. Leave it "" on most beats: the plain, calm read is what we want. Use one only where the line clearly needs it, from: ${AUDIO_TAGS.join(', ')}. It is not the expression; never put an expression name here.
+- "delivery" is a voice direction, read by the voice model and never shown. Give one to about half the beats, where it fits the line: "thoughtful" when someone is reasoning something out or reflecting, "curious" for a real question, "sarcastic" for a dry aside, "surprised" for a reveal. Leave it "" on plain explanations and the CTA. Choose only from: ${AUDIO_TAGS.join(', ')}. It is not the expression; never put an expression name here.
 
 This script for a different line has exactly the tone we want. Match its plainness and rhythm; don't copy its wording or facts:
 ${TONE_EXAMPLE}`;
