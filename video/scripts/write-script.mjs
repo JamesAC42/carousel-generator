@@ -10,7 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import { DEFAULT_CTA_BROLL, slidesFromBreakdown } from '../src/scene.ts';
 
-const MODEL = process.env.WRITER_MODEL || process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+const MODEL = process.env.WRITER_MODEL || process.env.GEMINI_MODEL || 'gpt-6.1-sol';
 
 const args = process.argv.slice(2);
 const option = name => {
@@ -52,6 +52,21 @@ const opening = clipSrc
   ? `The video opens with a ${clipSeconds.toFixed(0)}-second clip from ${source || 'the show'} where the line is said, subtitled on screen.${clipContext ? ` In the clip: ${clipContext}.` : ''} Viewers have just heard it. The first beat comes right after the clip and reacts to what they just heard, so it can say "that" or "he" without setting the scene up again.`
   : `There's no clip of the show, so the first beat has to say plainly who says the line, to whom, and when${source ? ` in ${source}` : ''}.`;
 
+// James's pick of the script lineup (GPT-6.1 Sol on 우리는 깐부잖아), shown to the writer as the target tone.
+const TONE_EXAMPLE = `TUTOR: 우리는 깐부잖아 isn't asking whether they're friends. It's reminding him they've already agreed.
+TUTOR: Il-nam says it to Gi-hun during the marble game in Squid Game.
+SORA: When they're supposed to compete.
+TUTOR: 우리는 sets up "us" as the topic.
+TUTOR: 깐부 means a marble partner. Someone you share everything with.
+SORA: A difficult promise in that game.
+TUTOR: 잖아 brings that agreement back into the conversation.
+TUTOR: Not just "we're partners." More like "you know we're partners."
+TUTOR: In that scene, the reminder puts pressure on Gi-hun.
+SORA: Can I use it without that pressure?
+TUTOR: 내일 시험이잖아 means "The test is tomorrow, you know."
+TUTOR: Same reminder. The situation decides how pointed it feels.
+TUTOR: Paste any line into Hanbok to get a breakdown like this.`;
+
 const prompt = `You're writing the dialogue for a 35 to 50 second vertical TikTok Korean lesson. Two characters stand over lesson slides:
 - ${tutor.name} (tutor): a Korean friend who knows the language cold. Calm, confident, a little dry. Talks like a friend explaining something over coffee, never like a teacher or a YouTuber.
 - ${learner.name} (learner): a smart, sincere fan of Korean shows. She says what the viewer is thinking in as few words as possible. She's never a comedy prop.
@@ -71,7 +86,10 @@ What makes these good (follow strictly):
 7. The last beat plays over the CTA slide: one short, natural line about pasting any line into Hanbok for a breakdown like this. No hype.
 8. Korean in Hangul exactly as on the slides (the voice reads Hangul), never romanized. At most one Korean phrase per beat.
 - "expression" must be one of: ${tutor.name} (tutor): ${moods(tutor).join(', ')}; ${learner.name} (learner): ${moods(learner).join(', ')}.
-- "delivery" is one plain word for the voice's tone (e.g. dry, curious, amused, matter-of-fact).`;
+- "delivery" is one plain word for the voice's tone (e.g. dry, curious, amused, matter-of-fact).
+
+This script for a different line has exactly the tone we want. Match its plainness and rhythm; don't copy its wording or facts:
+${TONE_EXAMPLE}`;
 
 const schema = {
   type: 'object',
