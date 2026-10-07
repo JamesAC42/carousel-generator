@@ -1,8 +1,9 @@
-# Hanbok outbox
+# Posting Hanbok's social posts
 
-Finished posts waiting to go out, and the runbook for posting them. The Hanbok pipeline
-(JamesAC42/carousel-generator) adds posts here; whoever posts (Muse, or James) follows this file.
-How posts are made is in the carousel generator's `AGENTS.md`.
+The runbook for posting what's in the outbox (the private repo JamesAC42/hanbok-outbox) to every
+platform. Whoever posts (Muse, or James) follows this file. It lives at `POSTING.md` in
+JamesAC42/carousel-generator, and every publish copies it to the outbox as its `README.md`. How posts
+are made is in the carousel generator's `AGENTS.md`.
 
 ## What's in here
 

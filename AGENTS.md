@@ -2,7 +2,11 @@
 
 This repo makes Hanbok's social posts. Every post starts as a **line breakdown**: one Korean line
 from a show or song, explained. Each breakdown becomes two posts, and both go through the outbox
-repo (private JamesAC42/hanbok-outbox), where the posting runbook lives.
+repo (private JamesAC42/hanbok-outbox).
+
+**How to post to each platform is in [`POSTING.md`](POSTING.md) in this repo.** It covers which
+platforms get each post, the exact text and link for each one, account setup, and logging. The
+outbox's `README.md` is a copy of it.
 
 | Post | What it is | How it's made | Outbox `type` |
 |---|---|---|---|
@@ -32,7 +36,7 @@ repo (private JamesAC42/hanbok-outbox), where the posting runbook lives.
    `--learn-url` so the Pinterest pin links there. Otherwise leave it out.
 5. **Make and publish the lesson video** from the same `output/<id>/metadata.json`, following
    `video/AGENTS.md`.
-6. **Post both** by following the runbook in hanbok-outbox's `README.md`:
+6. **Post both** by following [`POSTING.md`](POSTING.md):
    - Which platforms each post goes to.
    - Which text and link to use on each one.
    - How each post is logged in `metrics/posts.csv`.

@@ -39,6 +39,6 @@ npm run render -- out/<name>.json out/<name>.mp4
 pushes `video.mp4`, `caption.txt` and `post.json` to `posts/<date>-<id>/` in the private repo
 JamesAC42/hanbok-outbox and adds the post to its `index.json`, newest first. Slideshows go there too,
 with `node scripts/publish-slides.mjs ../output/<id>`. `post.json` carries ready-to-use text for each
-platform (`scripts/platforms.mjs`). Publishing also copies `scripts/OUTBOX_README.md`, the posting
+platform (`scripts/platforms.mjs`). Publishing also copies `POSTING.md` (repo root), the posting
 runbook, to the outbox's README. Publishing refuses videos that still use the
 placeholder gameplay or art; `--test` marks an entry for the agent to skip.
