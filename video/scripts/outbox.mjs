@@ -27,7 +27,7 @@ export function pushToOutbox(post, files, { test = false } = {}) {
     fs.mkdirSync(path.join(work, folder), { recursive: true });
     for (const [src, name] of files) fs.copyFileSync(src, path.join(work, folder, name));
     // Keep the outbox README (the posting runbook) in step with this repo's version of the format.
-    fs.copyFileSync(new URL('./OUTBOX_README.md', import.meta.url), path.join(work, 'README.md'));
+    fs.copyFileSync(new URL('../../POSTING.md', import.meta.url), path.join(work, 'README.md'));
 
     const indexFile = path.join(work, 'index.json');
     const index = fs.existsSync(indexFile) ? JSON.parse(fs.readFileSync(indexFile, 'utf8')) : [];

@@ -56,7 +56,7 @@ the finished video in the outbox for posting. The whole workflow, slideshows inc
 
 ## Posting from the outbox
 
-Follow the runbook in hanbok-outbox's `README.md` (its source is `scripts/OUTBOX_README.md` here). It
+Follow `POSTING.md` in the repo root (the same file is hanbok-outbox's `README.md`). It
 says which platforms get each post, what text and link to use on each, and how to log posts in
 `metrics/posts.csv`. The slideshow made from the same breakdown goes out too; see `AGENTS.md` at the
 repo root.
