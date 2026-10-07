@@ -1,12 +1,15 @@
 # Lesson videos
 
+Agents making videos end to end: read AGENTS.md.
+
 Narrated visual-novel lessons: the tutor explains a line to the learner over the
 lesson slides, with gameplay in the bottom band. Built with Remotion.
 
 ```
 npm install
 # All of it in one go: writes out/<id>/video.mp4, caption.txt and post.json
-npm run lesson -- ../output/<id>/metadata.json [--hook N] [--gameplay <path in public/>]
+npm run lesson -- ../output/<id>/metadata.json [--hook N] [--gameplay <path in public/>] \
+  [--clip <file> --clip-start s --clip-end s --clip-context "who says it to whom"]
 
 # Or step by step:
 # 1. Line breakdown (carousel generator output) -> scene with slides + dialogue (Gemini)

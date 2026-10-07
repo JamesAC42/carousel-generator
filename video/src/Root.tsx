@@ -1,7 +1,7 @@
 import React from 'react';
 import { Composition } from 'remotion';
 import { LessonVideo } from './LessonVideo';
-import { Scene, estimateTimings, sceneDuration } from './scene';
+import { Scene, dialogueStart, estimateTimings, sceneDuration } from './scene';
 import sample from './sample-scene.json';
 
 const FPS = 30;
@@ -19,7 +19,7 @@ export const Root: React.FC = () => (
       // Scenes without narration have no timings yet; estimate them from text length.
       const beats = props.scene.beats.every(b => typeof b.start === 'number')
         ? props.scene.beats
-        : estimateTimings(props.scene.beats);
+        : estimateTimings(props.scene.beats, dialogueStart(props.scene));
       const scene = { ...props.scene, beats };
       return { durationInFrames: Math.ceil(sceneDuration(scene) * FPS), props: { scene } };
     }}

@@ -110,6 +110,24 @@ const CtaBroll: React.FC<{ src: string }> = ({ src }) => (
   </div>
 );
 
+// Cold open: the show's own clip, with the line subtitled underneath, before anyone talks.
+const ColdOpen: React.FC<{ clip: NonNullable<Scene['clip']> }> = ({ clip }) => (
+  <AbsoluteFill style={{ height: SCENE_H }}>
+    {clip.label && (
+      <div style={{ position: 'absolute', top: 150, left: 40, background: '#E0313B', color: '#fff', fontFamily: 'LilitaOne', fontSize: 40, padding: '6px 24px', borderRadius: 14 }}>{clip.label}</div>
+    )}
+    <div style={{ position: 'absolute', top: 230, left: 0, right: 0, aspectRatio: '16 / 9', background: '#000' }}>
+      <OffthreadVideo src={staticFile(clip.src)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    </div>
+    <div style={{ position: 'absolute', top: 230 + 1080 * 9 / 16 + 40, left: 40, right: 170, textAlign: 'center' }}>
+      <div style={{ fontFamily: 'Jua', fontSize: 84, color: '#FFE14D', lineHeight: 1.1, textShadow: '0 4px 16px rgba(0,0,0,0.6)' }}>{clip.line}</div>
+      {clip.translation && (
+        <div style={{ fontFamily: 'TikTokSans', fontWeight: 800, fontSize: 46, color: '#fff', marginTop: 12, textShadow: '0 4px 16px rgba(0,0,0,0.6)' }}>{clip.translation}</div>
+      )}
+    </div>
+  </AbsoluteFill>
+);
+
 export const LessonVideo: React.FC<{ scene: Scene }> = ({ scene }) => {
   useFonts();
   const frame = useCurrentFrame();
@@ -118,18 +136,21 @@ export const LessonVideo: React.FC<{ scene: Scene }> = ({ scene }) => {
   const beat = beatAt(scene.beats, t);
   const slideIndex = Math.min(beat?.slide ?? 0, scene.slides.length - 1);
   const slideSince = t - (scene.beats.find(b => b.slide === beat?.slide)?.start ?? 0);
+  const inColdOpen = !!scene.clip && t < scene.clip.seconds;
   const brollStart = ctaStart(scene);
   const broll = brollStart !== undefined ? scene.ctaBroll : undefined;
 
   return (
     <AbsoluteFill style={{ background: '#000' }}>
       <Backdrop src={scene.background} />
-      {broll && t >= brollStart! ? (
-        <Sequence from={Math.round(brollStart! * fps)} layout="none"><CtaBroll src={broll.src} /></Sequence>
-      ) : scene.slides[slideIndex] && <SlideCard key={slideIndex} slide={scene.slides[slideIndex]} since={slideSince} fps={fps} />}
-      <CharacterSprite scene={scene} who="learner" beat={beat} t={t} />
-      <CharacterSprite scene={scene} who="tutor" beat={beat} t={t} />
-      {beat && <DialogueBox scene={scene} beat={beat} t={t} />}
+      {inColdOpen ? <ColdOpen clip={scene.clip!} /> : <>
+        {broll && t >= brollStart! ? (
+          <Sequence from={Math.round(brollStart! * fps)} layout="none"><CtaBroll src={broll.src} /></Sequence>
+        ) : scene.slides[slideIndex] && <SlideCard key={slideIndex} slide={scene.slides[slideIndex]} since={slideSince} fps={fps} />}
+        <CharacterSprite scene={scene} who="learner" beat={beat} t={t} />
+        <CharacterSprite scene={scene} who="tutor" beat={beat} t={t} />
+        {beat && <DialogueBox scene={scene} beat={beat} t={t} />}
+      </>}
       <Gameplay src={scene.gameplay} t={t} />
       {scene.beats.map((b, i) => b.audio && (
         <Sequence key={i} from={Math.round(b.start * fps)} layout="none">

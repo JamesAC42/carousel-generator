@@ -9,7 +9,7 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { timingsFromAlignment } from '../src/scene.ts';
+import { dialogueStart, timingsFromAlignment } from '../src/scene.ts';
 
 const args = process.argv.slice(2);
 const voicesFlag = args.indexOf('--voices');
@@ -48,7 +48,7 @@ async function tts(voiceId, body) {
   }
 }
 
-let cursor = 0.3;
+let cursor = dialogueStart(scene);
 for (let i = 0; i < scene.beats.length; i++) {
   const beat = scene.beats[i];
   const voiceId = voices[beat.speaker];

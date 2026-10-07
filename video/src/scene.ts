@@ -54,6 +54,13 @@ export interface Scene {
   gameplay?: string;
   /** Screen recording of the site played in the slide card during the CTA, e.g. public/broll/site-cta.mp4. */
   ctaBroll?: { src: string; seconds: number };
+  /** Cold open: a short clip of the show saying the line, played before the dialogue starts. */
+  clip?: { src: string; seconds: number; line: string; translation?: string; label?: string };
+}
+
+/** When the dialogue starts: right away, or just after the cold-open clip. */
+export function dialogueStart(scene: Pick<Scene, 'clip'>): number {
+  return scene.clip ? scene.clip.seconds + 0.4 : 0.4;
 }
 
 export const DEFAULT_CTA_BROLL = { src: 'broll/site-cta.mp4', seconds: 7.7 };
@@ -99,8 +106,8 @@ function wordsFromSpan(text: string, start: number, end: number) {
 }
 
 // Fills in start/end and word timings from text length when there is no narration yet.
-export function estimateTimings(beats: Omit<Beat, 'start' | 'end'>[], gap = 0.25): Beat[] {
-  let t = 0.4;
+export function estimateTimings(beats: Omit<Beat, 'start' | 'end'>[], start = 0.4, gap = 0.25): Beat[] {
+  let t = start;
   return beats.map(beat => {
     const duration = Math.max(1.6, [...beat.text].length / CHARS_PER_SECOND);
     const start = t;
