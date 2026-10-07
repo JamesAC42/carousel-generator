@@ -43,6 +43,8 @@ function describeSlide(s, i) {
   }
 }
 
+// Expression names the writer can pick ("<name>_talk" images are mouth-open frames, not moods).
+const moods = character => Object.keys(character.expressions).filter(name => !name.endsWith('_talk'));
 const tutor = cast.tutor;
 const learner = cast.learner;
 const source = breakdown.source;
@@ -68,7 +70,7 @@ What makes these good (follow strictly):
 6. ${learner.name} speaks at most a third of the beats. She never repeats or paraphrases ${tutor.name} as a question, and never asks a question just to hand him his next line.
 7. The last beat plays over the CTA slide: one short, natural line about pasting any line into Hanbok for a breakdown like this. No hype.
 8. Korean in Hangul exactly as on the slides (the voice reads Hangul), never romanized. At most one Korean phrase per beat.
-- "expression" must be one of: ${tutor.name} (tutor): ${Object.keys(tutor.expressions).join(', ')}; ${learner.name} (learner): ${Object.keys(learner.expressions).join(', ')}.
+- "expression" must be one of: ${tutor.name} (tutor): ${moods(tutor).join(', ')}; ${learner.name} (learner): ${moods(learner).join(', ')}.
 - "delivery" is one plain word for the voice's tone (e.g. dry, curious, amused, matter-of-fact).`;
 
 const schema = {
@@ -156,7 +158,7 @@ let lastSlide = 0;
 for (const beat of beats) {
   beat.slide = Math.min(slides.length - 1, Math.max(lastSlide, beat.slide | 0));
   lastSlide = beat.slide;
-  if (!(beat.expression in cast[beat.speaker].expressions)) beat.expression = 'neutral';
+  if (!moods(cast[beat.speaker]).includes(beat.expression)) beat.expression = 'neutral';
   beat.text = contract(beat.text);
 }
 const missing = slides.map((_, i) => i).filter(i => !beats.some(b => b.slide === i));

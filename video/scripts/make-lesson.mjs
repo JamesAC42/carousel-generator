@@ -2,7 +2,7 @@
 // script (WRITER_MODEL) -> narration (ElevenLabs) -> render -> out/<id>/ with video.mp4 + caption.txt,
 // and with --publish, a push to the hanbok-outbox repo for posting.
 //
-//   node scripts/make-lesson.mjs <metadata.json> [--hook N] [--gameplay <path in public/>] [--publish]
+//   node scripts/make-lesson.mjs <metadata.json> [--hook N] [--gameplay <path in public/>, default: the video in public/gameplay/] [--publish]
 //     [--clip <video file> --clip-start <s> --clip-end <s> --clip-context "who says it to whom, what's happening"]
 //
 // --clip cuts the show's clip (any video file; start/end in seconds or hh:mm:ss) into
@@ -21,7 +21,11 @@ const flag = (name, takesValue) => {
   return takesValue ? args.splice(i, 2)[1] : (args.splice(i, 1), true);
 };
 const hook = flag('--hook', true);
-const gameplay = flag('--gameplay', true);
+// Without --gameplay, use a video from public/gameplay/ if there is one.
+const gameplayDir = path.join('public', 'gameplay');
+const gameplay = flag('--gameplay', true) ?? (fs.existsSync(gameplayDir)
+  ? fs.readdirSync(gameplayDir).filter(f => /\.(mp4|webm|mov|mkv)$/i.test(f)).map(f => `gameplay/${f}`)[0]
+  : undefined);
 const publish = flag('--publish', false);
 const clip = flag('--clip', true);
 const clipStart = flag('--clip-start', true);
@@ -60,6 +64,9 @@ run('scripts/write-script.mjs', inFile, sceneFile, ...(hook ? ['--hook', hook] :
 if (gameplay) {
   const scene = JSON.parse(fs.readFileSync(sceneFile, 'utf8'));
   scene.gameplay = gameplay;
+  // Start at a random point (leaving room for a 90s video) so each video shows different footage.
+  const seconds = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', path.join('public', gameplay)], { encoding: 'utf8' }));
+  scene.gameplayStart = Math.floor(Math.random() * Math.max(0, seconds - 90));
   fs.writeFileSync(sceneFile, JSON.stringify(scene, null, 2));
 }
 run('scripts/narrate.mjs', sceneFile);

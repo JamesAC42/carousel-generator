@@ -52,6 +52,8 @@ export interface Scene {
   characters: Record<Speaker, Character>;
   background?: string;
   gameplay?: string;
+  // Seconds into the gameplay video to start from, so videos don't all show the same stretch.
+  gameplayStart?: number;
   /** Screen recording of the site played in the slide card during the CTA, e.g. public/broll/site-cta.mp4. */
   ctaBroll?: { src: string; seconds: number };
   /** Cold open: a short clip of the show saying the line, played before the dialogue starts. */
