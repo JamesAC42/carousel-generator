@@ -152,6 +152,11 @@ export const LessonVideo: React.FC<{ scene: Scene }> = ({ scene }) => {
         {beat && <DialogueBox scene={scene} beat={beat} t={t} />}
       </>}
       <Gameplay src={scene.gameplay} t={t} />
+      {scene.dialogueAudio && (
+        <Sequence from={Math.round(scene.dialogueAudio.start * fps)} layout="none">
+          <Audio src={staticFile(scene.dialogueAudio.src)} />
+        </Sequence>
+      )}
       {scene.beats.map((b, i) => b.audio && (
         <Sequence key={i} from={Math.round(b.start * fps)} layout="none">
           <Audio src={staticFile(b.audio)} />

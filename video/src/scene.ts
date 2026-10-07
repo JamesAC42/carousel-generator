@@ -56,6 +56,8 @@ export interface Scene {
   ctaBroll?: { src: string; seconds: number };
   /** Cold open: a short clip of the show saying the line, played before the dialogue starts. */
   clip?: { src: string; seconds: number; line: string; translation?: string; label?: string };
+  /** The whole conversation voiced in one take (ElevenLabs dialogue), starting at `start` seconds. */
+  dialogueAudio?: { src: string; start: number };
 }
 
 /** When the dialogue starts: right away, or just after the cold-open clip. */

@@ -14,8 +14,9 @@ npm run lesson -- ../output/<id>/metadata.json [--hook N] [--gameplay <path in p
 # Or step by step:
 # 1. Line breakdown (carousel generator output) -> scene with slides + dialogue (Gemini)
 npm run script -- ../output/<id>/metadata.json out/<name>.json [--hook N]
-# 2. Voice every line with ElevenLabs; writes real timings into the scene
+# 2. Voice the conversation in one take (ElevenLabs dialogue); writes real timings into the scene
 # voices.json: tutor = KKC HQ, learner (Sora) = Jessica, model eleven_v4
+# --per-line voices each line separately instead (sounds stitched; only for re-voicing one line cheaply)
 npm run narrate -- out/<name>.json
 # 3. Render
 npm run render -- out/<name>.json out/<name>.mp4

@@ -1,11 +1,13 @@
-// Voices every beat of a scene with ElevenLabs and writes the real timings back into it:
+// Voices a scene with ElevenLabs and writes the real timings back into it:
 // beat start/end, word timings (typed dialogue) and talking spans (mouth flaps).
 //
-//   node --experimental-strip-types scripts/narrate.mjs <scene.json> [--voices voices.json]
+//   node --experimental-strip-types scripts/narrate.mjs <scene.json> [--voices voices.json] [--per-line]
 //
-// Audio goes to public/scenes/<scene id>/. Clips are cached by voice + text, so editing
-// one line only re-voices that line. Needs ELEVENLABS_API_KEY (in cloud sessions the
-// proxy injects it).
+// By default the whole conversation is voiced in one take with ElevenLabs dialogue
+// (/v1/text-to-dialogue), so the two voices react to each other; it sounds much less stitched
+// than voicing line by line. --per-line voices each beat separately (the old way; editing one
+// line then only re-voices that line). Audio goes to public/scenes/<scene id>/ and is cached by
+// its text. Needs ELEVENLABS_API_KEY (in cloud sessions the proxy injects it).
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
@@ -14,6 +16,8 @@ import { dialogueStart, timingsFromAlignment } from '../src/scene.ts';
 const args = process.argv.slice(2);
 const voicesFlag = args.indexOf('--voices');
 const voicesFile = voicesFlag >= 0 ? args.splice(voicesFlag, 2)[1] : 'voices.json';
+const perLineFlag = args.indexOf('--per-line');
+const perLine = perLineFlag >= 0 && !!args.splice(perLineFlag, 1);
 const [sceneFile] = args;
 if (!sceneFile) {
   console.error('usage: narrate.mjs <scene.json> [--voices voices.json]');
@@ -32,7 +36,10 @@ const dir = path.join('public', 'scenes', id);
 fs.mkdirSync(dir, { recursive: true });
 
 async function tts(voiceId, body) {
-  const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps?output_format=mp3_44100_128`;
+  return post(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps?output_format=mp3_44100_128`, body);
+}
+
+async function post(url, body) {
   for (let attempt = 0; ; attempt++) {
     const res = await fetch(url, {
       method: 'POST',
@@ -48,11 +55,66 @@ async function tts(voiceId, body) {
   }
 }
 
+const voiceFor = beat => {
+  const voiceId = voices[beat.speaker];
+  if (!voiceId) throw new Error(`voices.json has no voice for "${beat.speaker}"`);
+  return voiceId;
+};
+
+// Drops an audio tag's characters so the alignment lines up with the displayed text.
+function stripPrefix(alignment, prefix) {
+  if (!prefix || alignment.characters.slice(0, prefix.length).join('') !== prefix) return alignment;
+  return {
+    characters: alignment.characters.slice(prefix.length),
+    character_start_times_seconds: alignment.character_start_times_seconds.slice(prefix.length),
+    character_end_times_seconds: alignment.character_end_times_seconds.slice(prefix.length)
+  };
+}
+
+if (!perLine) {
+  const start = dialogueStart(scene);
+  const inputs = scene.beats.map(b => ({ text: (usesTags && b.delivery ? `[${b.delivery}] ` : '') + b.text, voice_id: voiceFor(b) }));
+  const key = crypto.createHash('sha1').update(`${model}|${JSON.stringify(inputs)}`).digest('hex').slice(0, 10);
+  const base = path.join(dir, `dialogue-${key}`);
+  let take;
+  if (fs.existsSync(`${base}.json`)) {
+    take = JSON.parse(fs.readFileSync(`${base}.json`, 'utf8'));
+  } else {
+    const out = await post('https://api.elevenlabs.io/v1/text-to-dialogue/with-timestamps?output_format=mp3_44100_128', { model_id: model, inputs });
+    take = { alignment: out.alignment, voice_segments: out.voice_segments };
+    fs.writeFileSync(`${base}.mp3`, Buffer.from(out.audio_base64, 'base64'));
+    fs.writeFileSync(`${base}.json`, JSON.stringify(take));
+  }
+
+  const a = take.alignment;
+  scene.beats.forEach((beat, i) => {
+    // A beat can come back as more than one segment; span all of them.
+    const segs = take.voice_segments.filter(s => s.dialogue_input_index === i);
+    if (!segs.length) throw new Error(`ElevenLabs returned no audio for beat ${i}: ${beat.text}`);
+    const from = Math.min(...segs.map(s => s.character_start_index));
+    const to = Math.max(...segs.map(s => s.character_end_index));
+    const sub = stripPrefix({
+      characters: a.characters.slice(from, to),
+      character_start_times_seconds: a.character_start_times_seconds.slice(from, to),
+      character_end_times_seconds: a.character_end_times_seconds.slice(from, to)
+    }, inputs[i].text.slice(0, inputs[i].text.length - beat.text.length));
+    const { words, talk, end } = timingsFromAlignment(beat.text, sub, start);
+    const beatStart = start + Math.min(...segs.map(s => s.start_time_seconds));
+    Object.assign(beat, { start: beatStart, end: Math.max(end, start + Math.max(...segs.map(s => s.end_time_seconds))), words, talk });
+    delete beat.audio;
+    console.log(`${beat.start.toFixed(2)}s  ${scene.characters[beat.speaker].name}: ${beat.text}`);
+  });
+  scene.dialogueAudio = { src: path.relative('public', `${base}.mp3`), start };
+  fs.writeFileSync(sceneFile, JSON.stringify(scene, null, 2));
+  console.log(`\nNarrated ${scene.beats.length} beats in one take, ${scene.beats[scene.beats.length - 1].end.toFixed(1)}s. Updated ${sceneFile}`);
+  process.exit(0);
+}
+
+delete scene.dialogueAudio;
 let cursor = dialogueStart(scene);
 for (let i = 0; i < scene.beats.length; i++) {
   const beat = scene.beats[i];
-  const voiceId = voices[beat.speaker];
-  if (!voiceId) throw new Error(`voices.json has no voice for "${beat.speaker}"`);
+  const voiceId = voiceFor(beat);
 
   const prefix = usesTags && beat.delivery ? `[${beat.delivery}] ` : '';
   const spoken = prefix + beat.text;
@@ -74,14 +136,7 @@ for (let i = 0; i < scene.beats.length; i++) {
     fs.writeFileSync(`${base}.json`, JSON.stringify(alignment));
   }
 
-  // Drop the audio tag's characters so the alignment lines up with the displayed text.
-  if (prefix && alignment.characters.slice(0, prefix.length).join('') === prefix) {
-    alignment = {
-      characters: alignment.characters.slice(prefix.length),
-      character_start_times_seconds: alignment.character_start_times_seconds.slice(prefix.length),
-      character_end_times_seconds: alignment.character_end_times_seconds.slice(prefix.length)
-    };
-  }
+  alignment = stripPrefix(alignment, prefix);
 
   const { words, talk, end } = timingsFromAlignment(beat.text, alignment, cursor);
   // The clip may run a little past the last character (breath, tag); keep the full clip.
