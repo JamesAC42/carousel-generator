@@ -1,10 +1,11 @@
-import React from 'react';
-import { Img, interpolate, spring, staticFile } from 'remotion';
+import React, { useLayoutEffect, useRef, useState } from 'react';
+import { Img, continueRender, delayRender, interpolate, spring, staticFile } from 'remotion';
 import { Slide, VideoSlide } from './scene';
 
 // The slide card sits in the top of the frame, clear of TikTok's top tabs, its right-hand
 // buttons, and the characters standing below it.
-export const CARD = { top: 150, left: 40, right: 170, maxHeight: 520 };
+// maxHeight keeps the card's bottom (590px) above the characters' heads (sprites start at 610px).
+export const CARD = { top: 150, left: 40, right: 170, maxHeight: 440 };
 
 const HANGUL = /[㄰-㆏가-힯]/;
 const INK = '#16182B';
@@ -117,5 +118,22 @@ export const SlideCard: React.FC<{ slide: Slide; since: number; fps: number }> =
     // Image slides (the carousel PNGs) are shown whole inside the card area.
     return <div style={style}><Img src={staticFile(slide)} style={{ width: '100%', maxHeight: CARD.maxHeight, objectFit: 'contain', borderRadius: 26 }} /></div>;
   }
-  return <div style={style}>{renderSlide(slide)}</div>;
+  return <div style={style}><FitToCard>{renderSlide(slide)}</FitToCard></div>;
+};
+
+// Long slide text (a wordy meaning or note) shrinks to fit the card instead of running down
+// behind the characters.
+const FitToCard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [zoom, setZoom] = useState(1);
+  const [handle] = useState(() => delayRender('Fitting slide text'));
+  useLayoutEffect(() => {
+    // Measure once the fonts are in, since the fallback fonts wrap differently.
+    document.fonts.ready.then(() => {
+      const h = ref.current?.scrollHeight ?? 0;
+      if (h > CARD.maxHeight) setZoom(CARD.maxHeight / h);
+      continueRender(handle);
+    });
+  }, [handle]);
+  return <div ref={ref} style={{ zoom }}>{children}</div>;
 };
