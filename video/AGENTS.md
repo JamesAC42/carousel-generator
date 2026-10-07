@@ -1,0 +1,58 @@
+# Making a Hanbok lesson video (for an agent)
+
+You turn one Korean line from a show into a ~45 second vertical TikTok: a short clip of the show
+saying the line, then the tutor and Sora (visual-novel characters) unpacking it over lesson slides,
+with gameplay in the bottom band and a screen recording of hanbokstudy.com at the end. Then you put
+the finished video in the outbox for posting.
+
+## One-time setup
+
+- Node 22+, ffmpeg/ffprobe, git. `cd video && npm install`.
+- Keys in the environment: `ELEVENLABS_API_KEY`, and `OPENAI_API_KEY` or `GEMINI_API_KEY` for the
+  script writer. The carousel generator (repo root) needs `GEMINI_API_KEY` too.
+- Remotion downloads its own headless Chrome on first render. If that's blocked, set `CHROME_PATH`.
+- Publishing pushes to the private repo JamesAC42/hanbok-outbox, so git needs push access to it.
+
+## Per video
+
+1. **Pick the line.** A Korean line from a drama, film or song that people quote, with a meaning the
+   usual translation misses.
+
+2. **Make the line breakdown** with the carousel generator in the repo root (`npm run dev:server`, port 3001):
+   `POST /api/line-breakdown` with `{ "line": "우리는 깐부잖아", "source": "Squid Game", "account": "kdrama" }`.
+   It answers with an `id` right away; `output/<id>/metadata.json` appears when it's done.
+   `account` is `main`, `kdrama` or `kpop` and decides the caption hashtags and where it's posted.
+
+3. **Get the clip.** Download the scene (e.g. with yt-dlp) and find where the line is said.
+   - Keep the cut to the line itself: 2 to 5 seconds, starting just before the first word.
+   - Write one sentence of context: who says it to whom, and what's happening. Only facts you're
+     sure of; the script is written from it.
+   - Don't use clips longer than that, and don't burn in your own subtitles (the video adds them).
+
+4. **Run it** from `video/`:
+   ```
+   WRITER_MODEL=<writer model> npm run lesson -- ../output/<id>/metadata.json \
+     --clip /path/to/scene.mp4 --clip-start 83.2 --clip-end 86.9 \
+     --clip-context "Il-nam says it to Gi-hun during the marble game, where they have to play against each other" \
+     --gameplay gameplay/<clip>.mp4
+   ```
+   `--gameplay` is a path under `video/public/`. Leave `--publish` off the first time.
+   `WRITER_MODEL` is the script writer (James is choosing between gpt-6.1-sol and others; the default
+   is gemini-3.8-flash).
+   Output: `out/<id>/video.mp4`, `caption.txt`, `post.json`, `scene.json`.
+
+5. **Check it before publishing.** Watch the whole video. Reject it and re-run step 4 (the script
+   is rewritten each run) if any line sounds forced, states something about the show you can't
+   confirm, or the clip is cut mid-word. To change only the dialogue, edit the beat texts in
+   `out/<id>/scene.json` and run `npm run narrate -- out/<id>/scene.json` then
+   `npm run render -- out/<id>/scene.json out/<id>/video.mp4`.
+
+6. **Publish**: `node scripts/publish.mjs out/<id>`. It pushes the video, caption and post.json to
+   hanbok-outbox and lists it in `index.json`. It refuses videos with the placeholder gameplay or
+   character art.
+
+## Posting from the outbox
+
+Read `index.json` in hanbok-outbox, newest first. For each entry you haven't posted and that isn't
+`"test": true`, post `<folder>/video.mp4` with `<folder>/caption.txt` to the account in
+`post.json`, then record the id as posted on your side.

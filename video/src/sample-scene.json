@@ -1,0 +1,161 @@
+{
+  "id": "sample-breakdown",
+  "hook": "Netflix flattened this Squid Game line",
+  "slides": [
+    {
+      "kind": "hook",
+      "text": "Netflix flattened this Squid Game line",
+      "source": "Squid Game"
+    },
+    {
+      "kind": "line",
+      "native": "우리는 깐부잖아",
+      "romanization": "urineun kkanbujana",
+      "translation": "We're friends, right?",
+      "source": "Squid Game"
+    },
+    {
+      "kind": "part",
+      "line": "우리는 깐부잖아",
+      "native": "우리는",
+      "romanization": "urineun",
+      "meaning": "as for us",
+      "note": "는 sets us up as the topic"
+    },
+    {
+      "kind": "part",
+      "line": "우리는 깐부잖아",
+      "native": "깐부",
+      "romanization": "kkanbu",
+      "meaning": "marble partner",
+      "note": "kids' slang: you share everything"
+    },
+    {
+      "kind": "part",
+      "line": "우리는 깐부잖아",
+      "native": "잖아",
+      "romanization": "jana",
+      "meaning": "you know",
+      "note": "reminds you of something you agreed on"
+    },
+    {
+      "kind": "nuance",
+      "native": "우리는 깐부잖아",
+      "literal": "as for us / marble partners / you know",
+      "natural": "We're ride-or-die, remember? You can't turn on me.",
+      "nuance": "잖아 turns it into a guilt trip: you already promised."
+    },
+    {
+      "kind": "use",
+      "native": "내일 시험이잖아",
+      "romanization": "naeil siheomijana",
+      "english": "The test is tomorrow, you know!"
+    },
+    {
+      "kind": "cta",
+      "text": "Paste any line into Hanbok for a breakdown like this"
+    }
+  ],
+  "characters": {
+    "learner": {
+      "name": "Sora",
+      "side": "left",
+      "expressions": {
+        "neutral": "sample/characters/reading.png",
+        "confused": "sample/characters/thinking.png",
+        "surprised": "sample/characters/thinking.png",
+        "happy": "sample/characters/music.png"
+      }
+    },
+    "tutor": {
+      "name": "Kkachi",
+      "side": "right",
+      "expressions": {
+        "neutral": "sample/characters/magpie.png",
+        "explaining": "sample/characters/magpie.png",
+        "smug": "sample/characters/magpie.png",
+        "happy": "sample/characters/magpie.png"
+      }
+    }
+  },
+  "background": "art/palace.jpg",
+  "beats": [
+    {
+      "speaker": "learner",
+      "slide": 0,
+      "expression": "confused",
+      "text": "I quoted this Netflix subtitle to my Korean roommate and he looked devastated!",
+      "delivery": "dramatic"
+    },
+    {
+      "speaker": "tutor",
+      "slide": 1,
+      "expression": "smug",
+      "text": "Subtitles translated 우리는 깐부잖아 as just friends. That completely erases the drama.",
+      "delivery": "scoffing"
+    },
+    {
+      "speaker": "tutor",
+      "slide": 2,
+      "expression": "explaining",
+      "text": "First, 우리는 means as for us, setting you both up as one united side.",
+      "delivery": "instructive"
+    },
+    {
+      "speaker": "learner",
+      "slide": 3,
+      "expression": "confused",
+      "text": "Okay, but what actually is a 깐부 anyway?",
+      "delivery": "curious"
+    },
+    {
+      "speaker": "tutor",
+      "slide": 3,
+      "expression": "explaining",
+      "text": "깐부 is neighborhood marble slang. It means partners who share all their marbles.",
+      "delivery": "warm"
+    },
+    {
+      "speaker": "tutor",
+      "slide": 4,
+      "expression": "explaining",
+      "text": "And 잖아 means you know. It reminds someone of a shared fact.",
+      "delivery": "pointed"
+    },
+    {
+      "speaker": "learner",
+      "slide": 5,
+      "expression": "surprised",
+      "text": "So it is not a casual reminder, it is a guilt trip!",
+      "delivery": "gasping"
+    },
+    {
+      "speaker": "tutor",
+      "slide": 5,
+      "expression": "smug",
+      "text": "Exactly. It really means: we are ride-or-die, you cannot turn on me!",
+      "delivery": "intense"
+    },
+    {
+      "speaker": "tutor",
+      "slide": 6,
+      "expression": "happy",
+      "text": "Use that ending when nagging, like 내일 시험이잖아!",
+      "delivery": "encouraging"
+    },
+    {
+      "speaker": "learner",
+      "slide": 6,
+      "expression": "happy",
+      "text": "The test is tomorrow, you know! Stop playing games!",
+      "delivery": "playful"
+    },
+    {
+      "speaker": "tutor",
+      "slide": 7,
+      "expression": "happy",
+      "text": "Paste any line into Hanbok for a breakdown like this!",
+      "delivery": "friendly"
+    }
+  ]
+}
