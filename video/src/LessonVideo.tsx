@@ -73,7 +73,8 @@ const CharacterSprite: React.FC<{ scene: Scene; who: Speaker; beat?: Beat; t: nu
   const bob = bounce(t, [open, close]);
   return (
     <Img src={staticFile(src)} style={{
-      position: 'absolute', top: FLOOR - SPRITE_H - bob, [character.side]: 0,
+      position: 'absolute', top: FLOOR - SPRITE_H - bob, // The tutor stays clear of TikTok's like/comment buttons down the right edge.
+      [character.side]: character.side === 'left' ? 0 : 140,
       height: SPRITE_H, filter: `drop-shadow(0 12px 20px rgba(0,0,0,0.45)) brightness(${active ? 1 : 0.6})`,
       transform: `scale(${active ? 1.04 : 0.94})`, transformOrigin: 'bottom center'
     }} />
@@ -94,7 +95,7 @@ const SPEAKER_COLOR: Record<Speaker, string> = { tutor: '#FF8A00', learner: '#3D
 const DialogueBox: React.FC<{ beat: Beat; t: number }> = ({ beat, t }) => {
   const shown = shownText(beat, t);
   return (
-    <div style={{ position: 'absolute', left: 30, right: 160, top: SCENE_H - 260, height: 236, boxSizing: 'border-box', background: 'rgba(15,18,35,0.86)', border: `6px solid ${SPEAKER_COLOR[beat.speaker]}`, borderRadius: 28, padding: 32, color: '#fff', fontFamily: 'TikTokSans, Jua', fontSize: 52, lineHeight: 1.22, fontWeight: 700 }}>
+    <div style={{ position: 'absolute', left: 30, right: 160, top: SCENE_H - 260, height: 236, boxSizing: 'border-box', background: 'rgba(15,18,35,0.86)', border: `6px solid ${SPEAKER_COLOR[beat.speaker]}`, borderRadius: 28, padding: '18px 32px 32px', color: '#fff', fontFamily: 'TikTokSans, Jua', fontSize: 52, lineHeight: 1.22, fontWeight: 700 }}>
       {shown.split(/(\S+)/).map((part, i) => (
         <span key={i} style={HANGUL.test(part) ? { color: '#FFE14D', fontFamily: 'Jua, TikTokSans' } : undefined}>{part}</span>
       ))}
