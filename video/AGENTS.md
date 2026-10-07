@@ -8,8 +8,7 @@ the finished video in the outbox for posting.
 ## One-time setup
 
 - Node 22+, ffmpeg/ffprobe, git. `cd video && npm install`.
-- Keys in the environment: `ELEVENLABS_API_KEY`, and `OPENAI_API_KEY` or `GEMINI_API_KEY` for the
-  script writer. The carousel generator (repo root) needs `GEMINI_API_KEY` too.
+- Keys in the environment: `ELEVENLABS_API_KEY`, and `OPENAI_API_KEY` for the script writer. The carousel generator (repo root) needs `GEMINI_API_KEY` too.
 - Remotion downloads its own headless Chrome on first render. If that's blocked, set `CHROME_PATH`.
 - Publishing pushes to the private repo JamesAC42/hanbok-outbox, so git needs push access to it.
 - Put the gameplay video (the Minecraft parkour video, `gameplay.webm`) in `video/public/gameplay/`.
@@ -35,13 +34,13 @@ the finished video in the outbox for posting.
 
 4. **Run it** from `video/`:
    ```
-   WRITER_MODEL=<writer model> npm run lesson -- ../output/<id>/metadata.json \
+   npm run lesson -- ../output/<id>/metadata.json \
      --clip /path/to/scene.mp4 --clip-start 83.2 --clip-end 86.9 \
      --clip-context "Il-nam says it to Gi-hun during the marble game, where they have to play against each other"
    ```
    Leave `--publish` off the first time. (`--gameplay <path under video/public/>` overrides the gameplay video.)
-   `WRITER_MODEL` is the script writer (James is choosing between gpt-6.1-sol and others; the default
-   is gemini-3.8-flash).
+   The script writer is GPT-6.1 Sol (James's pick), so `OPENAI_API_KEY` must be set. `WRITER_MODEL`
+   overrides it (e.g. `gemini-3.8-flash` with `GEMINI_API_KEY`).
    Output: `out/<id>/video.mp4`, `caption.txt`, `post.json`, `scene.json`.
 
 5. **Check it before publishing.** Watch the whole video. Reject it and re-run step 4 (the script
