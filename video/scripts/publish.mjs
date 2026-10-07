@@ -12,6 +12,7 @@ import { execFileSync } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { platformPosts } from './platforms.mjs';
 
 const args = process.argv.slice(2);
 const allowPlaceholders = args.includes('--allow-placeholders');
@@ -24,6 +25,11 @@ if (!srcDir) {
 
 const post = JSON.parse(fs.readFileSync(path.join(srcDir, 'post.json'), 'utf8'));
 const scene = JSON.parse(fs.readFileSync(path.join(srcDir, 'scene.json'), 'utf8'));
+// Videos made before per-platform text existed get it now.
+if (!post.platforms) {
+  post.platforms = platformPosts(post);
+  fs.writeFileSync(path.join(srcDir, 'post.json'), JSON.stringify(post, null, 2));
+}
 
 // Don't let a video with the stand-in gameplay band or stand-in characters go out by accident.
 const problems = [];
@@ -50,9 +56,8 @@ try {
   }
   fs.mkdirSync(path.join(work, folder), { recursive: true });
   for (const f of ['video.mp4', 'caption.txt', 'post.json']) fs.copyFileSync(path.join(srcDir, f), path.join(work, folder, f));
-  if (!fs.existsSync(path.join(work, 'README.md'))) {
-    fs.copyFileSync(new URL('./OUTBOX_README.md', import.meta.url), path.join(work, 'README.md'));
-  }
+  // Keep the outbox README in step with this script's version of the format.
+  fs.copyFileSync(new URL('./OUTBOX_README.md', import.meta.url), path.join(work, 'README.md'));
 
   const indexFile = path.join(work, 'index.json');
   const index = fs.existsSync(indexFile) ? JSON.parse(fs.readFileSync(indexFile, 'utf8')) : [];

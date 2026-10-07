@@ -56,5 +56,7 @@ the finished video in the outbox for posting.
 ## Posting from the outbox
 
 Read `index.json` in hanbok-outbox, newest first. For each entry you haven't posted and that isn't
-`"test": true`, post `<folder>/video.mp4` with `<folder>/caption.txt` to the account in
-`post.json`, then record the id as posted on your side.
+`"test": true`, post `<folder>/video.mp4` to the account in `post.json` on each platform, using that
+platform's text from `post.json` → `platforms` (tiktok, youtube, instagram, facebook, pinterest) as is.
+Don't rewrite the text or the links: each link is tagged with its platform so signups can be
+attributed. Record which platforms you've posted each id to on your side.
