@@ -36,9 +36,23 @@ function beatAt(beats: Beat[], t: number): Beat | undefined {
   return current ?? beats[0];
 }
 
-function isTalking(beat: Beat, t: number): boolean {
-  const spans = beat.talk ?? [[beat.start, beat.end]];
-  return spans.some(([s, e]) => t >= s && t <= e);
+// The mouth opens once per line and stays open until the line ends: closed for a moment
+// first, open from just after the first sound to the last, then closed again.
+const MOUTH_LEAD = 0.08;
+function mouthWindow(beat: Beat): [number, number] {
+  const spans = beat.talk?.length ? beat.talk : [[beat.start, beat.end] as [number, number]];
+  return [spans[0][0] + MOUTH_LEAD, spans[spans.length - 1][1]];
+}
+
+// A small hop each time the mouth opens or closes, so the swap reads as a reaction.
+const BOUNCE_S = 0.18;
+const BOUNCE_PX = 8;
+function bounce(t: number, at: number[]): number {
+  for (const a of at) {
+    const p = (t - a) / BOUNCE_S;
+    if (p >= 0 && p <= 1) return Math.sin(Math.PI * p) * BOUNCE_PX;
+  }
+  return 0;
 }
 
 const Backdrop: React.FC<{ src?: string }> = ({ src }) => (
@@ -50,15 +64,13 @@ const Backdrop: React.FC<{ src?: string }> = ({ src }) => (
 const CharacterSprite: React.FC<{ scene: Scene; who: Speaker; beat?: Beat; t: number }> = ({ scene, who, beat, t }) => {
   const character = scene.characters[who];
   const active = beat?.speaker === who;
-  const talking = active && !!beat && isTalking(beat, t);
-  // Mouth flaps at ~6 per second while voicing; pauses in the narration close the mouth.
-  const mouthOpen = talking && Math.floor(t * 12) % 2 === 0;
+  const [open, close] = active && beat ? mouthWindow(beat) : [Infinity, Infinity];
+  const mouthOpen = t >= open && t < close;
   const expression = active ? beat!.expression : 'neutral';
   const base = character.expressions[expression] || character.expressions.neutral || Object.values(character.expressions)[0];
   const talkFrame = character.expressions[`${expression}_talk`];
   const src = mouthOpen && talkFrame ? talkFrame : base;
-  // Without a mouth-open frame, a small bob stands in for the mouth.
-  const bob = talking && !talkFrame ? Math.abs(Math.sin(t * 14)) * 10 : 0;
+  const bob = bounce(t, [open, close]);
   return (
     <Img src={staticFile(src)} style={{
       position: 'absolute', top: FLOOR - SPRITE_H - bob, [character.side]: character.side === 'left' ? 10 : 140,
