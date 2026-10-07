@@ -81,10 +81,11 @@ const account = breakdown.account || 'main';
 fs.writeFileSync(path.join(dir, 'post.json'), JSON.stringify({
   id,
   type: 'lesson-video',
+  format: 'lesson-video',
   account,
   hook: scene.hook,
   caption,
-  platforms: platformPosts({ id, account, hook: scene.hook, caption, title: breakdown.title, learnUrl: breakdown.learnUrl }),
+  platforms: platformPosts({ kind: 'video', id, account, hook: scene.hook, caption }),
   bioLink: breakdown.bioLink,
   durationSeconds: Math.round(scene.beats[scene.beats.length - 1].end),
   createdAt: new Date().toISOString()

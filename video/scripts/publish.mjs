@@ -3,15 +3,11 @@
 //
 //   node scripts/publish.mjs out/<id> [--allow-placeholders] [--test]
 //
-// Layout of the outbox repo (main branch):
-//   index.json                 newest first: [{ id, account, hook, folder, createdAt, test? }]
-//   posts/<date>-<id>/video.mp4, caption.txt, post.json
-// --test marks the entry "test": true so the posting agent skips it.
-// OUTBOX_REPO overrides the repo URL.
-import { execFileSync } from 'child_process';
+// The folder gets video.mp4, caption.txt and post.json. --test marks the entry "test": true so the
+// posting agent skips it. Slideshows go out with publish-slides.mjs instead.
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
+import { pushToOutbox } from './outbox.mjs';
 import { platformPosts } from './platforms.mjs';
 
 const args = process.argv.slice(2);
@@ -27,7 +23,7 @@ const post = JSON.parse(fs.readFileSync(path.join(srcDir, 'post.json'), 'utf8'))
 const scene = JSON.parse(fs.readFileSync(path.join(srcDir, 'scene.json'), 'utf8'));
 // Videos made before per-platform text existed get it now.
 if (!post.platforms) {
-  post.platforms = platformPosts(post);
+  post.platforms = platformPosts({ ...post, kind: 'video' });
   fs.writeFileSync(path.join(srcDir, 'post.json'), JSON.stringify(post, null, 2));
 }
 
@@ -42,32 +38,4 @@ if (problems.length && !allowPlaceholders) {
   process.exit(1);
 }
 
-const REPO = process.env.OUTBOX_REPO || 'https://github.com/JamesAC42/hanbok-outbox';
-const git = (cwd, ...a) => execFileSync('git', a, { cwd, encoding: 'utf8' }).trim();
-const work = fs.mkdtempSync(path.join(os.tmpdir(), 'outbox-'));
-
-try {
-  // Shallow, so the clone stays small however many videos the outbox holds.
-  git(work, 'clone', '--depth', '1', REPO, '.');
-  const folder = path.posix.join('posts', `${post.createdAt.slice(0, 10)}-${post.id}`);
-  if (fs.existsSync(path.join(work, folder))) {
-    console.error(`${folder} is already in the outbox; not publishing it twice.`);
-    process.exit(1);
-  }
-  fs.mkdirSync(path.join(work, folder), { recursive: true });
-  for (const f of ['video.mp4', 'caption.txt', 'post.json']) fs.copyFileSync(path.join(srcDir, f), path.join(work, folder, f));
-  // Keep the outbox README in step with this script's version of the format.
-  fs.copyFileSync(new URL('./OUTBOX_README.md', import.meta.url), path.join(work, 'README.md'));
-
-  const indexFile = path.join(work, 'index.json');
-  const index = fs.existsSync(indexFile) ? JSON.parse(fs.readFileSync(indexFile, 'utf8')) : [];
-  const entry = { id: post.id, account: post.account, hook: post.hook, folder, createdAt: post.createdAt, ...(test ? { test: true } : {}) };
-  fs.writeFileSync(indexFile, JSON.stringify([entry, ...index.filter(e => e.id !== post.id)], null, 2) + '\n');
-
-  git(work, 'add', '-A');
-  git(work, 'commit', '-m', `${test ? 'Test post' : 'Post'}: ${post.id}`);
-  git(work, 'push', 'origin', 'HEAD:main');
-  console.log(`Published ${folder}${test ? ' (test)' : ''}`);
-} finally {
-  fs.rmSync(work, { recursive: true, force: true });
-}
+pushToOutbox(post, ['video.mp4', 'caption.txt', 'post.json'].map(f => [path.join(srcDir, f), f]), { test });

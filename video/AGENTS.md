@@ -3,7 +3,8 @@
 You turn one Korean line from a show into a ~45 second vertical TikTok: a short clip of the show
 saying the line, then the tutor and Sora (visual-novel characters) unpacking it over lesson slides,
 with gameplay in the bottom band and a screen recording of hanbokstudy.com at the end. Then you put
-the finished video in the outbox for posting.
+the finished video in the outbox for posting. The whole workflow, slideshows included, starts at
+`AGENTS.md` in the repo root.
 
 ## One-time setup
 
@@ -55,8 +56,7 @@ the finished video in the outbox for posting.
 
 ## Posting from the outbox
 
-Read `index.json` in hanbok-outbox, newest first. For each entry you haven't posted and that isn't
-`"test": true`, post `<folder>/video.mp4` to the account in `post.json` on each platform, using that
-platform's text from `post.json` → `platforms` (tiktok, youtube, instagram, facebook, pinterest) as is.
-Don't rewrite the text or the links: each link is tagged with its platform so signups can be
-attributed. Record which platforms you've posted each id to on your side.
+Follow the runbook in hanbok-outbox's `README.md` (its source is `scripts/OUTBOX_README.md` here). It
+says which platforms get each post, what text and link to use on each, and how to log posts in
+`metrics/posts.csv`. The slideshow made from the same breakdown goes out too; see `AGENTS.md` at the
+repo root.

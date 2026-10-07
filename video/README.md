@@ -37,7 +37,8 @@ npm run render -- out/<name>.json out/<name>.mp4
 
 `npm run lesson -- <metadata.json> --gameplay <clip> --publish` (or `node scripts/publish.mjs out/<id>`)
 pushes `video.mp4`, `caption.txt` and `post.json` to `posts/<date>-<id>/` in the private repo
-JamesAC42/hanbok-outbox and adds the post to its `index.json`, newest first. The posting agent pulls
-that repo, posts each new folder's video with its caption to the account in `post.json`, and keeps
-its own record of posted ids (see the outbox README). Publishing refuses videos that still use the
+JamesAC42/hanbok-outbox and adds the post to its `index.json`, newest first. Slideshows go there too,
+with `node scripts/publish-slides.mjs ../output/<id>`. `post.json` carries ready-to-use text for each
+platform (`scripts/platforms.mjs`). Publishing also copies `scripts/OUTBOX_README.md`, the posting
+runbook, to the outbox's README. Publishing refuses videos that still use the
 placeholder gameplay or art; `--test` marks an entry for the agent to skip.
