@@ -1,8 +1,15 @@
 # Making a Hanbok lesson video (for an agent)
 
-You turn one Korean line from a show into a ~45 second vertical TikTok: a short clip of the show
-saying the line, then the tutor and Sora (visual-novel characters) unpacking it over lesson slides,
-with gameplay in the bottom band and a screen recording of hanbokstudy.com at the end. Then you put
+You turn one Korean line from a show into a 20 to 30 second vertical TikTok built for engagement,
+not for teaching. The full lesson is on hanbokstudy.com, and the video's job is to get watched to
+the end, get comments, and send people to the link in bio:
+- A hook on screen from the first frame, over a short clip of the show saying the line.
+- The tutor and Sora (visual-novel characters) ask viewers to comment their guess on a two-option
+  poll, then reveal the answer and say why it matters in the scene.
+- It ends on a tease of what the video left out, over a screen recording of hanbokstudy.com with
+  "Full breakdown: link in bio".
+
+Gameplay fills the bottom band, and the caption ends on the poll question. Then you put
 the finished video in the outbox for posting. The whole workflow, slideshows included, starts at
 `AGENTS.md` in the repo root.
 
@@ -53,7 +60,8 @@ the finished video in the outbox for posting. The whole workflow, slideshows inc
 
 5. **Check it before publishing.** Watch the whole video. Reject it and re-run step 4 (the script
    is rewritten each run) if any line sounds forced, states something about the show you can't
-   confirm, or the clip is cut mid-word. To change only the dialogue, edit the beat texts in
+   confirm, the clip is cut mid-word, the first line gives the answer away before the poll, or the
+   poll's marked answer is wrong. To change only the dialogue, edit the beat texts in
    `out/<id>/scene.json` and run `npm run narrate -- out/<id>/scene.json` then
    `npm run render -- out/<id>/scene.json out/<id>/video.mp4`.
 

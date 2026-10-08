@@ -119,19 +119,23 @@ const Gameplay: React.FC<{ src?: string; start?: number; fps: number; t: number 
 const CtaBroll: React.FC<{ src: string }> = ({ src }) => (
   <div style={{ position: 'absolute', top: CARD.top, left: CARD.left, right: CARD.right, aspectRatio: '16 / 9', borderRadius: 26, overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.35)', background: '#fff' }}>
     <OffthreadVideo src={staticFile(src)} muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 18, display: 'flex', justifyContent: 'center' }}>
+      <div style={{ background: '#E0313B', color: '#fff', fontFamily: 'LilitaOne', fontSize: 52, padding: '8px 30px', borderRadius: 18, boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>Full breakdown: link in bio</div>
+    </div>
   </div>
 );
 
 // Cold open: the show's own clip, with the line subtitled underneath, before anyone talks.
-const ColdOpen: React.FC<{ clip: NonNullable<Scene['clip']> }> = ({ clip }) => (
+// The hook sits above the clip from the first frame, so the opening second already says why to stay.
+const ColdOpen: React.FC<{ clip: NonNullable<Scene['clip']>; hook: string }> = ({ clip, hook }) => (
   <AbsoluteFill style={{ height: SCENE_H }}>
-    {clip.label && (
-      <div style={{ position: 'absolute', top: 150, left: 40, background: '#E0313B', color: '#fff', fontFamily: 'LilitaOne', fontSize: 40, padding: '6px 24px', borderRadius: 14 }}>{clip.label}</div>
-    )}
-    <div style={{ position: 'absolute', top: 230, left: 0, right: 0, aspectRatio: '16 / 9', background: '#000' }}>
+    <div style={{ position: 'absolute', top: 140, left: 40, right: 170, height: 170, display: 'flex', alignItems: 'center' }}>
+      <div style={{ background: '#fff', color: '#16182B', fontFamily: 'TikTokSans', fontWeight: 800, fontSize: 64, lineHeight: 1.08, padding: '12px 26px', borderRadius: 22, boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>{hook}</div>
+    </div>
+    <div style={{ position: 'absolute', top: 330, left: 0, right: 0, aspectRatio: '16 / 9', background: '#000' }}>
       <OffthreadVideo src={staticFile(clip.src)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
     </div>
-    <div style={{ position: 'absolute', top: 230 + 1080 * 9 / 16 + 40, left: 40, right: 170, textAlign: 'center' }}>
+    <div style={{ position: 'absolute', top: 330 + 1080 * 9 / 16 + 30, left: 40, right: 170, textAlign: 'center' }}>
       <div style={{ fontFamily: 'Jua', fontSize: 84, color: '#FFE14D', lineHeight: 1.1, textShadow: '0 4px 16px rgba(0,0,0,0.6)' }}>{clip.line}</div>
       {clip.translation && (
         <div style={{ fontFamily: 'TikTokSans', fontWeight: 800, fontSize: 46, color: '#fff', marginTop: 12, textShadow: '0 4px 16px rgba(0,0,0,0.6)' }}>{clip.translation}</div>
@@ -147,7 +151,10 @@ export const LessonVideo: React.FC<{ scene: Scene }> = ({ scene }) => {
   const t = frame / fps;
   const beat = beatAt(scene.beats, t);
   const slideIndex = Math.min(beat?.slide ?? 0, scene.slides.length - 1);
-  const slideSince = t - (scene.beats.find(b => b.slide === beat?.slide)?.start ?? 0);
+  const firstOnSlide = scene.beats.find(b => b.slide === beat?.slide);
+  const slideSince = t - (firstOnSlide?.start ?? 0);
+  // A quiz slide reveals its answer from its second beat on.
+  const revealed = !!beat && beat !== firstOnSlide;
   const inColdOpen = !!scene.clip && t < scene.clip.seconds;
   const brollStart = ctaStart(scene);
   const broll = brollStart !== undefined ? scene.ctaBroll : undefined;
@@ -155,10 +162,10 @@ export const LessonVideo: React.FC<{ scene: Scene }> = ({ scene }) => {
   return (
     <AbsoluteFill style={{ background: '#000' }}>
       <Backdrop src={scene.background} />
-      {inColdOpen ? <ColdOpen clip={scene.clip!} /> : <>
+      {inColdOpen ? <ColdOpen clip={scene.clip!} hook={scene.hook} /> : <>
         {broll && t >= brollStart! ? (
           <Sequence from={Math.round(brollStart! * fps)} layout="none"><CtaBroll src={broll.src} /></Sequence>
-        ) : scene.slides[slideIndex] && <SlideCard key={slideIndex} slide={scene.slides[slideIndex]} since={slideSince} fps={fps} />}
+        ) : scene.slides[slideIndex] && <SlideCard key={slideIndex} slide={scene.slides[slideIndex]} since={slideSince} fps={fps} revealed={revealed} />}
         <CharacterSprite scene={scene} who="learner" beat={beat} t={t} />
         <CharacterSprite scene={scene} who="tutor" beat={beat} t={t} />
         {beat && <DialogueBox beat={beat} t={t} />}

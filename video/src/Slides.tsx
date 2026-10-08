@@ -32,7 +32,7 @@ const Column: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>{children}</div>
 );
 
-function renderSlide(s: VideoSlide) {
+function renderSlide(s: VideoSlide, revealed: boolean) {
   switch (s.kind) {
     case 'hook':
       return (
@@ -96,6 +96,31 @@ function renderSlide(s: VideoSlide) {
           </Box>
         </Column>
       );
+    case 'quiz':
+      if (!s.question) return null;
+      return (
+        <Column>
+          <Chip color="#3D64E8">Guess</Chip>
+          <Box style={{ fontFamily: 'TikTokSans', fontWeight: 800, fontSize: 58, lineHeight: 1.15 }}><Mixed text={s.question} /></Box>
+          {s.options.map((option, i) => {
+            const right = revealed && i === s.answer;
+            const wrong = revealed && i !== s.answer;
+            return (
+              <Box key={i} style={{
+                display: 'flex', alignItems: 'center', gap: 22, fontFamily: 'TikTokSans', fontWeight: 800, fontSize: 50,
+                background: right ? '#2BB673' : '#fff', color: right ? '#fff' : INK, opacity: wrong ? 0.45 : 1,
+                transform: right ? 'scale(1.03)' : undefined
+              }}>
+                <span style={{ fontFamily: 'LilitaOne', fontSize: 56, color: right ? '#fff' : '#E0313B' }}>{right ? '✓' : 'AB'[i]}</span>
+                <span><Mixed text={option} /></span>
+              </Box>
+            );
+          })}
+          {!revealed && (
+            <div style={{ alignSelf: 'flex-start', background: '#E0313B', color: '#fff', fontFamily: 'LilitaOne', fontSize: 48, padding: '6px 26px', borderRadius: 16 }}>Comment your guess ↓</div>
+          )}
+        </Column>
+      );
     case 'cta':
       return (
         <Column>
@@ -107,7 +132,8 @@ function renderSlide(s: VideoSlide) {
 }
 
 // `since` is seconds since this slide appeared, for the pop-in.
-export const SlideCard: React.FC<{ slide: Slide; since: number; fps: number }> = ({ slide, since, fps }) => {
+// `revealed` shows a quiz slide's answer.
+export const SlideCard: React.FC<{ slide: Slide; since: number; fps: number; revealed?: boolean }> = ({ slide, since, fps, revealed = false }) => {
   const pop = spring({ frame: Math.round(since * fps), fps, config: { damping: 14, stiffness: 160 } });
   const style: React.CSSProperties = {
     position: 'absolute', top: CARD.top, left: CARD.left, right: CARD.right, maxHeight: CARD.maxHeight,
@@ -118,7 +144,7 @@ export const SlideCard: React.FC<{ slide: Slide; since: number; fps: number }> =
     // Image slides (the carousel PNGs) are shown whole inside the card area.
     return <div style={style}><Img src={staticFile(slide)} style={{ width: '100%', maxHeight: CARD.maxHeight, objectFit: 'contain', borderRadius: 26 }} /></div>;
   }
-  return <div style={style}><FitToCard>{renderSlide(slide)}</FitToCard></div>;
+  return <div style={style}><FitToCard>{renderSlide(slide, revealed)}</FitToCard></div>;
 };
 
 // Long slide text (a wordy meaning or note) shrinks to fit the card instead of running down

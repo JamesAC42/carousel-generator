@@ -11,7 +11,7 @@ are made is in the carousel generator's `AGENTS.md`.
   `{ "id", "type", "account", "hook", "folder", "createdAt", "test"? }`.
 - `type` is `lesson-video` or `slides`. Entries without a `type` are lesson videos.
 - Each `folder` holds the files to post and `post.json`:
-  - `lesson-video`: `video.mp4` (1080x1920, about 45 seconds).
+  - `lesson-video`: `video.mp4` (1080x1920, 20 to 30 seconds).
   - `slides`: `slide-1.png`, `slide-2.png`, ... (1080x1350, post them in that order).
   - Both: `caption.txt` (the TikTok caption, ready to paste) and `post.json`, which has `format`
     (for `posts.csv`) and ready-to-use text for each platform under `platforms`.
@@ -88,10 +88,15 @@ Older posts without `platforms`: post them to TikTok only, with `caption.txt`.
    - `format`: `post.json` → `format` (`lesson-video`, `slides-storybook`, `slides-variety` or
      `slides-notes`).
    - Also fill in `hook`, `posted_at` and `url`.
-4. About 48 hours later, and again at 7 days, fill in that row's numbers from the platform's
+4. Work the comments, because they're what the algorithms reward most:
+   - Right after posting a lesson video, pin a comment on TikTok, YouTube and Instagram:
+     "Answer's in the video. The full breakdown is free at the link in bio."
+   - For the first hour after posting, reply to every comment. Tell people who guessed whether
+     they got it right, and answer questions in one line.
+5. About 48 hours later, and again at 7 days, fill in that row's numbers from the platform's
    analytics.
-5. Once a week, add each account's numbers to `metrics/accounts.csv`.
-6. Commit and push your changes to `metrics/` on `main`.
+6. Once a week, add each account's numbers to `metrics/accounts.csv`.
+7. Commit and push your changes to `metrics/` on `main`.
 
 `metrics/README.md` explains every column. This is how we learn which hooks, formats and platforms
 bring signups.

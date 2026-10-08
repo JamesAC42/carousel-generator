@@ -47,6 +47,8 @@ export type VideoSlide =
   | { kind: 'part'; line: string; native: string; romanization: string; meaning: string; note?: string }
   | { kind: 'nuance'; native: string; literal: string; natural: string; nuance: string }
   | { kind: 'use'; native: string; romanization: string; english: string }
+  // "Guess what it means": two options, the answer highlighted once the reveal beat starts.
+  | { kind: 'quiz'; question: string; options: string[]; answer: number }
   | { kind: 'cta'; text: string };
 
 // An image path (relative to public/) or a slide the video draws itself.
@@ -64,6 +66,8 @@ export interface Scene {
   gameplayStart?: number;
   /** Screen recording of the site played in the slide card during the CTA, e.g. public/broll/site-cta.mp4. */
   ctaBroll?: { src: string; seconds: number };
+  /** The quiz slide's content, repeated for the caption. */
+  quiz?: { question: string; options: string[]; answer: number };
   /** Cold open: a short clip of the show saying the line, played before the dialogue starts. */
   clip?: { src: string; seconds: number; line: string; translation?: string; label?: string };
   /** The whole conversation voiced in one take (ElevenLabs dialogue), starting at `start` seconds. */
@@ -88,16 +92,18 @@ export interface LineBreakdown {
   use_it: { native: string; romanization: string; english: string };
 }
 
-export const CTA_TEXT = 'Paste any line into Hanbok for a breakdown like this';
+export const CTA_TEXT = 'The full breakdown is free on Hanbok. Link in bio';
 
+// The video's slides, in order. The quiz is a placeholder the script writer fills in. There's no
+// "use it" slide: how to use the line is what the site shows, so the video teases it instead.
 export function slidesFromBreakdown(b: LineBreakdown, hookIndex = 0): VideoSlide[] {
   const source = b.source || undefined;
   return [
     { kind: 'hook', text: b.hooks[hookIndex] || b.hooks[0] || b.title, source },
     { kind: 'line', native: b.line.native, romanization: b.line.romanization, translation: b.line.common_translation, source },
+    { kind: 'quiz', question: '', options: [], answer: 0 },
     ...b.parts.map(p => ({ kind: 'part' as const, line: b.line.native, native: p.native, romanization: p.romanization, meaning: p.meaning, note: p.note })),
     { kind: 'nuance', native: b.line.native, literal: b.line.literal, natural: b.line.natural, nuance: b.nuance },
-    { kind: 'use', native: b.use_it.native, romanization: b.use_it.romanization, english: b.use_it.english },
     { kind: 'cta', text: CTA_TEXT }
   ];
 }

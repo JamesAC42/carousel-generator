@@ -76,7 +76,12 @@ run('render.mjs', sceneFile, videoFile);
 
 // The carousel generator already wrote a caption with hashtags for this line; reuse it.
 const scene = JSON.parse(fs.readFileSync(sceneFile, 'utf8'));
-const caption = breakdown.caption || `${scene.hook}\n\n#learnkorean #korean #hanbokstudy`;
+// The caption ends on the video's quiz question, so viewers answer it in the comments.
+const baseCaption = breakdown.caption || `${scene.hook}\n\n#learnkorean #korean #hanbokstudy`;
+const tagsAt = baseCaption.search(/\n+#/);
+const [captionText, captionTags] = tagsAt >= 0 ? [baseCaption.slice(0, tagsAt), baseCaption.slice(tagsAt)] : [baseCaption, ''];
+const ask = scene.quiz ? `\n\n${scene.quiz.question} ${scene.quiz.options.map((o, i) => `${'AB'[i]}) ${o}`).join(' or ')}? Comment your guess.` : '';
+const caption = `${captionText.trim()}${ask}${captionTags}`;
 fs.writeFileSync(path.join(dir, 'caption.txt'), `${caption}\n`);
 const account = breakdown.account || 'main';
 fs.writeFileSync(path.join(dir, 'post.json'), JSON.stringify({
