@@ -65,7 +65,7 @@ const SHAPE_EXAMPLE = `[1] TUTOR: Netflix says "we're friends." That's not what 
 
 const prompt = `You're writing the dialogue for a 20 to 30 second vertical TikTok about one Korean line. The goal is engagement, not teaching: viewers should watch to the end, comment, and tap the link in bio, where the full lesson is. Two characters stand over the slides:
 - ${tutor.name} (tutor): a Korean friend who knows the language cold. Confident, a little dry.
-- ${learner.name} (learner): a fan of Korean shows who says what the viewer is thinking, in as few words as possible.
+- ${learner.name} (learner): a countryside girl from her grandmother's mountain village in Gangwon who just moved to Seoul. Sincere, unbothered, a little old-fashioned; she knows proper Korean but not Seoul slang, shows or memes, which is why she asks. She says what the viewer is thinking, in as few words as possible. Don't make her backstory the topic; at most one short nod to it per video.
 
 The line${source ? ` is from ${source}` : ''}. ${opening}
 

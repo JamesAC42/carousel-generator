@@ -4,7 +4,8 @@ You turn one Korean line from a show into a 20 to 30 second vertical TikTok buil
 not for teaching. The full lesson is on hanbokstudy.com, and the video's job is to get watched to
 the end, get comments, and send people to the link in bio:
 - A hook on screen from the first frame, over a short clip of the show saying the line.
-- The tutor and Sora (visual-novel characters) ask viewers to comment their guess on a two-option
+- The tutor and Sora (visual-novel characters; Sora is a countryside girl who just moved to Seoul,
+  the same character as the "Sora in Seoul" skits) ask viewers to comment their guess on a two-option
   poll, then reveal the answer and say why it matters in the scene.
 - It ends on a tease of what the video left out, over a screen recording of hanbokstudy.com with
   "Full breakdown: link in bio".
