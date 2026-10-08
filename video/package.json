@@ -8,7 +8,9 @@
     "narrate": "node --experimental-strip-types scripts/narrate.mjs",
     "voices": "node scripts/voices.mjs",
     "render": "node render.mjs",
-    "lesson": "node scripts/make-lesson.mjs"
+    "lesson": "node scripts/make-lesson.mjs",
+    "skit": "node render-skit.mjs",
+    "skit:studio": "remotion studio src/skit-index.ts"
   },
   "dependencies": {
     "@remotion/bundler": "4.0.533",

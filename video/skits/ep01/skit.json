@@ -1,0 +1,42 @@
+{
+  "id": "ep01-aa",
+  "episode": 1,
+  "title": { "ko": "아아", "en": "iced americano" },
+  "shots": [
+    { "id": "S1", "seconds": 2.5, "bg": "linear-gradient(#8fa6bf, #dfe7ef)", "snow": true, "sprite": "neutral", "note": "Snowy street, -10°. Sora in hanbok + long padded coat walks into a cafe." },
+    { "id": "S2", "seconds": 3, "bg": "linear-gradient(#f3d9b1, #c9925e)", "sprite": "happy", "note": "At the counter, small polite bow to the barista." },
+    { "id": "S3", "seconds": 1.5, "bg": "linear-gradient(#f3d9b1, #c9925e)", "punchIn": true, "note": "Close-up: mittens take a steaming paper cup." },
+    { "id": "S4", "seconds": 2.5, "bg": "linear-gradient(#8fa6bf, #dfe7ef)", "snow": true, "sprite": "happy", "note": "Outside, eyes closed, cradling the hot cup. Bliss." },
+    { "id": "S5", "seconds": 3, "bg": "linear-gradient(#6f8299, #c9d4df)", "snow": true, "sprite": "surprised", "note": "A line of office workers walks past in the snow. Every one holds an ICED americano." },
+    { "id": "S6", "seconds": 1.5, "bg": "linear-gradient(#5d7088, #b8c6d4)", "snow": true, "punchIn": true, "note": "Extreme close-up: a gloved hand rattles a cup full of ice." },
+    { "id": "S7", "seconds": 3.2, "bg": "linear-gradient(#8fa6bf, #dfe7ef)", "snow": true, "sprite": "disappointed", "note": "Deadpan. She looks down at her hot cup... then straight at the camera. Hold." },
+    { "id": "S8", "seconds": 2.6, "bg": "linear-gradient(#f3d9b1, #c9925e)", "sprite": "determined", "punchIn": true, "note": "Smash cut: back at the counter, dead serious." }
+  ],
+  "lines": [
+    { "shot": "S2", "at": 0.5, "seconds": 2.3, "ko": "따뜻한 아메리카노 주세요.", "en": "One hot americano, please." },
+    { "shot": "S8", "at": 0.4, "seconds": 2.2, "ko": "아아 하나 주세요.", "en": "One iced americano, please." }
+  ],
+  "sfx": [
+    { "shot": "S1", "at": 0, "label": "wind, door chime" },
+    { "shot": "S3", "at": 0, "label": "cup tap" },
+    { "shot": "S4", "at": 0.6, "label": "contented sigh" },
+    { "shot": "S5", "at": 0, "label": "ice clinking, LOUD" },
+    { "shot": "S6", "at": 0.2, "label": "one big ice rattle" },
+    { "shot": "S7", "at": 0, "label": "silence, just wind" }
+  ],
+  "strip": ["S2", "S4", "S5", "S7"],
+  "lesson": {
+    "card": {
+      "native": "아아",
+      "romanization": "a-a",
+      "meaning": "short for 아이스 아메리카노 (iced americano)",
+      "note": "얼죽아 = 얼어 죽어도 아이스 아메리카노: iced americano, even if I freeze to death"
+    },
+    "beats": [
+      { "expression": "thinking", "text": "So 아아 is just short for 아이스 아메리카노.", "seconds": 3.2 },
+      { "expression": "surprised", "text": "And people who drink it at minus ten? They're called 얼죽아.", "seconds": 3.6 },
+      { "expression": "excited", "text": "얼어 죽어도 아이스 아메리카노. Iced americano, even if I freeze to death.", "seconds": 4.2 },
+      { "expression": "determined", "text": "I'm one of them now.", "seconds": 2.2 }
+    ]
+  }
+}
