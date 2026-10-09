@@ -51,19 +51,19 @@ const tutor = cast.tutor;
 const learner = cast.learner;
 const source = breakdown.source;
 const opening = clipSrc
-  ? `The video opens with a ${clipSeconds.toFixed(0)}-second clip from ${source || 'the show'} where the line is said, subtitled on screen.${clipContext ? ` In the clip: ${clipContext}.` : ''} Viewers have just heard it. The first beat comes right after the clip and reacts to what they just heard, so it can say "that" or "he" without setting the scene up again.`
+  ? `The video opens with a ${clipSeconds.toFixed(0)}-second clip of the scene from ${source || 'the show'}. It pauses right after the line, rewinds, and plays the line again with subtitles, so viewers have just heard it twice.${clipContext ? ` In the clip: ${clipContext}.` : ''} The first beat comes right after the clip and reacts to what they just heard, so it can say "that" or "he" without setting the scene up again.`
   : `There's no clip of the show, so the first beat has to say plainly who says the line, to whom, and when${source ? ` in ${source}` : ''}.`;
 
 // The shape we want, on 우리는 깐부잖아 (after a clip of the scene). Shown to the writer for rhythm only.
-const SHAPE_EXAMPLE = `[1] TUTOR: Netflix says "we're friends." That's not what he's saying.
-[2] SORA: Then what is 깐부?
-[2] TUTOR: Comment your guess. Friend, or marble partner?
-[2] TUTOR: Marble partner. You share everything you win.
-[3] TUTOR: And 잖아 means "you know." He's reminding Gi-hun of a promise.
-[4] SORA: So it's pressure, not friendship.
-[5] TUTOR: The other ways people use 잖아 are on Hanbok. Link in bio.`;
+const SHAPE_EXAMPLE = `[0] TUTOR: Netflix says "we're friends." That's not what he's saying.
+[0] SORA: He looks so friendly, though.
+[2] TUTOR: 깐부 means marble partners. You share everything you win.
+[4] TUTOR: Now the ending, 잖아. Comment your guess. Is he asking, or reminding him?
+[4] TUTOR: Reminding him. Like "you promised."
+[5] SORA: So it's pressure, not friendship.
+[6] TUTOR: There's a softer way to use 잖아, too. Full breakdown, link in bio. Follow for more.`;
 
-const prompt = `You're writing the dialogue for a 20 to 30 second vertical TikTok about one Korean line. The goal is engagement, not teaching: viewers should watch to the end, comment, and tap the link in bio, where the full lesson is. Two characters stand over the slides:
+const prompt = `You're writing the dialogue for a vertical TikTok about one Korean line; the dialogue runs 20 to 30 seconds. The goal is engagement, not teaching: viewers should watch to the end, comment, and tap the link in bio, where the full lesson is. Two characters stand over the slides:
 - ${tutor.name} (tutor): a Korean friend who knows the language cold. Confident, a little dry.
 - ${learner.name} (learner): a countryside girl from her grandmother's mountain village in Gangwon who just moved to Seoul. Sincere, unbothered, a little old-fashioned; she knows proper Korean but not Seoul slang, shows or memes, which is why she asks. She says what the viewer is thinking, in as few words as possible. Don't make her backstory the topic; at most one short nod to it per video.
 
@@ -74,14 +74,15 @@ ${slides.map(describeSlide).join('\n')}
 
 Rules (follow strictly):
 1. The first beat is a hook: a specific, surprising claim that makes viewers need the answer, e.g. that the subtitle got it wrong or that it means something darker. Say it in under 12 words. Don't answer it yet.
-2. The GUESS slide: write "quiz" as a short question about the one word or ending that carries the meaning, with two short options (under 6 words each), one correct and one the usual wrong reading. It gets exactly two beats: the first asks viewers to comment their guess and names both options; the second reveals the answer in a few words.
-3. After the reveal, one or two beats on why it matters in the scene. Skip any slide you don't need; skipped slides aren't shown. Slide numbers never go backwards.
-4. The last beat plays over the CTA slide: a tease of something the video didn't cover (other ways to use it, what it says about the speaker), then "link in bio". Never "paste any line".
-5. 6 to 9 beats in total, each at most 12 words. Contractions, fragments are fine. No lists, no colons.
-6. Only true, specific claims. Never invent a personal anecdote or a plot detail you're unsure of. Never claim anything about subtitles or official translations beyond what's in the slides.
-7. No meme phrases or hype words (literally, totally, mind-blown, vibe, bestie, slay, plot twist, "wait, what", "whoa"). Exclamation marks on at most one beat.
-8. ${learner.name} speaks at most a third of the beats, and never just to hand ${tutor.name} his next line.
-9. Korean in Hangul exactly as on the slides (the voice reads Hangul), never romanized. At most one Korean phrase per beat.
+2. Then two or three beats of setup before the guess, so viewers know what's being asked: what's happening in the scene, and the parts that aren't the answer. Never show a PART slide that gives away the quiz answer.
+3. The GUESS slide comes after that setup: write "quiz" as a short question about the one word or ending that carries the meaning, with two short options (under 6 words each), one correct and one the usual wrong reading. It gets exactly two beats: the first asks viewers to comment their guess and names both options (the video then holds a 3-second countdown); the second reveals the answer in a few words.
+4. After the reveal, one beat on why it matters in the scene. Skip any slide you don't need; skipped slides aren't shown. Slide numbers never go backwards.
+5. The last beat plays over the CTA slide: a tease of something the video didn't cover (other ways to use it, what it says about the speaker), then "link in bio", then "Follow for more." Never "paste any line".
+6. 7 to 9 beats in total, each at most 12 words (the CTA beat may run to 16). Contractions, fragments are fine. No lists, no colons.
+7. Only true, specific claims. Never invent a personal anecdote or a plot detail you're unsure of. Never claim anything about subtitles or official translations beyond what's in the slides.
+8. No meme phrases or hype words (literally, totally, mind-blown, vibe, bestie, slay, plot twist, "wait, what", "whoa"). Exclamation marks on at most one beat.
+9. ${learner.name} speaks at most a third of the beats, and never just to hand ${tutor.name} his next line.
+10. Korean in Hangul exactly as on the slides (the voice reads Hangul), never romanized. At most one Korean phrase per beat.
 - "expression" must be one of: ${tutor.name} (tutor): ${moods(tutor).join(', ')}; ${learner.name} (learner): ${moods(learner).join(', ')}.
 - "delivery" is a voice direction, read by the voice model and never shown. Give one to about half the beats, where it fits the line: "curious" for a real question, "thoughtful" for reasoning, "sarcastic" for a dry aside, "surprised" for a reveal. Leave it "" on plain lines and the CTA. Choose only from: ${AUDIO_TAGS.join(', ')}. It is not the expression; never put an expression name here.
 
@@ -138,12 +139,27 @@ async function write() {
     body: JSON.stringify({
       model: MODEL,
       input: prompt,
+      // Streamed so a long think doesn't hit a proxy's idle timeout before the answer starts.
+      stream: true,
       text: { format: { type: 'json_schema', name: 'script', strict: true, schema: strictSchema(schema) } }
     })
   });
   if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  return data.output.filter(o => o.type === 'message').flatMap(o => o.content).filter(c => c.type === 'output_text').map(c => c.text).join('');
+  let out = '';
+  let buffer = '';
+  for await (const chunk of res.body.pipeThrough(new TextDecoderStream())) {
+    buffer += chunk;
+    const events = buffer.split('\n\n');
+    buffer = events.pop();
+    for (const event of events) {
+      const data = event.split('\n').find(l => l.startsWith('data: '))?.slice(6);
+      if (!data || data === '[DONE]') continue;
+      const e = JSON.parse(data);
+      if (e.type === 'response.output_text.delta') out += e.delta;
+      if (e.type === 'response.failed' || e.type === 'error') throw new Error(`OpenAI: ${JSON.stringify(e.response?.error || e)}`);
+    }
+  }
+  return out;
 }
 
 // OpenAI's strict mode wants every property required and no extra properties allowed.

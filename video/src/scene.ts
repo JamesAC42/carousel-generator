@@ -68,16 +68,84 @@ export interface Scene {
   ctaBroll?: { src: string; seconds: number };
   /** The quiz slide's content, repeated for the caption. */
   quiz?: { question: string; options: string[]; answer: number };
-  /** Cold open: a short clip of the show saying the line, played before the dialogue starts. */
-  clip?: { src: string; seconds: number; line: string; translation?: string; label?: string };
+  /** Cold open: the show's clip, played before the dialogue starts (see introSegments). */
+  clip?: Clip;
   /** The whole conversation voiced in one take (ElevenLabs dialogue), starting at `start` seconds. */
-  dialogueAudio?: { src: string; start: number };
+  dialogueAudio?: { src: string; start: number; pauses?: { at: number; seconds: number }[] };
+  /** The countdown after the quiz question (video seconds). */
+  think?: { start: number; seconds: number };
+}
+
+export interface Clip {
+  src: string;
+  seconds: number;
+  /** The lesson line and its usual subtitle, shown when the line is said. */
+  line: string;
+  translation?: string;
+  /** The show or song, for the title card ("Korean Lesson #12 - Squid Game"). */
+  label?: string;
+  /** Lesson number for the title card. */
+  number?: number;
+  /** When the line is said, in seconds into the clip. Without them the whole clip is the line. */
+  lineStart?: number;
+  lineEnd?: number;
+  /** English subtitles for the rest of the clip, in seconds into the clip. */
+  subs?: { start: number; end: number; text: string }[];
+}
+
+// The cold open, in order: the clip plays for a moment, freezes under the title card (with a ding),
+// plays on up to just after the line, pauses, rewinds to the line, plays the line again, then
+// fades out while it keeps playing. Each segment maps video time to clip time:
+// clip time runs from `from` at `start` to `to` at `end`.
+export type IntroSegment = { kind: 'play' | 'title' | 'pause' | 'rewind' | 'replay' | 'fade'; start: number; end: number; from: number; to: number };
+
+const TITLE_AT = 0.5;
+const TITLE_HOLD = 1.6;
+const PAUSE_HOLD = 0.8;
+const REWIND_SPEED = 4;
+const LINE_TAIL = 0.3;
+const FADE = 1.3;
+
+export function introSegments(clip: Clip): IntroSegment[] {
+  const lineStart = Math.max(0, Math.min(clip.lineStart ?? 0, clip.seconds - 0.5));
+  const stop = Math.min(clip.seconds, (clip.lineEnd ?? clip.seconds) + LINE_TAIL);
+  const titleAt = Math.min(TITLE_AT, stop);
+  const out: IntroSegment[] = [];
+  let t = 0;
+  const add = (kind: IntroSegment['kind'], seconds: number, from: number, to: number) => {
+    if (seconds <= 0) return;
+    out.push({ kind, start: t, end: t + seconds, from, to });
+    t += seconds;
+  };
+  add('play', titleAt, 0, titleAt);
+  add('title', TITLE_HOLD, titleAt, titleAt);
+  add('play', stop - titleAt, titleAt, stop);
+  add('pause', PAUSE_HOLD, stop, stop);
+  add('rewind', Math.max(0.6, (stop - lineStart) / REWIND_SPEED), stop, lineStart);
+  add('replay', stop - lineStart, lineStart, stop);
+  // Keep playing into the fade if the clip runs on; otherwise hold the last frame.
+  add('fade', FADE, stop, Math.min(clip.seconds, stop + FADE));
+  return out;
+}
+
+export function introDuration(clip: Clip): number {
+  const segs = introSegments(clip);
+  return segs[segs.length - 1].end;
+}
+
+/** Where in the clip the cold open is at video time t. */
+export function clipTimeAt(seg: IntroSegment, t: number): number {
+  const p = Math.min(1, Math.max(0, (t - seg.start) / (seg.end - seg.start)));
+  return seg.from + (seg.to - seg.from) * p;
 }
 
 /** When the dialogue starts: right away, or just after the cold-open clip. */
 export function dialogueStart(scene: Pick<Scene, 'clip'>): number {
-  return scene.clip ? scene.clip.seconds + 0.4 : 0.4;
+  return scene.clip ? introDuration(scene.clip) + 0.3 : 0.4;
 }
+
+/** Seconds of silence after the quiz question, with a countdown, so viewers can guess. */
+export const THINK_SECONDS = 3;
 
 export const DEFAULT_CTA_BROLL = { src: 'broll/site-cta.mp4', seconds: 7.7 };
 
@@ -93,16 +161,18 @@ export interface LineBreakdown {
 }
 
 export const CTA_TEXT = 'The full breakdown is free on Hanbok. Link in bio';
+export const FOLLOW_TEXT = 'Follow for more Korean lessons';
 
-// The video's slides, in order. The quiz is a placeholder the script writer fills in. There's no
+// The video's slides, in order. The quiz is a placeholder the script writer fills in; it comes
+// after the parts so viewers know what's being asked before they have to guess. There's no
 // "use it" slide: how to use the line is what the site shows, so the video teases it instead.
 export function slidesFromBreakdown(b: LineBreakdown, hookIndex = 0): VideoSlide[] {
   const source = b.source || undefined;
   return [
     { kind: 'hook', text: b.hooks[hookIndex] || b.hooks[0] || b.title, source },
     { kind: 'line', native: b.line.native, romanization: b.line.romanization, translation: b.line.common_translation, source },
-    { kind: 'quiz', question: '', options: [], answer: 0 },
     ...b.parts.map(p => ({ kind: 'part' as const, line: b.line.native, native: p.native, romanization: p.romanization, meaning: p.meaning, note: p.note })),
+    { kind: 'quiz', question: '', options: [], answer: 0 },
     { kind: 'nuance', native: b.line.native, literal: b.line.literal, natural: b.line.natural, nuance: b.nuance },
     { kind: 'cta', text: CTA_TEXT }
   ];

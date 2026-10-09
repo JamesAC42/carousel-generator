@@ -42,3 +42,19 @@ export function pushToOutbox(post, files, { test = false } = {}) {
     fs.rmSync(work, { recursive: true, force: true });
   }
 }
+
+// The next lesson video's number for its title card: lesson videos already in the outbox, plus one.
+// Returns undefined (no number on the card) if the outbox can't be read.
+export function nextLessonNumber() {
+  const work = fs.mkdtempSync(path.join(os.tmpdir(), 'outbox-'));
+  try {
+    git(work, 'clone', '-q', '--depth', '1', REPO, '.');
+    const index = JSON.parse(fs.readFileSync(path.join(work, 'index.json'), 'utf8'));
+    return index.filter(e => e.type === 'lesson-video' && !e.test).length + 1;
+  } catch (err) {
+    console.warn(`Couldn't read the outbox for the lesson number (${err.message.split('\n')[0]}); pass --number N.`);
+    return undefined;
+  } finally {
+    fs.rmSync(work, { recursive: true, force: true });
+  }
+}

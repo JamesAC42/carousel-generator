@@ -14,7 +14,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import './env.mjs';
-import { AUDIO_TAGS, dialogueStart, timingsFromAlignment } from '../src/scene.ts';
+import { AUDIO_TAGS, THINK_SECONDS, dialogueStart, timingsFromAlignment } from '../src/scene.ts';
 
 const args = process.argv.slice(2);
 const voicesFlag = args.indexOf('--voices');
@@ -39,6 +39,25 @@ const usesTags = /eleven_v[3-9]/.test(model);
 const tagFor = beat => (usesTags && AUDIO_TAGS.includes(beat.delivery) ? `[${beat.delivery}] ` : '');
 
 const scene = JSON.parse(fs.readFileSync(sceneFile, 'utf8'));
+delete scene.think;
+
+// After the quiz question, hold for THINK_SECONDS (the video shows a countdown) before the reveal:
+// every beat from the reveal on moves later, and the one-take audio gets a matching pause.
+function addThinkPause() {
+  const quizSlide = scene.slides.findIndex(s => typeof s !== 'string' && s.kind === 'quiz' && s.question);
+  const onQuiz = scene.beats.filter(b => b.slide === quizSlide);
+  if (onQuiz.length < 2) return;
+  const [ask, reveal] = onQuiz;
+  const at = (ask.end + reveal.start) / 2;
+  for (const b of scene.beats.slice(scene.beats.indexOf(reveal))) {
+    b.start += THINK_SECONDS;
+    b.end += THINK_SECONDS;
+    b.words = b.words?.map(w => ({ ...w, start: w.start + THINK_SECONDS, end: w.end + THINK_SECONDS }));
+    b.talk = b.talk?.map(([s, e]) => [s + THINK_SECONDS, e + THINK_SECONDS]);
+  }
+  if (scene.dialogueAudio) scene.dialogueAudio.pauses = [{ at: at - scene.dialogueAudio.start, seconds: THINK_SECONDS }];
+  scene.think = { start: at, seconds: THINK_SECONDS };
+}
 const id = scene.id || path.basename(sceneFile, '.json');
 const dir = path.join('public', 'scenes', id);
 fs.mkdirSync(dir, { recursive: true });
@@ -125,6 +144,7 @@ if (!perLine) {
     console.log(`${beat.start.toFixed(2)}s  ${scene.characters[beat.speaker].name}: ${beat.text}`);
   });
   scene.dialogueAudio = { src: path.relative('public', `${base}.mp3`), start };
+  addThinkPause();
   fs.writeFileSync(sceneFile, JSON.stringify(scene, null, 2));
   console.log(`\nNarrated ${scene.beats.length} beats in one take, ${scene.beats[scene.beats.length - 1].end.toFixed(1)}s. Updated ${sceneFile}`);
   process.exit(0);
@@ -168,5 +188,6 @@ for (let i = 0; i < scene.beats.length; i++) {
   console.log(`${beat.start.toFixed(2)}s  ${scene.characters[beat.speaker].name}: ${beat.text}`);
 }
 
+addThinkPause();
 fs.writeFileSync(sceneFile, JSON.stringify(scene, null, 2));
 console.log(`\nNarrated ${scene.beats.length} beats, ${cursor.toFixed(1)}s. Updated ${sceneFile}`);

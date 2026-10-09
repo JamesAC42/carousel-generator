@@ -11,7 +11,7 @@ are made is in the carousel generator's `AGENTS.md`.
   `{ "id", "type", "account", "hook", "folder", "createdAt", "test"? }`.
 - `type` is `lesson-video` or `slides`. Entries without a `type` are lesson videos.
 - Each `folder` holds the files to post and `post.json`:
-  - `lesson-video`: `video.mp4` (1080x1920, 20 to 30 seconds).
+  - `lesson-video`: `video.mp4` (1080x1920, about 35 to 50 seconds) and `thumbnail.jpg`, the cover.
   - `slides`: `slide-1.png`, `slide-2.png`, ... (1080x1350, post them in that order).
   - Both: `caption.txt` (the TikTok caption, ready to paste) and `post.json`, which has `format`
     (for `posts.csv`) and ready-to-use text for each platform under `platforms`.
@@ -57,6 +57,9 @@ measurable). Set each profile link once, exactly as below.
 Use the text in `post.json` → `platforms` exactly as it is. Don't rewrite captions or links, because
 each link is tagged with its platform so signups are counted per platform.
 
+- **Cover (videos):** use `thumbnail.jpg` as the cover wherever the app lets you upload one
+  (Instagram Reels, YouTube Shorts, TikTok when it offers an upload). Where you can only pick a frame,
+  pick the "Korean Lesson #N" title card about 1 second in.
 - **`tiktok`:** `caption`.
   - Slides go up as a photo post. Add a quiet sound from TikTok's library, because photo posts
     without one get less reach.

@@ -1,7 +1,8 @@
 // Renders a lesson video: node render.mjs [scene.json] [out.mp4]
+// and, for a scene with a show clip, its cover image next to it (thumbnail.jpg).
 // Uses CHROME_PATH if set (e.g. a preinstalled Chromium), otherwise Remotion's own.
 import { bundle } from '@remotion/bundler';
-import { renderMedia, selectComposition } from '@remotion/renderer';
+import { renderMedia, renderStill, selectComposition } from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 
@@ -17,3 +18,10 @@ await renderMedia({
   onProgress: ({ progress }) => process.stdout.write(`\rRendering ${Math.round(progress * 100)}%`)
 });
 console.log(`\nWrote ${outFile}`);
+
+if (inputProps?.scene.clip) {
+  const thumb = await selectComposition({ serveUrl, id: 'Thumbnail', inputProps, browserExecutable });
+  const thumbFile = path.join(path.dirname(outFile), 'thumbnail.jpg');
+  await renderStill({ composition: thumb, serveUrl, output: thumbFile, inputProps, browserExecutable, imageFormat: 'jpeg', jpegQuality: 90 });
+  console.log(`Wrote ${thumbFile}`);
+}
