@@ -43,3 +43,15 @@ with `node scripts/publish-slides.mjs ../output/<id>`. `post.json` carries ready
 platform (`scripts/platforms.mjs`). Publishing also copies `POSTING.md` (repo root), the posting
 runbook, to the outbox's README. Publishing refuses videos that still use the
 placeholder gameplay or art; `--test` marks an entry for the agent to skip.
+
+## Sora in Seoul skits
+
+Short 4koma-style episodes (series bible: `/mnt/project-files/social/sora-shorts/`). Each one is
+`skits/<ep>/skit.json`: hard-cut shots, subtitled lines, sound effects, a four-photo end strip,
+and an optional lesson tail where Sora explains the line.
+
+- `npm run skit -- skits/ep01/skit.json` renders `out/<id>/a.mp4` (the skit) and `b.mp4` (skit + lesson).
+- Clips, start frames and sounds go in `public/skits/<ep>/` (git-ignored) and are referenced as
+  `skits/<ep>/S1.mp4` etc. A shot with no `src` renders as a storyboard panel, so a skit
+  without any media is an animatic. An image `src` (a start frame) gets a slow push-in.
+- `npm run skit:studio` opens it in Remotion Studio.
