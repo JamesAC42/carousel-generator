@@ -14,6 +14,8 @@ export interface SkitShot {
   trimStart?: number;
   /** Playback rate for clips, e.g. 0.8 to stretch a reaction. */
   speed?: number;
+  /** Play the clip's own sound (voice, ambience) at this volume. Clips are muted without it. */
+  clipVolume?: number;
   /** Quick zoom-in at the start of the shot, for emphasis. */
   punchIn?: boolean;
   /** Storyboard panel only: CSS background, a Sora expression to stand in, and what the shot is. */

@@ -73,7 +73,7 @@ const ShotView: React.FC<{ shot: SkitShot; t: number; fps: number; sfx?: string[
   } else {
     const video = (
       <OffthreadVideo src={staticFile(shot.src)} trimBefore={Math.round((shot.trimStart || 0) * fps)} playbackRate={shot.speed || 1}
-        muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        muted={freeze || !shot.clipVolume} volume={shot.clipVolume} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
     );
     body = freeze ? <Freeze frame={Math.round(t * fps)}>{video}</Freeze> : video;
   }

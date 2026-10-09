@@ -1,0 +1,22 @@
+{
+  "id": "ep01-kiosk",
+  "episode": 1,
+  "title": { "ko": "키오스크", "en": "the kiosk" },
+  "shots": [
+    { "id": "S1", "seconds": 2.0, "src": "skits/ep01-kiosk/s1.mp4", "clipVolume": 0.6 },
+    { "id": "S2", "seconds": 1.4, "src": "skits/ep01-kiosk/s2.png" },
+    { "id": "S3", "seconds": 2.0, "src": "skits/ep01-kiosk/s3.mp4", "clipVolume": 0.6 },
+    { "id": "S4", "seconds": 2.6, "src": "skits/ep01-kiosk/s4.mp4", "clipVolume": 1 },
+    { "id": "S5", "seconds": 1.2, "src": "skits/ep01-kiosk/s5.png", "punchIn": true },
+    { "id": "S6", "seconds": 3.0, "src": "skits/ep01-kiosk/s6.mp4", "clipVolume": 1 },
+    { "id": "S7", "seconds": 2.0, "src": "skits/ep01-kiosk/s7.mp4", "clipVolume": 0.8 },
+    { "id": "S8", "seconds": 0.9, "src": "skits/ep01-kiosk/s8.png", "punchIn": true },
+    { "id": "S9", "seconds": 3.6, "src": "skits/ep01-kiosk/s9.mp4", "clipVolume": 0.6 }
+  ],
+  "lines": [
+    { "shot": "S4", "at": 0.3, "seconds": 2.2, "ko": "저기요, 주문할게요.", "en": "Excuse me, I'd like to order." },
+    { "shot": "S6", "at": 0.2, "seconds": 2.7, "ko": "주. 문. 할. 게. 요.", "en": "I'd. Like. To. Order." }
+  ],
+  "sfx": [],
+  "strip": ["S3", "S6", "S7", "S9"]
+}
