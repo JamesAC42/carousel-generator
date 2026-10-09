@@ -3,7 +3,7 @@
 //
 //   node scripts/publish.mjs out/<id> [--allow-placeholders] [--test]
 //
-// The folder gets video.mp4, caption.txt and post.json. --test marks the entry "test": true so the
+// The folder gets video.mp4, thumbnail.jpg (when there is one), caption.txt and post.json. --test marks the entry "test": true so the
 // posting agent skips it. Slideshows go out with publish-slides.mjs instead.
 import fs from 'fs';
 import path from 'path';
@@ -38,4 +38,5 @@ if (problems.length && !allowPlaceholders) {
   process.exit(1);
 }
 
-pushToOutbox(post, ['video.mp4', 'caption.txt', 'post.json'].map(f => [path.join(srcDir, f), f]), { test });
+const files = ['video.mp4', 'thumbnail.jpg', 'caption.txt', 'post.json'].filter(f => fs.existsSync(path.join(srcDir, f)));
+pushToOutbox(post, files.map(f => [path.join(srcDir, f), f]), { test });

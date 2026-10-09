@@ -11,7 +11,7 @@ outbox's `README.md` is a copy of it.
 | Post | What it is | How it's made | Outbox `type` |
 |---|---|---|---|
 | Slideshow | Usually 7 to 9 slides, 1080x1350, in one of three styles | The breakdown itself, below | `slides` |
-| Lesson video | About 45 seconds, 1080x1920: the show's clip, then the tutor and Sora explain the line | `video/AGENTS.md` | `lesson-video` |
+| Lesson video | 35 to 50 seconds, 1080x1920: the show's scene with a "Korean Lesson #N" title card, a pause and rewind to the line, then the characters' guess-the-meaning poll, the reveal, and "link in bio, follow for more" | `video/AGENTS.md` | `lesson-video` |
 
 ## The whole workflow
 

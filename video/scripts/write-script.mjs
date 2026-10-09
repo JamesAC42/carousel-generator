@@ -40,6 +40,7 @@ function describeSlide(s, i) {
     case 'part': return `${i}. PART: ${s.native} (${s.romanization}) = ${s.meaning}${s.note ? `. Note: ${s.note}` : ''}`;
     case 'nuance': return `${i}. WHAT IT REALLY MEANS: literal "${s.literal}", natural "${s.natural}". ${s.nuance}`;
     case 'use': return `${i}. USE IT: ${s.native} (${s.romanization}) = ${s.english}`;
+    case 'quiz': return `${i}. GUESS: a two-option quiz you write in "quiz" (see below), shown before the answer`;
     case 'cta': return `${i}. CTA: ${s.text}`;
   }
 }
@@ -50,51 +51,56 @@ const tutor = cast.tutor;
 const learner = cast.learner;
 const source = breakdown.source;
 const opening = clipSrc
-  ? `The video opens with a ${clipSeconds.toFixed(0)}-second clip from ${source || 'the show'} where the line is said, subtitled on screen.${clipContext ? ` In the clip: ${clipContext}.` : ''} Viewers have just heard it. The first beat comes right after the clip and reacts to what they just heard, so it can say "that" or "he" without setting the scene up again.`
+  ? `The video opens with a ${clipSeconds.toFixed(0)}-second clip of the scene from ${source || 'the show'}. It pauses right after the line, rewinds, and plays the line again with subtitles, so viewers have just heard it twice.${clipContext ? ` In the clip: ${clipContext}.` : ''} The first beat comes right after the clip and reacts to what they just heard, so it can say "that" or "he" without setting the scene up again.`
   : `There's no clip of the show, so the first beat has to say plainly who says the line, to whom, and when${source ? ` in ${source}` : ''}.`;
 
-// James's pick of the script lineup (GPT-6.1 Sol on 우리는 깐부잖아), shown to the writer as the target tone.
-const TONE_EXAMPLE = `TUTOR: 우리는 깐부잖아 isn't asking whether they're friends. It's reminding him they've already agreed.
-TUTOR: Il-nam says it to Gi-hun during the marble game in Squid Game.
-SORA: When they're supposed to compete.
-TUTOR: 우리는 sets up "us" as the topic.
-TUTOR: 깐부 means a marble partner. Someone you share everything with.
-SORA: A difficult promise in that game.
-TUTOR: 잖아 brings that agreement back into the conversation.
-TUTOR: Not just "we're partners." More like "you know we're partners."
-TUTOR: In that scene, the reminder puts pressure on Gi-hun.
-SORA: Can I use it without that pressure?
-TUTOR: 내일 시험이잖아 means "The test is tomorrow, you know."
-TUTOR: Same reminder. The situation decides how pointed it feels.
-TUTOR: Paste any line into Hanbok to get a breakdown like this.`;
+// The shape we want, on 우리는 깐부잖아 (after a clip of the scene). Shown to the writer for rhythm only.
+const SHAPE_EXAMPLE = `[0] TUTOR: Netflix says "we're friends." That's not what he's saying.
+[0] SORA: He looks so friendly, though.
+[2] TUTOR: 깐부 means marble partners. You share everything you win.
+[4] TUTOR: Now the ending, 잖아. Comment your guess. Is he asking, or reminding him?
+[4] TUTOR: Reminding him. Like "you promised."
+[5] SORA: So it's pressure, not friendship.
+[6] TUTOR: There's a softer way to use 잖아, too. Full breakdown, link in bio. Follow for more.`;
 
-const prompt = `You're writing the dialogue for a 35 to 50 second vertical TikTok Korean lesson. Two characters stand over lesson slides:
-- ${tutor.name} (tutor): a Korean friend who knows the language cold. Calm, confident, a little dry. Talks like a friend explaining something over coffee, never like a teacher or a YouTuber.
-- ${learner.name} (learner): a smart, sincere fan of Korean shows. She says what the viewer is thinking in as few words as possible. She's never a comedy prop.
+const prompt = `You're writing the dialogue for a vertical TikTok about one Korean line; the dialogue runs 20 to 30 seconds. The goal is engagement, not teaching: viewers should watch to the end, comment, and tap the link in bio, where the full lesson is. Two characters stand over the slides:
+- ${tutor.name} (tutor): a Korean friend who knows the language cold. Confident, a little dry.
+- ${learner.name} (learner): a countryside girl from her grandmother's mountain village in Gangwon who just moved to Seoul. Sincere, unbothered, a little old-fashioned; she knows proper Korean but not Seoul slang, shows or memes, which is why she asks. She says what the viewer is thinking, in as few words as possible. Don't make her backstory the topic; at most one short nod to it per video.
 
-The lesson is about one Korean line${source ? ` from ${source}` : ''}. ${opening}
+The line${source ? ` is from ${source}` : ''}. ${opening}
 
 The slides, in order:
 ${slides.map(describeSlide).join('\n')}
 
-What makes these good (follow strictly):
-1. The first beat is a true, specific, slightly surprising claim about the line, said plainly. Never invent a personal anecdote ("I said this to my roommate and..."). Never claim anything about subtitles or official translations beyond what's in the slides.
-2. Ground it in the actual scene using only what's above or common knowledge about the show. If you're unsure of a plot detail, leave it out.
-3. One insight per video. You don't have to narrate every slide: a slide can get a single short beat. Slide numbers never go backwards and every slide gets at least one beat.
-4. Humor, if any, comes from specifics and understatement. No hyperbole, internet-speak or meme phrases. Banned: ride-or-die, blood pact, hostage, literally, totally, game-changer, mind-blown, vibe, bestie, slay, plot twist, guilt trip, "wait, what", "whoa", "ouch". Exclamation marks on at most two beats.
-5. Short beats that sound good out loud: contractions, fragments are fine, at most 16 words, no lists, no colons. 8 to 13 beats.
-6. ${learner.name} speaks at most a third of the beats. She never repeats or paraphrases ${tutor.name} as a question, and never asks a question just to hand him his next line.
-7. The last beat plays over the CTA slide: one short, natural line about pasting any line into Hanbok for a breakdown like this. No hype.
-8. Korean in Hangul exactly as on the slides (the voice reads Hangul), never romanized. At most one Korean phrase per beat.
+Rules (follow strictly):
+1. The first beat is a hook: a specific, surprising claim that makes viewers need the answer, e.g. that the subtitle got it wrong or that it means something darker. Say it in under 12 words. Don't answer it yet.
+2. Then two or three beats of setup before the guess, so viewers know what's being asked: what's happening in the scene, and the parts that aren't the answer. Never show a PART slide that gives away the quiz answer.
+3. The GUESS slide comes after that setup: write "quiz" as a short question about the one word or ending that carries the meaning, with two short options (under 6 words each), one correct and one the usual wrong reading. It gets exactly two beats: the first asks viewers to comment their guess and names both options (the video then holds a 3-second countdown); the second reveals the answer in a few words.
+4. After the reveal, one beat on why it matters in the scene. Skip any slide you don't need; skipped slides aren't shown. Slide numbers never go backwards.
+5. The last beat plays over the CTA slide: a tease of something the video didn't cover (other ways to use it, what it says about the speaker), then "link in bio", then "Follow for more." Never "paste any line".
+6. 7 to 9 beats in total, each at most 12 words (the CTA beat may run to 16). Contractions, fragments are fine. No lists, no colons.
+7. Only true, specific claims. Never invent a personal anecdote or a plot detail you're unsure of. Never claim anything about subtitles or official translations beyond what's in the slides.
+8. No meme phrases or hype words (literally, totally, mind-blown, vibe, bestie, slay, plot twist, "wait, what", "whoa"). Exclamation marks on at most one beat.
+9. ${learner.name} speaks at most a third of the beats, and never just to hand ${tutor.name} his next line.
+10. Korean in Hangul exactly as on the slides (the voice reads Hangul), never romanized. At most one Korean phrase per beat.
 - "expression" must be one of: ${tutor.name} (tutor): ${moods(tutor).join(', ')}; ${learner.name} (learner): ${moods(learner).join(', ')}.
-- "delivery" is a voice direction, read by the voice model and never shown. Give one to about half the beats, where it fits the line: "thoughtful" when someone is reasoning something out or reflecting, "curious" for a real question, "sarcastic" for a dry aside, "surprised" for a reveal. Leave it "" on plain explanations and the CTA. Choose only from: ${AUDIO_TAGS.join(', ')}. It is not the expression; never put an expression name here.
+- "delivery" is a voice direction, read by the voice model and never shown. Give one to about half the beats, where it fits the line: "curious" for a real question, "thoughtful" for reasoning, "sarcastic" for a dry aside, "surprised" for a reveal. Leave it "" on plain lines and the CTA. Choose only from: ${AUDIO_TAGS.join(', ')}. It is not the expression; never put an expression name here.
 
-This script for a different line has exactly the tone we want. Match its plainness and rhythm; don't copy its wording or facts:
-${TONE_EXAMPLE}`;
+This example for a different line has the shape and pace we want (slide numbers in brackets). Don't copy its wording or facts:
+${SHAPE_EXAMPLE}`;
 
 const schema = {
   type: 'object',
   properties: {
+    quiz: {
+      type: 'object',
+      properties: {
+        question: { type: 'string' },
+        options: { type: 'array', items: { type: 'string' } },
+        answer: { type: 'integer' }
+      },
+      required: ['question', 'options', 'answer']
+    },
     beats: {
       type: 'array',
       items: {
@@ -110,7 +116,7 @@ const schema = {
       }
     }
   },
-  required: ['beats']
+  required: ['quiz', 'beats']
 };
 
 async function write() {
@@ -133,12 +139,27 @@ async function write() {
     body: JSON.stringify({
       model: MODEL,
       input: prompt,
+      // Streamed so a long think doesn't hit a proxy's idle timeout before the answer starts.
+      stream: true,
       text: { format: { type: 'json_schema', name: 'script', strict: true, schema: strictSchema(schema) } }
     })
   });
   if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  return data.output.filter(o => o.type === 'message').flatMap(o => o.content).filter(c => c.type === 'output_text').map(c => c.text).join('');
+  let out = '';
+  let buffer = '';
+  for await (const chunk of res.body.pipeThrough(new TextDecoderStream())) {
+    buffer += chunk;
+    const events = buffer.split('\n\n');
+    buffer = events.pop();
+    for (const event of events) {
+      const data = event.split('\n').find(l => l.startsWith('data: '))?.slice(6);
+      if (!data || data === '[DONE]') continue;
+      const e = JSON.parse(data);
+      if (e.type === 'response.output_text.delta') out += e.delta;
+      if (e.type === 'response.failed' || e.type === 'error') throw new Error(`OpenAI: ${JSON.stringify(e.response?.error || e)}`);
+    }
+  }
+  return out;
 }
 
 // OpenAI's strict mode wants every property required and no extra properties allowed.
@@ -152,7 +173,16 @@ function strictSchema(node) {
 }
 
 const text = await write();
-const { beats } = JSON.parse(text);
+const { beats, quiz } = JSON.parse(text);
+// Fill in the quiz slide; drop it if the model's quiz is unusable.
+const quizIndex = slides.findIndex(sl => sl.kind === 'quiz');
+if (quizIndex >= 0) {
+  if (quiz?.question && quiz.options?.length === 2 && (quiz.answer === 0 || quiz.answer === 1)) {
+    slides[quizIndex] = { kind: 'quiz', question: quiz.question, options: quiz.options, answer: quiz.answer };
+  } else {
+    console.warn('Warning: the writer returned no usable quiz; the guess slide is left out.');
+  }
+}
 
 // TTS reads exactly what's written, and "it is" for "it's" sounds stiff out loud, so contract
 // anything the model left uncontracted. Only before another word: "that's what it is" stays.
@@ -189,7 +219,7 @@ const id = base.replace(/[^\w-]/g, '') || `scene-${Date.now()}`;
 const clip = clipSrc
   ? { src: clipSrc, seconds: clipSeconds, line: breakdown.line.native, translation: breakdown.line.common_translation, label: source }
   : undefined;
-const scene = { id, hook: breakdown.hooks?.[hookIndex] || breakdown.title, slides, characters: cast, background: 'art/palace.jpg', ctaBroll: DEFAULT_CTA_BROLL, clip, beats };
+const scene = { id, quiz: slides.find(sl => sl.kind === 'quiz' && sl.question), hook: breakdown.hooks?.[hookIndex] || breakdown.title, slides, characters: cast, background: 'art/palace.jpg', ctaBroll: DEFAULT_CTA_BROLL, clip, beats };
 fs.mkdirSync(path.dirname(outFile), { recursive: true });
 fs.writeFileSync(outFile, JSON.stringify(scene, null, 2));
 console.log(beats.map(b => `[${b.slide}] ${cast[b.speaker].name} (${b.expression}): ${b.text}`).join('\n'));
