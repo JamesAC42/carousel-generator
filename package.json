@@ -12,7 +12,11 @@
     "dev:client": "cd client && vite",
     "build": "tsc && cd client && vite build",
     "breakdown": "node --loader ts-node/esm --experimental-specifier-resolution=node server/make-breakdown.ts",
-    "slides": "node --loader ts-node/esm --experimental-specifier-resolution=node server/render-slides.ts"
+    "slides": "node --loader ts-node/esm --experimental-specifier-resolution=node server/render-slides.ts",
+    "manga:episode": "node manga/write-episode.mjs",
+    "manga:variants": "node manga/variants.mjs",
+    "manga:pick": "node manga/picker.mjs",
+    "manga:slides": "node manga/render.mjs"
   },
   "dependencies": {
     "cors": "^2.8.5",

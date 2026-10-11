@@ -14,3 +14,7 @@ cta-slides/
 old-slide-assets/
 
 dist/
+# Takes, picks and slides made while working on the example episodes
+manga/examples/*/variants/
+manga/examples/*/panels/
+manga/examples/*/slides/

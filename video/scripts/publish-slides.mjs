@@ -1,5 +1,6 @@
-// Puts a finished line-breakdown slideshow (the carousel generator's output/<id>/) in the outbox
-// for posting, with per-platform text in post.json like the lesson videos.
+// Puts a finished slideshow in the outbox for posting, with per-platform text in post.json like the
+// lesson videos: a line breakdown (the carousel generator's output/<id>/) or a manga episode
+// (the slides folder npm run manga:slides wrote).
 //
 //   node scripts/publish-slides.mjs ../output/<id> [--learn-url https://hanbokstudy.com/learn/<slug>] [--test]
 //
@@ -24,12 +25,12 @@ if (!srcDir) {
 }
 
 const meta = JSON.parse(fs.readFileSync(path.join(srcDir, 'metadata.json'), 'utf8'));
-if (meta.type !== 'line-breakdown' || !meta.slides?.length) {
-  console.error(`${srcDir} isn't a line-breakdown slideshow (metadata.json type "${meta.type}").`);
+if (!['line-breakdown', 'manga'].includes(meta.type) || !meta.slides?.length) {
+  console.error(`${srcDir} isn't a line-breakdown or manga slideshow (metadata.json type "${meta.type}").`);
   process.exit(1);
 }
 // Same id as a video made from this breakdown (make-lesson.mjs), plus "-slides".
-const base = path.basename(path.resolve(srcDir)).replace(/[^\w-]/g, '');
+const base = (meta.type === 'manga' ? meta.id : path.basename(path.resolve(srcDir))).replace(/[^\w-]/g, '');
 const id = /[a-z0-9]/i.test(base) ? `${base}-slides` : `slides-${Date.now()}`;
 const account = meta.account || 'main';
 const hook = meta.hooks?.[0] || meta.title;
