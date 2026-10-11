@@ -10,7 +10,8 @@
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "cross-env NODE_OPTIONS=--require=dotenv/config nodemon server/index.ts",
     "dev:client": "cd client && vite",
-    "build": "tsc && cd client && vite build"
+    "build": "tsc && cd client && vite build",
+    "slides": "node --loader ts-node/esm --experimental-specifier-resolution=node server/render-slides.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

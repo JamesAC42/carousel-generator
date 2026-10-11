@@ -13,6 +13,14 @@ import {
   LineBreakdownStyle,
   lineBreakdownSlides
 } from '../../shared/templates/lineBreakdown.tsx';
+import {
+  CarouselSlideDocument,
+  CarouselStyle,
+  CarouselArt,
+  CAROUSEL_STYLES,
+  CAROUSEL_FONTS,
+  carouselSlides
+} from '../../shared/templates/carouselStyles.tsx';
 
 // Helper function to convert image to base64
 function imageToBase64(imagePath: string): string {
@@ -38,6 +46,9 @@ function fontToBase64(fontPath: string): string {
   }
 }
 
+// Fonts with a weight axis; every other font is a single weight.
+const VARIABLE_FONTS = ['Montserrat'];
+
 // Generate CSS for embedded fonts
 function generateFontCSS(only?: string[]): string {
   const fontsDir = 'assets/fonts';
@@ -61,7 +72,7 @@ function generateFontCSS(only?: string[]): string {
             @font-face {
               font-family: '${fontName}';
               src: url('${fontBase64}') format('truetype');
-              font-display: block;
+              font-display: block;${VARIABLE_FONTS.includes(fontName) ? '\n              font-weight: 100 900;' : ''}
             }
           `;
           
@@ -751,12 +762,13 @@ function loadImageDir(dir: string): Record<string, string> {
   if (!fs.existsSync(dir)) return {};
   return Object.fromEntries(
     fs.readdirSync(dir)
-      .filter(f => f.match(/\.(png|jpe?g)$/i))
+      .filter(f => f.match(/\.(png|jpe?g|webp)$/i))
       .map(f => [path.basename(f, path.extname(f)), imageToBase64(path.join(dir, f))])
   );
 }
 
-export function renderLineBreakdownToHTML(data: LineBreakdownData, hooks: string[], style: LineBreakdownStyle = 'storybook') {
+export function renderLineBreakdownToHTML(data: LineBreakdownData, hooks: string[], style: LineBreakdownStyle | CarouselStyle = 'quiz') {
+  if (isCarouselStyle(style)) return renderCarousel(data, hooks, style);
   const fontCSS = generateFontCSS(LINE_BREAKDOWN_FONTS[style] || LINE_BREAKDOWN_FONTS.storybook);
   const assets: LineBreakdownAssets = {
     backgrounds: loadImageDir('assets/line-breakdown/backgrounds'),
@@ -766,6 +778,27 @@ export function renderLineBreakdownToHTML(data: LineBreakdownData, hooks: string
   const render = (slide: (typeof slides)[number], index: number) =>
     ReactDOMServer.renderToString(
       <LineBreakdownSlideDocument style={style} slide={slide} data={data} assets={assets} index={index} fontCSS={fontCSS} />
+    );
+
+  return {
+    slides: slides.map(render),
+    altCovers: hooks.slice(1).map(hook => render({ kind: 'hook', hook }, 0))
+  };
+}
+
+function isCarouselStyle(style: string): style is CarouselStyle {
+  return (CAROUSEL_STYLES as string[]).includes(style);
+}
+
+// The Bright Path quiz style (shared/templates/carouselStyles.tsx), with the flat mascot
+// stickers from assets/carousel/mascot.
+function renderCarousel(data: LineBreakdownData, hooks: string[], style: CarouselStyle) {
+  const fontCSS = generateFontCSS(CAROUSEL_FONTS[style]);
+  const art: CarouselArt = { mascot: loadImageDir('assets/carousel/mascot') };
+  const slides = carouselSlides(hooks[0], data.parts.length);
+  const render = (slide: (typeof slides)[number], index: number) =>
+    ReactDOMServer.renderToString(
+      <CarouselSlideDocument slide={slide} data={data} art={art} index={index} total={slides.length} fontCSS={fontCSS} />
     );
 
   return {

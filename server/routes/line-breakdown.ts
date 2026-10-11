@@ -6,6 +6,12 @@ import { renderLineBreakdownToHTML } from '../utils/template';
 import { renderHTMLToPNG } from '../utils/render';
 import { getAccount, bioLink } from '../../shared/accounts';
 import { LINE_BREAKDOWN_STYLES, LineBreakdownStyle } from '../../shared/templates/lineBreakdown';
+import { CAROUSEL_STYLES, CarouselStyle } from '../../shared/templates/carouselStyles';
+
+type Style = CarouselStyle | LineBreakdownStyle;
+// New posts use the Bright Path quiz style. The older storybook / variety / notes styles
+// still render when asked for by name.
+const ALL_STYLES: Style[] = [...CAROUSEL_STYLES, ...LINE_BREAKDOWN_STYLES];
 
 const router = express.Router();
 
@@ -19,29 +25,13 @@ function makeId(line: string): string {
   return `line-${slug || 'x'}-${Date.now()}`;
 }
 
-// "rotate" picks the style used least so far, so an A/B test across styles stays even.
-function leastUsedStyle(): LineBreakdownStyle {
-  const counts = Object.fromEntries(LINE_BREAKDOWN_STYLES.map(s => [s, 0])) as Record<LineBreakdownStyle, number>;
-  if (fs.existsSync('output')) {
-    for (const dir of fs.readdirSync('output')) {
-      const metadataPath = path.join('output', dir, 'metadata.json');
-      if (!fs.existsSync(metadataPath)) continue;
-      try {
-        const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
-        if (metadata.type === 'line-breakdown' && metadata.style in counts) counts[metadata.style as LineBreakdownStyle]++;
-      } catch {}
-    }
-  }
-  return LINE_BREAKDOWN_STYLES.reduce((min, s) => (counts[s] < counts[min] ? s : min));
-}
-
 router.post('/', async (req, res) => {
   const { line, source = '', language = 'korean', account: accountId, style: requestedStyle } = req.body || {};
   if (!line || typeof line !== 'string') {
     return res.status(400).json({ error: 'Missing line' });
   }
 
-  const style: LineBreakdownStyle = LINE_BREAKDOWN_STYLES.includes(requestedStyle) ? requestedStyle : leastUsedStyle();
+  const style: Style = ALL_STYLES.includes(requestedStyle) ? requestedStyle : 'quiz';
   const id = makeId(line);
   res.status(202).json({ id, status: 'processing' });
 
