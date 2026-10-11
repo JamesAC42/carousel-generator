@@ -56,5 +56,11 @@ outbox's `README.md` is a copy of it.
    - Which text and link to use on each one.
    - How each post is logged in `metrics/posts.csv`.
 
+## Manga episodes ("Sora in Seoul")
+
+A separate, black-and-white comic slideshow with custom art for every episode. Its art is made by
+James, so only post an episode whose `slides/` folder he has approved. How it works:
+[`manga/README.md`](manga/README.md). It publishes with the same `publish-slides.mjs`.
+
 The other generators in the app (classic lessons, cheat sheets, sentence analysis) aren't part of
 this workflow.

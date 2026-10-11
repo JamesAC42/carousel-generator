@@ -1,0 +1,302 @@
+{
+  "id": "ep01-bongtu",
+  "series": "Sora in Seoul",
+  "episode": 1,
+  "title_ko": "봉투 필요하세요?",
+  "title_en": "Need a bag?",
+  "line": {
+    "ko": "봉투 필요하세요?",
+    "romaja": "bongtu piryohaseyo?",
+    "en": "Do you need a bag?"
+  },
+  "caption": "She was asked ONE question at the convenience store 🛍️\n\n봉투 필요하세요? = Do you need a bag?\nAnswer: 네, 주세요 (yes please) / 아니요, 괜찮아요 (no thanks)\n\nSora is an AI-drawn character by Hanbok.\n\n#learnkorean #korean #manga #koreanlanguage #studykorean #한국어",
+  "style_prefix": "Black-and-white Japanese manga panel. Clean G-pen ink line art, solid black fills, halftone dot screentone shading, white paper. No color, no grey gradients, no text, no letters, no speech bubbles, no sound-effect lettering, no panel border.",
+  "refs": {
+    "sora": "model-sheets/sora-ref.png",
+    "kkachi": "model-sheets/kkachi-ref.png",
+    "horang": "model-sheets/horang-ref.png"
+  },
+  "slides": [
+    {
+      "n": 1,
+      "layout": "cover",
+      "panels": [
+        {
+          "id": "p01",
+          "shape": "tall",
+          "refs": [
+            "sora",
+            "kkachi"
+          ],
+          "prompt": "Low angle, full body. The girl from <image1> stands at a convenience store counter at night, holding one tiny banana-milk carton up in both hands like a precious treasure, eyes calm and serious. The magpie from <image2> sits on her shoulder, side-eyeing the carton. Fluorescent store shelves behind her in screentone. Leave the top third of the frame as plain white sky-like empty space for a title."
+        }
+      ],
+      "text": {
+        "title": "봉투 필요하세요?",
+        "subtitle": "Sora in Seoul · #1",
+        "hook": "The cashier asked her ONE question."
+      }
+    },
+    {
+      "n": 2,
+      "layout": "two",
+      "panels": [
+        {
+          "id": "p02",
+          "shape": "half",
+          "refs": [
+            "sora"
+          ],
+          "prompt": "Wide establishing shot at night. A small 24-hour convenience store glowing on a quiet Seoul street corner, the glass sliding door open. The girl from <image1> steps inside, seen from behind and a little to the side, hands folded politely. Neon glow drawn as white light with dark screentone night sky. Empty space in the upper left."
+        },
+        {
+          "id": "p03",
+          "shape": "half",
+          "refs": [
+            "sora"
+          ],
+          "prompt": "Close-up of the counter. Two hands in hanbok sleeves (the sleeves from <image1>, dark cuff band) carefully place ONE tiny banana-milk carton in the exact center of the counter, like an offering at a ceremony. Small sparkle marks around the carton. Empty space at the top."
+        }
+      ],
+      "text": {
+        "captions": [
+          {
+            "panel": "p02",
+            "en": "Day 3 in Seoul.",
+            "at": "tl"
+          },
+          {
+            "panel": "p03",
+            "en": "One banana milk. That's all she needs.",
+            "at": "tl"
+          }
+        ]
+      }
+    },
+    {
+      "n": 3,
+      "layout": "two",
+      "panels": [
+        {
+          "id": "p04",
+          "shape": "half",
+          "refs": [],
+          "prompt": "Medium shot of a bored young male convenience store cashier in a plain store vest behind the counter, half-lidded tired eyes, holding up a thin plastic shopping bag between two fingers. Simple shelves behind him. Empty space in the upper left for a speech balloon."
+        },
+        {
+          "id": "p05",
+          "shape": "half",
+          "refs": [
+            "sora"
+          ],
+          "prompt": "Extreme dramatic close-up of only the eyes and bangs of the girl from <image1>, wide and intensely serious, as if asked a life-or-death question. Dark heavy screentone shadow over the top of her face, radiating speed lines behind her, a single sweat drop. Intense shonen-manga drama."
+        }
+      ],
+      "text": {
+        "balloons": [
+          {
+            "panel": "p04",
+            "speaker": "cashier",
+            "ko": "봉투 필요하세요?",
+            "en": "Need a bag?",
+            "at": "tl"
+          }
+        ],
+        "captions": [
+          {
+            "panel": "p05",
+            "en": "No one had ever asked her this before.",
+            "at": "bl"
+          }
+        ]
+      }
+    },
+    {
+      "n": 4,
+      "layout": "splash",
+      "panels": [
+        {
+          "id": "p06",
+          "shape": "tall",
+          "refs": [
+            "sora",
+            "kkachi"
+          ],
+          "prompt": "Dramatic full-body splash. The girl from <image1> pulls a long silk wrapping cloth (a bojagi with a simple patchwork pattern) out of her wide hanbok sleeve in one grand sweeping flourish; the cloth billows in a huge arc across the frame. Shoujo-manga sparkles, flower blossoms and light rays explode in the background. Her face is calm and dignified. The magpie from <image2> perches on the counter in the foreground corner, staring flatly. Empty space in the top right."
+        }
+      ],
+      "text": {
+        "sfx": [
+          {
+            "panel": "p06",
+            "ko": "스르륵",
+            "en": "swish",
+            "at": "tr"
+          }
+        ]
+      }
+    },
+    {
+      "n": 5,
+      "layout": "three",
+      "panels": [
+        {
+          "id": "p07",
+          "shape": "strip",
+          "refs": [
+            "sora"
+          ],
+          "prompt": "Close-up of the hands of the girl from <image1> folding the corners of a silk patchwork wrapping cloth over a tiny milk carton on a store counter, with exaggerated care, motion lines on the fingers."
+        },
+        {
+          "id": "p08",
+          "shape": "strip",
+          "refs": [
+            "sora"
+          ],
+          "prompt": "The girl from <image1> ties an elaborate decorative knot with total concentration, tongue slightly out, sparkles. On the counter the tiny milk carton has become a fancy wrapped gift with a big ornate bow, comically bigger than the carton."
+        },
+        {
+          "id": "p09",
+          "shape": "strip",
+          "refs": [
+            "kkachi"
+          ],
+          "prompt": "The magpie from <image1> stands on the store counter next to the ornate wrapped gift, giving a slow, flat side-eye toward the viewer. Plain white background with a few subtle screentone dots. Lots of empty space on the left."
+        }
+      ],
+      "text": {
+        "captions": [
+          {
+            "panel": "p07",
+            "en": "Fold.",
+            "at": "tl"
+          },
+          {
+            "panel": "p08",
+            "en": "Fold. Tie. Perfect.",
+            "at": "tl"
+          }
+        ]
+      }
+    },
+    {
+      "n": 6,
+      "layout": "two",
+      "panels": [
+        {
+          "id": "p10",
+          "shape": "half",
+          "refs": [
+            "sora"
+          ],
+          "prompt": "Wide shot pulled back. The girl from <image1> stands proudly at the counter holding her ornate wrapped gift. Behind her, a very long silent queue of exhausted office workers in suits snakes out the door, each holding a single item, faces in dark screentone shadow, completely deadpan. Empty space at the top."
+        },
+        {
+          "id": "p11",
+          "shape": "half",
+          "refs": [],
+          "prompt": "Close-up of the bored young male convenience store cashier in a plain store vest, completely deadpan, dead eyes, a tiny sweat drop, slowly bowing his head. Plain background. Empty space in the upper right for a speech balloon."
+        }
+      ],
+      "text": {
+        "balloons": [
+          {
+            "panel": "p11",
+            "speaker": "cashier",
+            "ko": "...감사합니다.",
+            "en": "...Thank you.",
+            "at": "tr"
+          }
+        ]
+      }
+    },
+    {
+      "n": 7,
+      "layout": "lesson",
+      "stock": "horang-explaining",
+      "text": {
+        "kicker": "Wait, what did he ask?",
+        "line": {
+          "ko": "봉투 필요하세요?",
+          "romaja": "bongtu piryohaseyo?",
+          "en": "Do you need a bag?"
+        },
+        "pieces": [
+          {
+            "ko": "봉투",
+            "en": "bag"
+          },
+          {
+            "ko": "필요하세요?",
+            "en": "do you need? (polite)"
+          }
+        ],
+        "answers": [
+          {
+            "ko": "네, 주세요",
+            "en": "Yes, please"
+          },
+          {
+            "ko": "아니요, 괜찮아요",
+            "en": "No, I'm fine"
+          }
+        ]
+      }
+    },
+    {
+      "n": 8,
+      "layout": "cta",
+      "stock": "sora-horang-cta",
+      "text": {
+        "ask": "What should Sora wrap next? 👇",
+        "cta": "Break down any Korean line, free",
+        "url": "hanbokstudy.com · link in bio"
+      }
+    }
+  ],
+  "stock_panels": {
+    "horang-explaining": {
+      "shape": "tall",
+      "refs": [
+        "horang"
+      ],
+      "prompt": "Waist-up, the tiger-eared man from <image1> faces the viewer at a slight three-quarter angle, raising his index finger in a confident 'listen up' gesture, friendly smug smile, tail curling behind him. Plain white background. He occupies only the bottom 45% of the frame; the top 55% is completely empty white space."
+    },
+    "sora-horang-cta": {
+      "shape": "tall",
+      "refs": [
+        "sora",
+        "horang",
+        "kkachi"
+      ],
+      "prompt": "Waist-up, the girl from <image1> on the left holding a small wrapped gift, deadpan, and the tiger-eared man from <image2> on the right giving a thumbs up with a big grin; the magpie from <image3> perches on top of his head. Plain white background. The characters occupy only the bottom 45% of the frame; the top 55% is completely empty white space."
+    }
+  },
+  "shapes": {
+    "tall": {
+      "aspect": "2:3",
+      "qwen": [
+        1056,
+        1584
+      ],
+      "use": "splash, cover, lesson and CTA art"
+    },
+    "half": {
+      "aspect": "4:3",
+      "qwen": [
+        1472,
+        1104
+      ],
+      "use": "one of two stacked panels"
+    },
+    "strip": {
+      "aspect": "16:9",
+      "qwen": [
+        1664,
+        928
+      ],
+      "use": "one of three stacked panels"
+    }
+  }
+}
