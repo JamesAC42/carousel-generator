@@ -1,6 +1,6 @@
 // Writes a manga episode (episode.json) from a gag premise: the slides, a layout per slide, one
 // art prompt per panel, and every balloon, caption and sound effect. The art comes later (James's
-// ComfyUI, or test-art.mjs for stand-ins), then render.mjs assembles the slides.
+// ComfyUI, or GPT Image takes from the picker page), then render.mjs assembles the slides.
 //
 //   npm run manga:episode -- "<premise: the four beats, or a series bible episode>" --line "<Korean line>" [--id ep02-name] [--episode 2]
 //

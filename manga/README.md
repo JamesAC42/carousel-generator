@@ -11,18 +11,25 @@ Each episode is 8 slides: a cover, five story pages (a four-beat gag), a lesson 
    npm run manga:episode -- "<premise: the four beats>" --line "봉투 필요하세요?" --id ep02-name --episode 2
    ```
    This writes `output/manga/<id>/episode.json` and checks it: layouts, panel counts, shapes, refs, and that every piece of text points at a panel on its slide. Read the Korean before going on.
-2. **Make the art.** James makes the panels in ComfyUI (below) and saves them as `output/manga/<id>/panels/<panel id>.png`. To review an episode before that, make stand-ins with GPT Image:
+2. **Make the art and pick the best take of each panel.**
    ```
-   npm run manga:test-art -- output/manga/<id>
+   npm run manga:pick -- output/manga/<id>
    ```
-   That writes `test-panels/`. James's panels always win over test panels, so they can be swapped in one at a time.
-3. **Render.**
+   Open http://localhost:4321. Every panel is listed with its takes side by side:
+   - **Make 3 takes of every empty panel** and **+2 takes** generate with GPT Image (needs `OPENAI_API_KEY`).
+   - Drag your own image (from ComfyUI or anywhere) onto a panel to add it as a take. **Copy full prompt for ComfyUI** gives you the exact prompt for a panel.
+   - Click a take to pick it. You can edit a panel's prompt and save it before asking for more takes.
+   - **Finish slides** renders the slides at the bottom of the page. Panels you haven't picked show as grey boxes.
+   - **Send to outbox** publishes them for Muse to post.
+
+   Takes are kept in `variants/<panel id>/`, and picks are copied to `panels/`. Without the page, `npm run manga:variants -- output/manga/<id> --n 3` makes the takes from the command line, and any image saved as `panels/<panel id>.png` counts as picked.
+3. **Render** (the picker's **Finish slides** button does the same thing).
    ```
    npm run manga:slides -- output/manga/<id>
    ```
    This writes `slides/slide-1.png` to `slide-8.png` and `slides/metadata.json`. A panel with no art renders as a grey box, and the command lists which panels are missing.
 4. **Check** every slide: no balloon over a face, nothing cut off, and the Korean is right.
-5. **Publish** like any slideshow:
+5. **Publish** with the picker's button, or like any slideshow:
    ```
    node video/scripts/publish-slides.mjs output/manga/<id>/slides
    ```

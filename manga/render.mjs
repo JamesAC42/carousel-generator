@@ -3,7 +3,7 @@
 //   npm run manga:slides -- <episode dir> [--out <dir>]
 //
 // The episode dir holds episode.json and the art (.png, .webp or .jpg): panels/<panel id>.png (James's art) wins over
-// test-panels/<panel id>.png (GPT Image stand-ins). Stock art for the lesson and CTA slides
+// test-panels/<panel id>.png (stand-ins shipped with the examples). Stock art for the lesson and CTA slides
 // (horang-explaining, sora-horang-cta) is looked up the same way, then in manga/stock/.
 // A panel with no art at all renders as a grey "missing" box so nothing ships with a hole.
 // Writes slide-N.png and metadata.json (type "manga") to --out, default <episode dir>/slides.
@@ -61,8 +61,9 @@ function overlays(s, pid) {
 }
 
 function panel(s, p, x, y, w, h, focus = 'center') {
+  const src = art(p.id);
   return `<div class="panel" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">
-    <img src="${art(p.id)}" alt="panel ${p.id} missing" style="object-position:${focus}">${overlays(s, p.id)}</div>`;
+    ${src ? `<img src="${src}" style="object-position:${focus}">` : `<div class="miss">${p.id}: no art yet</div>`}${overlays(s, p.id)}</div>`;
 }
 
 function stack(s, n) {
@@ -105,7 +106,8 @@ const css = `
 *{box-sizing:border-box;margin:0}
 body{width:${W}px;height:${H}px;background:#fff;position:relative;overflow:hidden;font-family:Mont,KR,sans-serif}
 .panel{position:absolute;border:6px solid #111;overflow:hidden;background:#fff}
-.panel img{background:#ddd;font:700 40px Mont;color:#666;text-align:center;width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(1) contrast(1.05)}
+.miss{width:100%;height:100%;background:#ddd;color:#666;font:700 44px Mont;display:grid;place-items:center}
+.panel img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(1) contrast(1.05)}
 .cap{position:absolute;background:#fff;border:4px solid #111;padding:10px 18px;font:700 34px/1.25 Mont;max-width:70%}
 .bal{position:absolute;background:#fff;border:5px solid #111;border-radius:50%;padding:34px 56px;text-align:center;max-width:78%}
 .bal::after{content:"";position:absolute;bottom:-30px;width:0;height:0;border:22px solid transparent;border-top:34px solid #111}
