@@ -331,7 +331,6 @@ export interface LineBreakdown {
   nuance: string;
   use_it: { native: string; romanization: string; english: string };
   quiz?: { options: string[]; answer: number };
-  chat?: { from: 'sora' | 'horang'; text: string }[];
   caption: string;
   hashtags: string[];
 }
@@ -358,8 +357,7 @@ RULES
   3. a learner pain ("You've heard this 100 times. Here's what it means")
   Mention the source by name when known. No emoji. No clickbait about drama/plot spoilers.
 - "use_it": one everyday sentence that reuses the line's key word or pattern.
-- "quiz": a guess-the-meaning poll for slide 2. "options" are exactly 3 short English answers (max 7 words each): the real meaning, the flattened subtitle-style reading, and one funny but plausible wrong guess, in a shuffled order. "answer" is the index of the real meaning.
-- "chat": a text chat of exactly 4 messages that opens the post. Sora (a country girl who just moved to Seoul and is learning Korean; dramatic, funny) heard the line and texts her tutor Horang (a tiger; warm, a little smug) asking what it really means. Horang teases her and makes her guess, but never explains the answer (the next slides do). Each message is at most 12 words, casual texting style, English except the line itself. The line appears exactly once, in Sora's first message.
+- "quiz": a guess-the-meaning poll for slide 2. "options" are exactly 3 short English answers (max 7 words each): the real meaning, the flattened subtitle-style reading, and one funny but plausible wrong guess, in a shuffled order. "answer" is the index of the real meaning, which must say the same thing as "line.natural".
 - "caption": at most 150 characters, ends with a question that invites comments (e.g. which line to break down next).
 - "hashtags": 3 to 5 specific tags about the source (e.g. the show or group name), no generic ones.
 
@@ -380,7 +378,6 @@ SCHEMA
   "nuance": "<max 16 words>",
   "use_it": { "native": "<sentence>", "romanization": "<romanized>", "english": "<english>" },
   "quiz": { "options": ["<a>", "<b>", "<c>"], "answer": <0-2> },
-  "chat": [{ "from": "sora", "text": "<message>" }, { "from": "horang", "text": "<message>" }],
   "caption": "<caption>",
   "hashtags": ["#tag"]
 }`;

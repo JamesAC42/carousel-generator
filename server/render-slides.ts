@@ -1,5 +1,6 @@
-// Re-renders a finished line breakdown in another style without calling the LLM again.
-//   npm run slides -- output/<id> [--style chat|quiz|comic] [--out <dir>]
+// Re-renders a finished line breakdown (after a template change, or in another style) without
+// calling the LLM again.
+//   npm run slides -- output/<id> [--style quiz] [--out <dir>]
 // Writes slide-N.png and cover-alt-N.png to --out (default: the same folder) and, when
 // rendering in place, updates metadata.json's style.
 import fs from 'fs';
@@ -16,7 +17,7 @@ const flag = (name: string) => {
 };
 const dir = args.find(a => !a.startsWith('--') && !args[args.indexOf(a) - 1]?.startsWith('--'));
 if (!dir || !fs.existsSync(path.join(dir, 'metadata.json'))) {
-  console.error('Usage: npm run slides -- output/<id> [--style chat|quiz|comic] [--out <dir>]');
+  console.error('Usage: npm run slides -- output/<id> [--style quiz] [--out <dir>]');
   process.exit(1);
 }
 

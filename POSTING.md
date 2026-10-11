@@ -88,8 +88,8 @@ Older posts without `platforms`: post them to TikTok only, with `caption.txt`.
    - `post_id`: the outbox `id`.
    - `platform`: `tiktok`, `youtube`, `instagram`, `facebook`, `pinterest` or `threads`.
    - `account`: the post's `account`.
-   - `format`: `post.json` → `format` (`lesson-video`, `slides-chat`, `slides-quiz` or
-     `slides-comic`; older posts have `slides-storybook`, `slides-variety` or `slides-notes`).
+   - `format`: `post.json` → `format` (`lesson-video` or `slides-quiz`; older posts have
+     `slides-storybook`, `slides-variety` or `slides-notes`).
    - Also fill in `hook`, `posted_at` and `url`.
 4. Work the comments, because they're what the algorithms reward most:
    - Slideshows ask viewers to comment A, B or C. Pin a comment on TikTok and Instagram:
