@@ -19,10 +19,16 @@ outbox's `README.md` is a copy of it.
    and clip" in `video/AGENTS.md`). Never ask James to find, pick or cut a clip; he only approves
    or vetoes the finished post. Pick the account it suits: `main`, `kdrama` or `kpop`.
 2. **Make the breakdown.**
-   - Start the generator with `npm run dev:server` (port 3001). It needs `GEMINI_API_KEY`.
-   - Send `POST /api/line-breakdown` with `{ "line": "우리는 깐부잖아", "source": "Squid Game", "account": "kdrama" }`.
-   - It answers with an `id` right away. `output/<id>/` is done when `metadata.json` appears. It
-     holds the slides (`slide-1.png`, ...), alternative covers, `caption.txt` and `metadata.json`.
+   - From the repo root, run
+     `npm run breakdown -- "우리는 깐부잖아" --source "Squid Game" --account kdrama`.
+     It needs `OPENAI_API_KEY` (in `.env` at the repo root or the environment), takes about a
+     minute, and prints `output/<id>` when it's done. That folder holds the slides (`slide-1.png`,
+     ...), alternative covers, `caption.txt` and `metadata.json`. No server is needed.
+   - The server route still works if you'd rather use it: `npm run dev:server` (port 3001), then
+     `POST /api/line-breakdown` with `{ "line": ..., "source": ..., "account": ... }`. It answers
+     with an `id` right away, and `output/<id>/` is done when `metadata.json` appears. If the port
+     is taken (often by an earlier server you started), it now says so and exits; stop the old one
+     or set `PORT`.
    - Leave out `style`. Slides come out in the `quiz` style, which looks like the Hanbok app
      (Bright Path). The old `storybook`, `variety` and `notes` styles are retired; don't ask for
      them.

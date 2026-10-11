@@ -315,9 +315,9 @@ async function main() {
       markUsed(c.line, c.url);
       const q = s => JSON.stringify(s);
       console.log(`\nSaved ${out}/. Next:
-1. Make the breakdown (generator running in the repo root, npm run dev:server):
-   curl -s localhost:3001/api/line-breakdown -H 'Content-Type: application/json' -d ${q(JSON.stringify({ line: c.line, source: c.source || undefined, account: 'kdrama' }))}
-   (account: kdrama, kpop or main, whichever fits.) Wait for output/<id>/metadata.json.
+1. Make the breakdown, from the repo root:
+   npm run breakdown -- ${q(c.line)}${c.source ? ` --source ${q(c.source)}` : ''} --account kdrama
+   (account: kdrama, kpop or main, whichever fits.) It prints output/<id> when it's done.
 2. Make the video, from video/:
    npm run lesson -- ../output/<id>/metadata.json --clip ${path.join('clips', slug, 'scene.mp4')} \\
      --clip-start ${rel(c.clipStart)} --clip-end ${rel(c.clipEnd)} --line-start ${rel(c.lineStart)} --line-end ${rel(c.lineEnd)}${subsArg} \\

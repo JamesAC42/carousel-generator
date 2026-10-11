@@ -39,11 +39,11 @@ the repo root.
 1. **Find the line and its clip** (next section). You end with a downloaded scene in
    `clips/<slug>/` and the two commands to run next.
 
-2. **Make the line breakdown** with the carousel generator in the repo root (`npm run dev:server`, port 3001):
-   `POST /api/line-breakdown` with `{ "line": "우리는 깐부잖아", "source": "Squid Game", "account": "kdrama" }`.
-   It answers with an `id` right away; `output/<id>/metadata.json` appears when it's done.
+2. **Make the line breakdown** with the carousel generator, from the repo root:
+   `npm run breakdown -- "우리는 깐부잖아" --source "Squid Game" --account kdrama`.
+   It prints `output/<id>` when it's done (see the root `AGENTS.md`).
    `account` is `main`, `kdrama` or `kpop` and decides the caption hashtags and where it's posted.
-   `npm run clips -- take` prints this request with the line filled in.
+   `npm run clips -- take` prints this command with the line filled in.
 
 3. **Check the clip** before running anything else: watch `clips/<slug>/scene.mp4`.
    - It should start on something that grabs attention (the first half second shows before the
