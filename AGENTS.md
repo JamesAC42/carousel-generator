@@ -15,8 +15,9 @@ outbox's `README.md` is a copy of it.
 
 ## The whole workflow
 
-1. **Pick a line.** Choose a Korean line from a drama, film or song that people quote, with a meaning
-   the usual translation misses. Pick the account it suits: `main`, `kdrama` or `kpop`.
+1. **Find a line and its clip yourself** with `npm run clips` in `video/` (see "Finding the line
+   and clip" in `video/AGENTS.md`). Never ask James to find, pick or cut a clip; he only approves
+   or vetoes the finished post. Pick the account it suits: `main`, `kdrama` or `kpop`.
 2. **Make the breakdown.**
    - Start the generator with `npm run dev:server` (port 3001). It needs `GEMINI_API_KEY`.
    - Send `POST /api/line-breakdown` with `{ "line": "우리는 깐부잖아", "source": "Squid Game", "account": "kdrama" }`.

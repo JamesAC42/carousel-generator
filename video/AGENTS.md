@@ -18,7 +18,7 @@ the repo root.
 
 ## One-time setup
 
-- Node 22+, ffmpeg/ffprobe, git. `cd video && npm install`.
+- Node 22+, ffmpeg/ffprobe, git, and yt-dlp (`pip install -U yt-dlp`; keep it updated, YouTube changes often). `cd video && npm install`.
 - Keys: `ELEVENLABS_API_KEY`, and `OPENAI_API_KEY` for the script writer. The carousel generator (repo root) needs `GEMINI_API_KEY` too.
   - Put them in the environment, or as `KEY=value` lines in `.env` at the repo root. That file is
     git-ignored, and the video scripts and the generator server both read it.
@@ -36,35 +36,33 @@ the repo root.
 
 ## Per video
 
-1. **Pick the line.** A Korean line from a drama, film or song that people quote, with a meaning the
-   usual translation misses.
+1. **Find the line and its clip** (next section). You end with a downloaded scene in
+   `clips/<slug>/` and the two commands to run next.
 
 2. **Make the line breakdown** with the carousel generator in the repo root (`npm run dev:server`, port 3001):
    `POST /api/line-breakdown` with `{ "line": "우리는 깐부잖아", "source": "Squid Game", "account": "kdrama" }`.
    It answers with an `id` right away; `output/<id>/metadata.json` appears when it's done.
    `account` is `main`, `kdrama` or `kpop` and decides the caption hashtags and where it's posted.
+   `npm run clips -- take` prints this request with the line filled in.
 
-3. **Get the clip.** Download the scene (e.g. with yt-dlp) and note three things, as times in the
-   downloaded file:
-   - Where the clip starts and ends: the scene around the line, about 8 to 20 seconds, so viewers
-     get drawn in and understand what's happening. Start on a moment that grabs attention (the
-     first half second is what shows before the title card). End a second or two after the line.
-   - When the line itself starts and ends, to within a few tenths of a second (the video pauses
-     and rewinds there).
-   - One sentence of context: who says it to whom, and what's happening. Only facts you're sure
-     of; the script is written from it.
-   - If you can get the show's English subtitles (yt-dlp `--write-subs --sub-langs en`, or the
-     official .srt), keep the .srt: the rest of the clip gets subtitled from it. Don't burn in
-     subtitles yourself.
+3. **Check the clip** before running anything else: watch `clips/<slug>/scene.mp4`.
+   - It should start on something that grabs attention (the first half second shows before the
+     title card) and end a second or two after the line.
+   - The line times come from subtitles and can be a few tenths off. Fix `--line-start` and
+     `--line-end` if the line is clipped.
+   - The context sentence (`--clip-context`) is a guess from the subtitles. Correct it from what
+     you see: who says it to whom, and what's happening. The script is written from it, so only
+     facts you're sure of.
+   - Don't burn in subtitles yourself.
 
 4. **Run it** from `video/`:
    ```
    npm run lesson -- ../output/<id>/metadata.json \
-     --clip /path/to/scene.mp4 --clip-start 71.0 --clip-end 86.0 \
-     --line-start 83.2 --line-end 85.1 --clip-subs /path/to/scene.en.srt \
+     --clip clips/<slug>/scene.mp4 --clip-start 1.0 --clip-end 16.0 \
+     --line-start 12.2 --line-end 14.1 --clip-subs clips/<slug>/scene.en.srt \
      --clip-context "Il-nam says it to Gi-hun during the marble game, where they have to play against each other"
    ```
-   Leave `--publish` off the first time. (`--gameplay <path under video/public/>` overrides the gameplay video.)
+   `npm run clips -- take` prints this command with the times filled in. Leave `--publish` off the first time. (`--gameplay <path under video/public/>` overrides the gameplay video.)
    - The title card's lesson number is the count of lesson videos in hanbok-outbox plus one. If
      that's wrong (a video was posted without the outbox), pass `--number N`.
    - The script writer is GPT-6.1 Sol (James's pick), so `OPENAI_API_KEY` must be set. `WRITER_MODEL`
@@ -82,6 +80,53 @@ the repo root.
 6. **Publish**: `node scripts/publish.mjs out/<id>`. It pushes the video, thumbnail, caption and post.json to
    hanbok-outbox and lists it in `index.json`. It refuses videos with the placeholder gameplay or
    character art.
+
+## Finding the line and clip
+
+James doesn't find clips. You do, with `npm run clips` (`scripts/find-clips.mjs`): it reads the
+Korean subtitles of YouTube videos, picks the lines worth a lesson, and downloads the scene with
+its timings. It needs `yt-dlp` and `ffmpeg` on this machine and `GEMINI_API_KEY`. Its working
+files go in `video/clips/` (git-ignored), including `used.json`, the lines already posted, which it
+won't pick again.
+
+1. **Mine candidates**:
+   `npm run clips -- mine "넷플릭스 명장면" --max 12`
+   It searches YouTube, reads up to 12 videos' Korean subtitles, and prints a ranked list
+   (also saved to `clips/candidates.json`): the line, why it's worth a lesson, the context, and a
+   link to the moment. Searches that work, rotated so the feed doesn't repeat itself:
+   - `"<show> 명장면"` or `"<show> 명대사"` for a show that's trending now (check what's in
+     Netflix Korea's top 10 and on TikTok), e.g. `"폭싹 속았수다 명장면"`.
+   - `"드라마 명대사 모음"`, `"영화 명대사"`, `"넷플릭스 명장면"`, `"tvN 드라마 명장면"`,
+     `"JTBC 드라마 명장면"`: compilations give many lines per video.
+   - A channel or playlist URL works too, e.g. an official drama channel's clips playlist.
+   - For `kpop`: idols' variety and live-stream moments (`"<group> 예능 레전드"`), not lyrics.
+   Prefer official channels' clips (broadcaster, Netflix Korea): their subtitles are the show's own
+   and the picture is clean.
+
+2. **Pick one** from the list yourself. The miner already follows the rules below; skip any
+   candidate where the moment isn't clear from the scene alone, then
+   `npm run clips -- take <number>`. It downloads the scene (plus English subtitles when the video
+   has them) into `clips/<slug>/`, marks the line as used, and prints the breakdown request and the
+   `npm run lesson` command with every time filled in.
+
+3. Already know the line you want? `npm run clips -- line "우리는 깐부잖아" --show "Squid Game"`
+   finds a video where it's said, then `take` as above.
+
+If YouTube refuses yt-dlp ("Sign in to confirm you're not a bot"), export cookies from a browser
+signed in to YouTube and set `YTDLP_ARGS="--cookies /path/to/cookies.txt"`. If this machine can't
+reach YouTube at all, tell James once that it needs YouTube access; don't ask him for clips.
+
+What makes a good line (the miner uses the same rules, in `LINE_RULES` in `scripts/find-clips.mjs`):
+- A moment people quote or react to: a confession, a threat, a betrayal, a comeback, a running
+  joke, a line that went viral.
+- Something the English subtitle misses: an ending that changes the meaning (잖아, 거든, 네, 군,
+  더라, 걸), a switch between 반말 and 존댓말, a title used as a weapon or a flirt (형, 누나, 선배,
+  아저씨), slang or a newer coinage, an idiom, wordplay, or a cultural idea (눈치, 정, 한, 체면).
+- Short (about 3 to 15 syllables), said clearly by one speaker, and it makes sense from the scene
+  alone.
+- Never a beginner word or stock phrase on its own: 오빠, 사랑해, 안녕하세요, 감사합니다, 대박,
+  진짜, 아이고, 화이팅, 미안해, 괜찮아. Everyone learning Korean already knows them, so they don't
+  stop the scroll.
 
 ## Posting from the outbox
 
