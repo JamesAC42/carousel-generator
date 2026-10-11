@@ -11,6 +11,7 @@
     "dev:server": "cross-env NODE_OPTIONS=--require=dotenv/config nodemon server/index.ts",
     "dev:client": "cd client && vite",
     "build": "tsc && cd client && vite build",
+    "breakdown": "node --loader ts-node/esm --experimental-specifier-resolution=node server/make-breakdown.ts",
     "slides": "node --loader ts-node/esm --experimental-specifier-resolution=node server/render-slides.ts"
   },
   "dependencies": {

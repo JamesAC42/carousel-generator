@@ -59,7 +59,14 @@ app.use('/api/sentence-analysis', sentenceAnalysisRoutes);
 app.use('/api/line-breakdown', lineBreakdownRoutes);
 console.log('[SERVER] 📁 Routes mounted successfully');
 
-app.listen(PORT, () => {
+// Express 5 passes listen errors (like the port already being in use) to this callback instead
+// of throwing, so without this check the server would log "running" and then quietly exit.
+app.listen(PORT, (error?: Error) => {
+  if (error) {
+    console.error(`[SERVER] ❌ Could not listen on port ${PORT}: ${error.message}`);
+    console.error('[SERVER] Another server is probably still running on it. Stop it, set PORT to a free port, or use `npm run breakdown` (no server needed).');
+    process.exit(1);
+  }
   console.log(`Server running on port ${PORT}`);
   console.log(`Health check available at: http://localhost:${PORT}/api/health`);
 });
