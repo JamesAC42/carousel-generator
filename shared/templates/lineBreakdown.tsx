@@ -22,6 +22,9 @@ export interface LineBreakdownData {
   parts: { native: string; romanization: string; meaning: string; note?: string }[];
   nuance: string;
   use_it: { native: string; romanization: string; english: string };
+  // Added 2026-10 for the chat / quiz / comic styles; older breakdowns lack them.
+  quiz?: { options: string[]; answer: number };
+  chat?: { from: 'sora' | 'horang'; text: string }[];
 }
 
 export type LineBreakdownSlide =

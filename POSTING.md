@@ -88,10 +88,13 @@ Older posts without `platforms`: post them to TikTok only, with `caption.txt`.
    - `post_id`: the outbox `id`.
    - `platform`: `tiktok`, `youtube`, `instagram`, `facebook`, `pinterest` or `threads`.
    - `account`: the post's `account`.
-   - `format`: `post.json` → `format` (`lesson-video`, `slides-storybook`, `slides-variety` or
-     `slides-notes`).
+   - `format`: `post.json` → `format` (`lesson-video`, `slides-chat`, `slides-quiz` or
+     `slides-comic`; older posts have `slides-storybook`, `slides-variety` or `slides-notes`).
    - Also fill in `hook`, `posted_at` and `url`.
 4. Work the comments, because they're what the algorithms reward most:
+   - Slideshows ask viewers to comment A, B or C. Pin a comment on TikTok and Instagram:
+     "Answer's on slide 3. Which line should we break down next?"
+   - Reply to guesses in the first hour the same way as for videos.
    - Right after posting a lesson video, pin a comment on TikTok, YouTube and Instagram:
      "Answer's in the video. The full breakdown is free at the link in bio."
    - For the first hour after posting, reply to every comment. Tell people who guessed whether
