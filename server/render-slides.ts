@@ -1,5 +1,5 @@
-// Re-renders a finished line breakdown (after a template change, or in another style) without
-// calling the LLM again.
+// Re-renders a finished line breakdown or topic lesson (after a template change, or a line
+// breakdown in another style) without calling the LLM again.
 //   npm run slides -- output/<id> [--style quiz] [--out <dir>]
 // Writes slide-N.png and cover-alt-N.png to --out (default: the same folder) and, when
 // rendering in place, updates metadata.json's style.
@@ -9,6 +9,7 @@ import { renderLineBreakdownToHTML } from './utils/template';
 import { renderHTMLToPNG } from './utils/render';
 import { CAROUSEL_STYLES } from '../shared/templates/carouselStyles';
 import { LINE_BREAKDOWN_STYLES } from '../shared/templates/lineBreakdown';
+import { renderLessonSlides } from './utils/lessonJob';
 
 const args = process.argv.slice(2);
 const flag = (name: string) => {
@@ -22,6 +23,18 @@ if (!dir || !fs.existsSync(path.join(dir, 'metadata.json'))) {
 }
 
 const metadata = JSON.parse(fs.readFileSync(path.join(dir, 'metadata.json'), 'utf8'));
+
+if (metadata.type === 'lesson') {
+  const out = flag('out') || dir;
+  fs.mkdirSync(out, { recursive: true });
+  // metadata.type is "lesson"; the lesson's own type (vs, phrase) is kept in lessonType.
+  const files = await renderLessonSlides({ ...metadata, type: metadata.lessonType }, out);
+  if (path.resolve(out) === path.resolve(dir)) {
+    fs.writeFileSync(path.join(dir, 'metadata.json'), JSON.stringify({ ...metadata, ...files }, null, 2));
+  }
+  console.log(`Rendered ${files.slides.length} ${metadata.lessonType} slides to ${out}`);
+  process.exit(0);
+}
 const styles: string[] = [...CAROUSEL_STYLES, ...LINE_BREAKDOWN_STYLES];
 const style = flag('style') || metadata.style;
 if (!styles.includes(style)) {

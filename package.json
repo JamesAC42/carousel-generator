@@ -13,6 +13,7 @@
     "build": "tsc && cd client && vite build",
     "breakdown": "node --loader ts-node/esm --experimental-specifier-resolution=node server/make-breakdown.ts",
     "slides": "node --loader ts-node/esm --experimental-specifier-resolution=node server/render-slides.ts",
+    "carousel": "node --loader ts-node/esm --experimental-specifier-resolution=node server/make-carousel.ts",
     "manga:episode": "node manga/write-episode.mjs",
     "manga:variants": "node manga/variants.mjs",
     "manga:pick": "node manga/picker.mjs",

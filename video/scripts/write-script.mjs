@@ -219,7 +219,7 @@ const id = base.replace(/[^\w-]/g, '') || `scene-${Date.now()}`;
 const clip = clipSrc
   ? { src: clipSrc, seconds: clipSeconds, line: breakdown.line.native, translation: breakdown.line.common_translation, label: source }
   : undefined;
-const scene = { id, quiz: slides.find(sl => sl.kind === 'quiz' && sl.question), hook: breakdown.hooks?.[hookIndex] || breakdown.title, slides, characters: cast, background: 'art/palace.jpg', ctaBroll: DEFAULT_CTA_BROLL, clip, beats };
+const scene = { id, quiz: slides.find(sl => sl.kind === 'quiz' && sl.question), hook: (breakdown.hooks?.[hookIndex] || breakdown.title).replace(/\*/g, ''), slides, characters: cast, background: 'art/palace.jpg', ctaBroll: DEFAULT_CTA_BROLL, clip, beats };
 fs.mkdirSync(path.dirname(outFile), { recursive: true });
 fs.writeFileSync(outFile, JSON.stringify(scene, null, 2));
 console.log(beats.map(b => `[${b.slide}] ${cast[b.speaker].name} (${b.expression}): ${b.text}`).join('\n'));

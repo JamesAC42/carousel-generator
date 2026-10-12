@@ -45,16 +45,16 @@ export function carouselSlides(hook: string, partCount: number): CarouselSlide[]
   ];
 }
 
-const W = 1080;
-const H = 1350;
-const SAFE = { top: 140, right: 150, bottom: 270, left: 72 };
-const SANS = 'Montserrat, NotoKR, sans-serif';
-const KR = 'NotoKR, Montserrat, sans-serif';
-const DISPLAY = 'LilitaOne, NotoKR, sans-serif';
-const LETTERS = ['A', 'B', 'C', 'D'];
+export const W = 1080;
+export const H = 1350;
+export const SAFE = { top: 140, right: 150, bottom: 270, left: 72 };
+export const SANS = 'Montserrat, NotoKR, sans-serif';
+export const KR = 'NotoKR, Montserrat, sans-serif';
+export const DISPLAY = 'LilitaOne, NotoKR, sans-serif';
+export const LETTERS = ['A', 'B', 'C', 'D'];
 
 // Bright Path stage colors (design/bright-path.md).
-const BP = {
+export const BP = {
   blue: '#3D64E8', blueDark: '#2645B8',
   teal: '#13B5A6', tealDark: '#0B8C80',
   amber: '#FFB020', amberDark: '#D18700', amberInk: '#3A2600',
@@ -89,7 +89,7 @@ function subtitleOption(data: LineBreakdownData, options: string[], answer: numb
 
 // Font size for Korean/Japanese text so it fits `width` px in at most `lines` lines.
 // Hangul and kana are about 1em wide; spaces and Latin punctuation about a third to half.
-function fit(text: string, max: number, width: number, lines = 1): number {
+export function fit(text: string, max: number, width: number, lines = 1): number {
   let units = 0;
   for (const ch of text) units += /\s/.test(ch) ? 0.3 : /[\x00-\x7F]/.test(ch) ? 0.5 : 1;
   units = Math.max(units, 1);
@@ -100,7 +100,7 @@ function fit(text: string, max: number, width: number, lines = 1): number {
 }
 
 // Font size for English text that has to fit a fixed box.
-function fitEn(text: string, base: number, roomy = 28): number {
+export function fitEn(text: string, base: number, roomy = 28): number {
   const len = text.length;
   if (len <= roomy) return base;
   if (len <= roomy * 1.6) return Math.round(base * 0.82);
@@ -113,7 +113,7 @@ function answerSize(text: string): number {
   return text.length <= 26 ? 48 : text.length <= 52 ? 42 : 36;
 }
 
-const Page: React.FC<{ background: string; children: React.ReactNode; font?: string }> = ({ background, children, font = SANS }) => (
+export const Page: React.FC<{ background: string; children: React.ReactNode; font?: string }> = ({ background, children, font = SANS }) => (
   <div style={{
     width: `${W}px`, height: `${H}px`, position: 'relative', overflow: 'hidden', background,
     fontFamily: font, wordBreak: 'keep-all', overflowWrap: 'break-word', color: BP.ink
@@ -122,14 +122,14 @@ const Page: React.FC<{ background: string; children: React.ReactNode; font?: str
   </div>
 );
 
-const Img: React.FC<{ src?: string; style: React.CSSProperties }> = ({ src, style }) =>
+export const Img: React.FC<{ src?: string; style: React.CSSProperties }> = ({ src, style }) =>
   src ? <img src={src} style={{ position: 'absolute', ...style }} /> : null;
 
 /* ------------------------------------------------------------------ */
 /* QUIZ: a Bright Path lesson, the way the app looks                    */
 /* ------------------------------------------------------------------ */
 
-const Progress: React.FC<{ step: number; total: number; dark?: boolean }> = ({ step, total, dark }) => (
+export const Progress: React.FC<{ step: number; total: number; dark?: boolean }> = ({ step, total, dark }) => (
   <div style={{ position: 'absolute', top: '72px', left: `${SAFE.left}px`, right: `${SAFE.right - 60}px`, display: 'flex', alignItems: 'center', gap: '26px' }}>
     <svg width="34" height="34" viewBox="0 0 34 34"><path d="M5 5 L29 29 M29 5 L5 29" stroke={dark ? '#AEB4C8' : 'rgba(255,255,255,0.75)'} strokeWidth="6" strokeLinecap="round" /></svg>
     <div style={{ flex: 1, height: '26px', borderRadius: '99px', background: dark ? '#E4E7F0' : 'rgba(0,0,0,0.18)', overflow: 'hidden' }}>
@@ -138,19 +138,20 @@ const Progress: React.FC<{ step: number; total: number; dark?: boolean }> = ({ s
   </div>
 );
 
-const Pill: React.FC<{ children: React.ReactNode; bg: string; color?: string }> = ({ children, bg, color = '#fff' }) => (
+export const Pill: React.FC<{ children: React.ReactNode; bg: string; color?: string }> = ({ children, bg, color = '#fff' }) => (
   <span style={{ display: 'inline-block', background: bg, color, fontSize: '32px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '12px 28px', borderRadius: '99px' }}>{children}</span>
 );
 
-const Card: React.FC<{ children: React.ReactNode; shadow?: string; style?: React.CSSProperties }> = ({ children, shadow = 'rgba(0,0,0,0.22)', style }) => (
+export const Card: React.FC<{ children: React.ReactNode; shadow?: string; style?: React.CSSProperties }> = ({ children, shadow = 'rgba(0,0,0,0.22)', style }) => (
   <div style={{ background: '#fff', borderRadius: '36px', padding: '40px 44px', boxShadow: `0 12px 0 ${shadow}`, ...style }}>{children}</div>
 );
 
-const Title: React.FC<{ children: React.ReactNode; size?: number; color?: string }> = ({ children, size = 84, color = '#fff' }) => (
+export const Title: React.FC<{ children: React.ReactNode; size?: number; color?: string }> = ({ children, size = 84, color = '#fff' }) => (
   <div style={{ fontFamily: DISPLAY, fontSize: `${size}px`, lineHeight: 1.08, color }}>{children}</div>
 );
 
-const Answer: React.FC<{ letter: string; text: string; state?: 'right' | 'wrong' | 'idle' | 'dim' }> = ({ letter, text, state = 'idle' }) => {
+// `sub` is a second, smaller line (romanization when the answer is Korean).
+export const Answer: React.FC<{ letter: string; text: string; sub?: string; korean?: boolean; state?: 'right' | 'wrong' | 'idle' | 'dim' }> = ({ letter, text, sub, korean, state = 'idle' }) => {
   const look = {
     idle: { bg: '#fff', border: BP.line, shadow: BP.line, chip: BP.paper, chipText: BP.muted, text: BP.ink },
     dim: { bg: '#fff', border: BP.line, shadow: BP.line, chip: BP.paper, chipText: '#B5BACB', text: '#9AA0B5' },
@@ -162,10 +163,38 @@ const Answer: React.FC<{ letter: string; text: string; state?: 'right' | 'wrong'
       <div style={{ width: '70px', height: '70px', borderRadius: '18px', background: look.chip, color: look.chipText, fontFamily: DISPLAY, fontSize: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 auto' }}>
         {state === 'right' ? '✓' : state === 'wrong' ? '✕' : letter}
       </div>
-      <div style={{ fontSize: `${answerSize(text)}px`, fontWeight: 800, lineHeight: 1.2, color: look.text, textDecoration: state === 'wrong' ? 'line-through' : 'none', textDecorationThickness: '4px' }}>{text}</div>
+      <div>
+        <div style={{ fontFamily: korean ? KR : SANS, fontSize: `${korean ? fit(text, 60, 640) : answerSize(text)}px`, fontWeight: 800, lineHeight: 1.2, color: look.text, textDecoration: state === 'wrong' ? 'line-through' : 'none', textDecorationThickness: '4px' }}>{text}</div>
+        {sub && <div style={{ fontSize: '30px', fontWeight: 700, color: state === 'dim' ? '#B5BACB' : BP.muted, marginTop: '4px' }}>{sub}</div>}
+      </div>
     </div>
   );
 };
+
+// A cover headline. Words wrapped in *asterisks* get an amber marker highlight, which reads
+// on every background color.
+export const HookTitle: React.FC<{ text: string; size?: number; color?: string }> = ({ text: raw, size, color = '#fff' }) => {
+  // Keep a quoted phrase ('I'm full') on one line.
+  const text = raw.replace(/(^|\s)(['"‘“])(.{1,24}?)(['"’”])(?=$|[\s?.!,])/g, (_, s, a, mid, b) => s + a + mid.replace(/ /g, '\u00a0') + b);
+  const plain = text.replace(/\*/g, '');
+  const px = size || fitEn(plain, 136, 18);
+  return (
+    <div style={{ fontFamily: DISPLAY, fontSize: `${px}px`, lineHeight: 1.12, color }}>
+      {text.split(/(\*[^*]+\*)/).filter(Boolean).map((bit, i) => bit.startsWith('*') && bit.endsWith('*')
+        ? <span key={i} style={{ background: BP.amber, color: BP.amberInk, padding: '0 14px', borderRadius: '18px', boxDecorationBreak: 'clone', WebkitBoxDecorationBreak: 'clone' }}>{bit.slice(1, -1)}</span>
+        : <span key={i}>{bit}</span>)}
+    </div>
+  );
+};
+
+export const plainHook = (hook: string) => hook.replace(/\*/g, '');
+
+// "Swipe" chip at the bottom of a cover.
+export const Swipe: React.FC<{ label?: string; bg?: string; color?: string }> = ({ label = 'Swipe', bg = '#fff', color = BP.ink }) => (
+  <div style={{ position: 'absolute', left: `${SAFE.left}px`, bottom: `${SAFE.bottom - 10}px`, display: 'flex', alignItems: 'center', gap: '16px', background: bg, color, borderRadius: '99px', padding: '16px 34px', fontSize: '42px', fontWeight: 800, boxShadow: '0 8px 0 rgba(0,0,0,0.18)' }}>
+    {label} <span style={{ fontFamily: DISPLAY, fontSize: '48px' }}>→</span>
+  </div>
+);
 
 function quizStyle(slide: CarouselSlide, data: LineBreakdownData, art: CarouselArt, n: number, total: number) {
   const { line } = data;
@@ -183,18 +212,23 @@ function quizStyle(slide: CarouselSlide, data: LineBreakdownData, art: CarouselA
 
   switch (slide.kind) {
     case 'hook':
+      // The line, with the flattened subtitle struck out under it: the cover's promise is
+      // "you were told the wrong meaning".
       return body(BP.blue, (
         <>
-          <div style={{ ...safe, gap: '34px' }}>
-            <div><Pill bg={BP.amber} color={BP.amberInk}>{data.source || 'Korean'}</Pill></div>
-            <Title size={fitEn(slide.hook, 128, 22)}>{slide.hook}</Title>
-            <Card shadow={BP.blueDark} style={{ alignSelf: 'flex-start', maxWidth: '820px' }}>
-              <div style={{ fontFamily: KR, fontWeight: 800, fontSize: `${fit(line.native, 200, 760, 2)}px`, lineHeight: 1.15 }}>{line.native}</div>
-              <div style={{ fontSize: '40px', fontWeight: 700, color: BP.muted, marginTop: '10px' }}>{line.romanization}</div>
+          <div style={{ ...safe, gap: '36px' }}>
+            <div><Pill bg="rgba(0,0,0,0.22)">{data.source || 'Korean'}</Pill></div>
+            <HookTitle text={slide.hook} size={fitEn(plainHook(slide.hook), 128, 24)} />
+            <Card shadow={BP.blueDark} style={{ alignSelf: 'flex-start', maxWidth: '840px', padding: '36px 44px 30px' }}>
+              <div style={{ fontFamily: KR, fontWeight: 800, fontSize: `${fit(line.native, 150, 750, 2)}px`, lineHeight: 1.15 }}>{line.native}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginTop: '22px' }}>
+                <div style={{ width: '54px', height: '54px', flex: '0 0 auto', borderRadius: '14px', background: BP.coral, color: '#fff', fontFamily: DISPLAY, fontSize: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</div>
+                <div style={{ background: '#15172A', color: '#fff', borderRadius: '12px', padding: '10px 20px', fontSize: `${fitEn(line.common_translation, 36, 30)}px`, lineHeight: 1.35, fontWeight: 700, textDecoration: 'line-through', textDecorationColor: BP.coral, textDecorationThickness: '5px' }}>{line.common_translation}</div>
+              </div>
             </Card>
           </div>
-          <Img src={m['tiger-think']} style={{ right: '160px', bottom: '110px', height: '270px' }} />
-          <div style={{ position: 'absolute', left: `${SAFE.left}px`, bottom: `${SAFE.bottom - 10}px`, color: '#fff', fontSize: '44px', fontWeight: 800 }}>Guess the meaning →</div>
+          <Img src={m['tiger-think']} style={{ right: '110px', bottom: '90px', height: '330px' }} />
+          <Swipe label="Real meaning" />
         </>
       ));
     case 'quiz':
@@ -202,8 +236,9 @@ function quizStyle(slide: CarouselSlide, data: LineBreakdownData, art: CarouselA
         <>
           <div style={safe}>
             <Title size={74} color={BP.ink}>What does it really mean?</Title>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '22px' }}>
-              <div style={{ background: '#fff', border: `4px solid ${BP.line}`, borderRadius: '28px', padding: '16px 30px', fontFamily: KR, fontWeight: 800, fontSize: `${fit(line.native, 100, 760)}px` }}>{line.native}</div>
+            <div style={{ alignSelf: 'flex-start', background: '#fff', border: `4px solid ${BP.line}`, borderRadius: '28px', padding: '16px 30px' }}>
+              <div style={{ fontFamily: KR, fontWeight: 800, fontSize: `${fit(line.native, 100, 760)}px` }}>{line.native}</div>
+              {data.context && <div style={{ fontSize: '32px', fontWeight: 700, color: BP.muted, marginTop: '6px' }}>🎬 {data.context}</div>}
             </div>
             {quiz.options.map((o, i) => <Answer key={i} letter={LETTERS[i]} text={o} />)}
           </div>

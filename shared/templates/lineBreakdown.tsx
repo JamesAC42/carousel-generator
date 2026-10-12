@@ -24,6 +24,8 @@ export interface LineBreakdownData {
   use_it: { native: string; romanization: string; english: string };
   // Added 2026-10 for the quiz style; older breakdowns lack it.
   quiz?: { options: string[]; answer: number };
+  // Added 2026-10-12: the situation the line is said in, shown with the quiz.
+  context?: string;
 }
 
 export type LineBreakdownSlide =

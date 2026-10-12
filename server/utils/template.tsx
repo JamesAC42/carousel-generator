@@ -21,6 +21,7 @@ import {
   CAROUSEL_FONTS,
   carouselSlides
 } from '../../shared/templates/carouselStyles.tsx';
+import { Lesson, LessonSlideDocument, lessonSlides } from '../../shared/templates/lessonCarousel.tsx';
 
 // Helper function to convert image to base64
 function imageToBase64(imagePath: string): string {
@@ -804,5 +805,21 @@ function renderCarousel(data: LineBreakdownData, hooks: string[], style: Carouse
   return {
     slides: slides.map(render),
     altCovers: hooks.slice(1).map(hook => render({ kind: 'hook', hook }, 0))
+  };
+}
+
+// Topic lessons (X vs Y, how to say ...) in the same Bright Path look
+// (shared/templates/lessonCarousel.tsx). Same return shape as renderLineBreakdownToHTML.
+export function renderLessonToHTML(lesson: Lesson) {
+  const fontCSS = generateFontCSS(CAROUSEL_FONTS.quiz);
+  const art: CarouselArt = { mascot: loadImageDir('assets/carousel/mascot') };
+  const slides = lessonSlides(lesson);
+  const render = (slide: (typeof slides)[number], index: number) =>
+    ReactDOMServer.renderToString(
+      <LessonSlideDocument slide={slide} lesson={lesson} art={art} index={index} total={slides.length} fontCSS={fontCSS} />
+    );
+  return {
+    slides: slides.map(render),
+    altCovers: lesson.hooks.slice(1).map(hook => render({ kind: 'hook', hook }, 0))
   };
 }

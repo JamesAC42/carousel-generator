@@ -1,8 +1,7 @@
 # Hanbok social content (for an agent)
 
-This repo makes Hanbok's social posts. Every post starts as a **line breakdown**: one Korean line
-from a show or song, explained. Each breakdown becomes two posts, and both go through the outbox
-repo (private JamesAC42/hanbok-outbox).
+This repo makes Hanbok's social posts, and they all go through the outbox repo (private
+JamesAC42/hanbok-outbox).
 
 **How to post to each platform is in [`POSTING.md`](POSTING.md) in this repo.** It covers which
 platforms get each post, the exact text and link for each one, account setup, and logging. The
@@ -10,14 +9,53 @@ outbox's `README.md` is a copy of it.
 
 | Post | What it is | How it's made | Outbox `type` |
 |---|---|---|---|
-| Slideshow | Usually 9 or 10 slides, 1080x1350, in the Bright Path `quiz` style | The breakdown itself, below | `slides` |
-| Lesson video | 35 to 50 seconds, 1080x1920: the show's scene with a "Korean Lesson #N" title card, a pause and rewind to the line, then the characters' guess-the-meaning poll, the reveal, and "link in bio, follow for more" | `video/AGENTS.md` | `lesson-video` |
+| Slideshow | 8 or 9 slides, 1080x1350, in the Bright Path quiz look: a hook, a guess-the-answer poll, the reveal, the lesson, a cheat sheet and the CTA | `npm run carousel`, below | `slides` |
+| Lesson video | 35 to 50 seconds, 1080x1920: the show's scene with a "Korean Lesson #N" title card, a pause and rewind to the line, then the characters' guess-the-meaning poll, the reveal, and "link in bio, follow for more" | `video/AGENTS.md`, from a line breakdown | `lesson-video` |
 
-## The whole workflow
+## Pick a lesson type
+
+Slideshows come in three lesson types. All look the same; the topic decides which to use.
+
+| Type | Use it for | Example topics | Command |
+|---|---|---|---|
+| `vs` | Two words or endings learners mix up | 은/는 vs 이/가, 안 vs 못, -아서 vs -니까, 예쁘다 vs 귀엽다, -고 싶다 vs -고 싶어하다 | `npm run carousel -- vs "안 vs 못" --account main` |
+| `phrase` | How to say an everyday phrase | I'm full, Let's eat, Cheers, Long time no see, Excuse me (to a waiter) | `npm run carousel -- phrase "I'm full" --account main` |
+| `line` | A short line from a show or song | 밥은 먹고 다니냐 (Memories of Murder) | `npm run carousel -- line "밥은 먹고 다니냐" --source "Memories of Murder" --account kdrama` |
+
+- Mix them. Most slideshows should be `vs` and `phrase`, since those teach something people can
+  use. Do a `line` when you have a short, well-known line and its clip, because only a `line` also
+  makes a lesson video.
+- Pick topics a beginner runs into in their first months, not textbook rarities. Don't repeat a
+  topic already in `metrics/posts.csv`.
+- Write the topic the way it's shown above. For `vs`, name both sides. For `phrase`, write the
+  English.
+- Every command needs `OPENAI_API_KEY` (in `.env` at the repo root, or the environment), takes
+  about a minute, and prints `output/<id>` when it's done. That folder holds the slides
+  (`slide-1.png`, ...), two alternative covers (`cover-alt-1.png`, `cover-alt-2.png`),
+  `caption.txt` and `metadata.json`. No server is needed.
+
+## Topic lessons (`vs` and `phrase`, a slideshow only)
+
+1. **Make it** with `npm run carousel` as above.
+2. **Check the slides.**
+   - Look at every slide. No text may be cut off or run under another element; if it does,
+     regenerate.
+   - The Korean has to be correct and natural. The quiz's right answer (slide 3) has to be right
+     and the others wrong.
+   - For `vs`, Round 2's answer (shown on the cheat sheet) has to be right too.
+   - Regenerate if anything is off. To re-render without a new LLM call (say, after a template
+     fix), run `npm run slides -- output/<id>`.
+3. **Publish it** with `node video/scripts/publish-slides.mjs output/<id>` from the repo root,
+   adding `--learn-url https://hanbokstudy.com/learn/<slug>` if a guide there covers the topic.
+4. **Post it** by following [`POSTING.md`](POSTING.md).
+
+## Line breakdowns (a slideshow and a video)
 
 1. **Find a line and its clip yourself** with `npm run clips` in `video/` (see "Finding the line
    and clip" in `video/AGENTS.md`). Never ask James to find, pick or cut a clip; he only approves
    or vetoes the finished post. Pick the account it suits: `main`, `kdrama` or `kpop`.
+   - Pick a short line, about 10 syllables or fewer, that people use in real life (밥은 먹고
+     다니냐, 너나 잘하세요). Long lines make dense, forgettable slides; skip them.
 2. **Make the breakdown.**
    - From the repo root, run
      `npm run breakdown -- "우리는 깐부잖아" --source "Squid Game" --account kdrama`.
@@ -29,6 +67,7 @@ outbox's `README.md` is a copy of it.
      with an `id` right away, and `output/<id>/` is done when `metadata.json` appears. If the port
      is taken (often by an earlier server you started), it now says so and exits; stop the old one
      or set `PORT`.
+   - `npm run carousel -- line "<line>" --source ... --account ...` does the same thing.
    - Leave out `style`. Slides come out in the `quiz` style, which looks like the Hanbok app
      (Bright Path). The old `storybook`, `variety` and `notes` styles are retired; don't ask for
      them.

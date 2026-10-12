@@ -57,7 +57,7 @@ export async function buildLineBreakdown(id: string, request: LineBreakdownReque
   const caption = `${breakdown.caption}\n\n${hashtags.join(' ')}`;
   fs.writeFileSync(
     path.join(outputDir, 'caption.txt'),
-    `${caption}\n\n---\nAccount: ${account.label}\nStyle: ${style}\nBio link: ${bioLink(account)}\nHooks:\n${breakdown.hooks.map((h, i) => `${i + 1}. ${h}`).join('\n')}\n`
+    `${caption}\n\n---\nAccount: ${account.label}\nStyle: ${style}\nBio link: ${bioLink(account)}\nHooks:\n${breakdown.hooks.map((h, i) => `${i + 1}. ${h.replace(/\*/g, '')}`).join('\n')}\n`
   );
 
   fs.writeFileSync(
