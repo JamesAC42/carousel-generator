@@ -331,6 +331,7 @@ export interface LineBreakdown {
   nuance: string;
   use_it: { native: string; romanization: string; english: string };
   quiz?: { options: string[]; answer: number };
+  context?: string;
   caption: string;
   hashtags: string[];
 }
@@ -348,11 +349,12 @@ RULES
 - Return ONLY valid JSON matching the schema. No markdown, no code fences.
 - Be accurate. If you are unsure of the source context, describe the line generically instead of inventing plot details.
 - "common_translation" is the short, flattened English a subtitle would typically give. Do not claim it is the official subtitle.
-- "nuance" explains what that translation loses (tone, politeness level, slang, wordplay). If nothing is lost, explain the most interesting grammar instead. Max 16 words, conversational.
-- "parts" splits the line, in order, into 2 to 4 meaningful chunks (word + particle or ending together). Together they must cover the whole line. Each part becomes its own slide.
+- "nuance" explains what that translation loses (tone, politeness level, slang, wordplay). If nothing is lost, explain the most interesting grammar instead. Max 14 words, conversational.
+- "context": the everyday situation someone says this in, max 9 words, no plot details (e.g. "When a friend keeps making excuses").
+- "parts" splits the line, in order, into 2 or 3 meaningful chunks (word + particle or ending together). Together they must cover the whole line. Each part becomes its own slide.
 - Romanization uses ${romanizationName}.
-- "hooks": 3 different first-slide hooks, each at most 8 words, each a different angle:
-  1. the translation misses something ("Subtitles got this line wrong")
+- "hooks": 3 different first-slide hooks, each at most 7 words, each a different angle. Wrap the one or two words that matter most in *asterisks* (they get highlighted):
+  1. the translation misses something ("Subtitles got this line *wrong*")
   2. curiosity about the source ("What [character/artist] really said here")
   3. a learner pain ("You've heard this 100 times. Here's what it means")
   Mention the source by name when known. No emoji. No clickbait about drama/plot spoilers.
@@ -375,7 +377,8 @@ SCHEMA
   "parts": [
     { "native": "<chunk>", "romanization": "<romanized>", "meaning": "<short gloss, max 4 words>", "note": "<optional, max 8 words, casual tone>" }
   ],
-  "nuance": "<max 16 words>",
+  "nuance": "<max 14 words>",
+  "context": "<max 9 words>",
   "use_it": { "native": "<sentence>", "romanization": "<romanized>", "english": "<english>" },
   "quiz": { "options": ["<a>", "<b>", "<c>"], "answer": <0-2> },
   "caption": "<caption>",
@@ -395,4 +398,89 @@ SCHEMA
     throw new Error('Line breakdown JSON is missing required fields');
   }
   return parsed;
+}
+
+// Topic lessons for the Bright Path carousels (shared/templates/lessonCarousel.tsx).
+// Korean only for now: the hooks, quizzes and politeness levels are written for Korean.
+const LESSON_COMMON = `RULES FOR EVERY FIELD
+- Return ONLY valid JSON matching the schema. No markdown, no code fences.
+- Each slide is read in about two seconds, so obey every word limit. Plain English, no grammar jargon (say "talking about someone else", not "third-person desiderative").
+- Korean must be natural, everyday and correct. Romanization uses Revised Romanization.
+- "hooks": 3 cover hooks, each at most 7 words, each a different angle (given below). Wrap the one or two words that matter most in *asterisks*; they get highlighted. No emoji.
+- "caption": at most 150 characters, ends with a question that invites comments.
+- "hashtags": 3 to 5 specific tags (e.g. #koreangrammar, #learnkorean), lowercase.`;
+
+const VS_PROMPT = (topic: string) => `You write "don't confuse these two" TikTok carousels for English-speaking beginners learning Korean.
+
+TOPIC: ${topic}
+
+The topic names two Korean words, endings or expressions that learners mix up. If it names only one, pair it with the one learners most often confuse it with. "a" and "b" are those two, in the order the topic gives them.
+
+${LESSON_COMMON}
+- "native" is the form learners look up (e.g. "-고 싶다", "은/는", "알다"), "meaning" at most 5 words, "when" at most 10 words saying when you use it, "emoji" one emoji for the idea.
+- "example": an everyday sentence of at most 7 Korean words that uses it, with natural English.
+- "rule": the one-line trick that tells them apart, at most 12 words.
+- "quiz": a situation where only one of the two fits. "situation" at most 9 English words (e.g. "Texting your best friend after a month apart"). "sentence" is the Korean sentence with the word replaced by "___" (at most 7 words); "fill" is exactly the text that goes in the blank, conjugated as in the full sentence (e.g. sentence "영화 ___." and fill "보고 싶어요"); "english" is what it means; "answer" is 0 for a, 1 for b; "why" at most 14 words.
+- "round2": another situation, where the OTHER one fits (its answer differs from quiz.answer). Same fields, no "why".
+- Check both blanks: sentence with fill must be a correct, natural Korean sentence.
+- Hook angles: 1. the mistake ("Stop mixing up *these two*"), 2. sounding fluent ("This is how Koreans *spot a beginner*"), 3. curiosity ("They look the same. *They're not.*").
+- The caption asks which pair to do next.
+
+SCHEMA
+{
+  "title": "<short English title>",
+  "hooks": ["<hook 1>", "<hook 2>", "<hook 3>"],
+  "a": { "native": "", "romanization": "", "meaning": "", "when": "", "emoji": "", "example": { "native": "", "romanization": "", "english": "" } },
+  "b": { "native": "", "romanization": "", "meaning": "", "when": "", "emoji": "", "example": { "native": "", "romanization": "", "english": "" } },
+  "rule": "",
+  "quiz": { "situation": "", "sentence": "", "fill": "", "english": "", "answer": 0, "why": "" },
+  "round2": { "situation": "", "sentence": "", "fill": "", "english": "", "answer": 1 },
+  "caption": "",
+  "hashtags": ["#tag"]
+}`;
+
+const PHRASE_PROMPT = (topic: string) => `You write "how to say it in Korean" TikTok carousels for English-speaking beginners.
+
+TOPIC: ${topic}
+
+The topic is an everyday English phrase or situation (e.g. "I'm full", "Let's eat", "Excuse me" to get a waiter's attention), or a Korean phrase to explain.
+
+${LESSON_COMMON}
+- "english": the English phrase, at most 5 words.
+- "phrase": how Koreans actually say it day to day, in polite 해요 speech unless the phrase is inherently casual. "literal" is a word-for-word gloss, at most 8 words.
+- "quiz": the slide asks "How do Koreans say '<english>'?". "options" are exactly 3 Korean answers: the natural phrase, a stiff word-for-word translation learners would make, and a real Korean phrase that means something funny and different. Shuffle them. "answer" is the index of the natural one. "why" at most 14 words.
+- "parts": 2 or 3 chunks that together make up the phrase, each "meaning" at most 4 words.
+- "levels": exactly 3 versions by who you're talking to, in this order: "Friends", "Most people", "Boss or elders". One of them must be exactly phrase.native.
+- "chat": a tiny everyday exchange, at most 7 Korean words each: "them" says something, "you" answer with the phrase.
+- Hook angles: 1. the real version ("How Koreans *actually* say 'I'm full'"), 2. the mistake ("Don't say 'I'm full' *like a textbook*"), 3. usefulness ("You'll say this *every day* in Korea").
+- The caption asks which phrase to teach next.
+
+SCHEMA
+{
+  "title": "<short English title>",
+  "hooks": ["<hook 1>", "<hook 2>", "<hook 3>"],
+  "english": "",
+  "phrase": { "native": "", "romanization": "", "literal": "" },
+  "quiz": { "options": [{ "native": "", "romanization": "" }], "answer": 0, "why": "" },
+  "parts": [{ "native": "", "romanization": "", "meaning": "" }],
+  "levels": [{ "who": "Friends", "native": "", "romanization": "" }],
+  "chat": { "them": { "native": "", "romanization": "", "english": "" }, "you": { "native": "", "romanization": "", "english": "" } },
+  "caption": "",
+  "hashtags": ["#tag"]
+}`;
+
+export async function generateTopicLesson(type: 'vs' | 'phrase', topic: string): Promise<any> {
+  const completion = await openai.chat.completions.create({
+    model: "gpt-5",
+    messages: [{ role: "user", content: type === 'vs' ? VS_PROMPT(topic) : PHRASE_PROMPT(topic) }],
+  });
+  const content = completion.choices[0]?.message?.content;
+  if (!content) throw new Error("No response from LLM");
+
+  const parsed = JSON.parse(extractJsonFromResponse(content));
+  const ok = Array.isArray(parsed?.hooks) && parsed.hooks.length > 0 && parsed.quiz && (type === 'vs'
+    ? parsed.a?.native && parsed.b?.native && parsed.round2 && /_{2,}/.test(parsed.quiz.sentence || '') && /_{2,}/.test(parsed.round2.sentence || '')
+    : parsed.phrase?.native && Array.isArray(parsed.quiz.options) && parsed.quiz.options.length >= 2 && Array.isArray(parsed.parts) && Array.isArray(parsed.levels) && parsed.chat?.you);
+  if (!ok) throw new Error(`${type} lesson JSON is missing required fields`);
+  return { ...parsed, type };
 }
