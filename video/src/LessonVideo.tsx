@@ -148,7 +148,8 @@ const ClipIntro: React.FC<{ clip: Clip; t: number; fps: number }> = ({ clip, t, 
   const segs = introSegments(clip);
   const seg = segs.find(sg => t >= sg.start && t < sg.end) ?? segs[segs.length - 1];
   const ct = clipTimeAt(seg, t);
-  const frame = Math.max(0, Math.round(ct * fps));
+  // Never ask for a frame past the clip's last one.
+  const frame = Math.max(0, Math.min(Math.round(ct * fps), Math.floor(clip.seconds * fps) - 1));
   const p = Math.min(1, (t - seg.start) / (seg.end - seg.start));
   const frozen = seg.kind === 'title' || seg.kind === 'pause' || seg.kind === 'rewind';
   const dim = frozen ? Math.min(1, (t - seg.start) / 0.2) * 0.55 : 0;
@@ -163,7 +164,9 @@ const ClipIntro: React.FC<{ clip: Clip; t: number; fps: number }> = ({ clip, t, 
   const titleOut = seg.kind === 'title' ? Math.min(1, (seg.end - t) / 0.2) : 1;
   return (
     <AbsoluteFill style={{ opacity, background: '#000' }}>
-      <ClipFrame src={clip.src} frame={frame} style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(28px) brightness(0.35)', transform: 'scale(1.15)' }} />
+      {clip.bg
+        ? <ClipFrame src={clip.bg} frame={frame} style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover' }} />
+        : <ClipFrame src={clip.src} frame={frame} style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(28px) brightness(0.35)', transform: 'scale(1.15)' }} />}
       <div style={{ position: 'absolute', top: CLIP_TOP, left: jitter, width: 1080, height: CLIP_H, boxShadow: '0 20px 60px rgba(0,0,0,0.6)', overflow: 'hidden' }}>
         <ClipFrame src={clip.src} frame={frame} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: seg.kind === 'rewind' ? 'saturate(0.6) contrast(1.1)' : undefined }} />
         <div style={{ position: 'absolute', inset: 0, background: `rgba(0,0,0,${dim})` }} />
