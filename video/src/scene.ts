@@ -89,6 +89,8 @@ export interface Clip {
   /** When the line is said, in seconds into the clip. Without them the whole clip is the line. */
   lineStart?: number;
   lineEnd?: number;
+  /** The clip pre-blurred at low resolution, for the backdrop behind it (made by make-lesson). */
+  bg?: string;
   /** English subtitles for the rest of the clip, in seconds into the clip. */
   subs?: { start: number; end: number; text: string }[];
 }

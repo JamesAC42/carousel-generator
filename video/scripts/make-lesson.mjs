@@ -72,6 +72,9 @@ function parseSrt(text) {
   }).filter(c => c && c.text);
 }
 
+// Gameplay cut per video; longer than any video so far.
+const GAMEPLAY_SECONDS = 150;
+
 const run = (script, ...rest) => execFileSync(process.execPath, ['--experimental-strip-types', '--no-warnings', script, ...rest], { stdio: 'inherit' });
 
 const clipArgs = [];
@@ -82,8 +85,14 @@ if (clip) {
   // Re-encode so the cut is frame-accurate and the clip plays in the browser renderer.
   execFileSync('ffmpeg', ['-y', '-v', 'error', '-ss', clipStart, '-to', clipEnd, '-i', clip,
     '-vf', 'scale=1280:-2', '-r', '30', '-c:v', 'libx264', '-crf', '20', '-c:a', 'aac', '-movflags', '+faststart', clipFile], { stdio: 'inherit' });
-  const seconds = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', clipFile], { encoding: 'utf8' }));
+  // The video stream's own length: the container's can run past the last frame (longer audio).
+  const seconds = Number(execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=duration', '-of', 'csv=p=0', clipFile], { encoding: 'utf8' }));
   clipArgs.push('--clip', path.relative('public', clipFile), '--clip-seconds', seconds.toFixed(2));
+  // The blurred backdrop behind the clip, made once here at low resolution, so the render doesn't
+  // decode the clip twice and blur a full-screen frame in the browser for every frame.
+  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', clipFile, '-an', '-vf',
+    'scale=270:480:force_original_aspect_ratio=increase,crop=270:480,gblur=sigma=7,colorchannelmixer=rr=0.35:gg=0.35:bb=0.35',
+    '-r', '30', '-c:v', 'libx264', '-crf', '28', '-movflags', '+faststart', clipFile.replace(/\.mp4$/, '-bg.mp4')], { stdio: 'inherit' });
   if (clipContext) clipArgs.push('--clip-context', clipContext);
 }
 
@@ -97,14 +106,22 @@ if (clip) {
     .map(c => ({ ...c, start: c.start - offset, end: c.end - offset }))
     .filter(c => c.end > 0 && c.start < scene.clip.seconds);
   scene.clip.number = numberFlag ? Number(numberFlag) : nextLessonNumber();
+  scene.clip.bg = scene.clip.src.replace(/\.mp4$/, '-bg.mp4');
   fs.writeFileSync(sceneFile, JSON.stringify(scene, null, 2));
 }
 if (gameplay) {
   const scene = JSON.parse(fs.readFileSync(sceneFile, 'utf8'));
-  scene.gameplay = gameplay;
-  // Start at a random point (leaving room for a 90s video) so each video shows different footage.
+  // Start at a random point so each video shows different footage, and cut just that stretch at the
+  // band's size: decoding the whole 1080p gameplay file during the render is what eats memory.
   const seconds = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', path.join('public', gameplay)], { encoding: 'utf8' }));
-  scene.gameplayStart = Math.floor(Math.random() * Math.max(0, seconds - 90));
+  const start = Math.floor(Math.random() * Math.max(0, seconds - GAMEPLAY_SECONDS));
+  const cut = path.join('public', 'gameplay', 'cuts', `${id}.mp4`);
+  fs.mkdirSync(path.dirname(cut), { recursive: true });
+  execFileSync('ffmpeg', ['-y', '-v', 'error', '-ss', String(start), '-t', String(GAMEPLAY_SECONDS), '-i', path.join('public', gameplay), '-an',
+    '-vf', 'scale=1080:670:force_original_aspect_ratio=increase,crop=1080:670', '-r', '30', '-c:v', 'libx264', '-crf', '23', '-preset', 'veryfast',
+    '-movflags', '+faststart', cut], { stdio: 'inherit' });
+  scene.gameplay = path.relative('public', cut);
+  scene.gameplayStart = 0;
   fs.writeFileSync(sceneFile, JSON.stringify(scene, null, 2));
 }
 run('scripts/narrate.mjs', sceneFile);

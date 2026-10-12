@@ -28,6 +28,11 @@ the repo root.
   in another language. They do more than the API calls, for example dropping voice tags the voice
   model doesn't know.
 - Remotion downloads its own headless Chrome on first render. If that's blocked, set `CHROME_PATH`.
+- The render needs about 3 GB of free memory. It renders the picture in 15-second chunks, each in
+  a fresh browser, so memory doesn't build up over a long video. If it still runs out (the render
+  dies, often at the same frame each try), close other programs and retry with
+  `RENDER_CONCURRENCY=1` (slower, least memory) or `RENDER_CHUNK_SECONDS=8`. You don't need to
+  pick a different line or clip for this.
 - Publishing pushes to the private repo JamesAC42/hanbok-outbox, so git needs push access to it.
 - Put the gameplay video (the Minecraft parkour video, `gameplay.webm`) in `video/public/gameplay/`.
   It's too big for git, so that folder is git-ignored. Every video uses it automatically, starting at a
