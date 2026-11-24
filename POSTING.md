@@ -45,6 +45,22 @@ measurable). Set each profile link once, exactly as below.
     for `kpop` posts, and "Korean phrases and grammar" for `main` posts.
 - **X:** skip for now.
 
+## Weekly scheduled videos (the default since 2026-11-24)
+
+Each week the outbox gets about 7 `lesson-video` posts made from slideshows
+(`video/scripts/weekly-batch.mjs`). Each has `scheduledFor` (an ISO time) in `index.json` and `post.json`.
+
+- **Instagram Reels and YouTube Shorts post themselves.** The outbox's `Cross-post` workflow runs
+  hourly, uploads every post whose `scheduledFor` has passed, and logs it in `metrics/posts.csv`.
+  Once a day it also refreshes views, likes and comments for posts that are 2 or more days old.
+  Each platform turns on when its secrets are set in the outbox repo: `IG_USER_ID` and
+  `IG_ACCESS_TOKEN` for Instagram, and `YT_CLIENT_ID`, `YT_CLIENT_SECRET` and `YT_REFRESH_TOKEN`
+  for YouTube (`scripts/youtube-auth.mjs` gets the refresh token). Don't post these by hand.
+- **TikTok is scheduled once a week by hand.** TikTok's API makes the owner confirm every post, so
+  TikTok Studio's scheduler is the quickest route. The week's folder has `SCHEDULE.md` with each
+  video's date, time and caption: upload each one, paste the caption and schedule it. Then add a
+  `tiktok` row per post to `metrics/posts.csv`.
+
 ## What goes where
 
 | | TikTok | YouTube | Instagram | Facebook | Pinterest | Threads |

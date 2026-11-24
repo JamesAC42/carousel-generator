@@ -95,6 +95,24 @@ Slideshows come in three lesson types. All look the same; the topic decides whic
    - Which text and link to use on each one.
    - How each post is logged in `metrics/posts.csv`.
 
+## Weekly videos (the main TikTok/Reels/Shorts output)
+
+Slideshows also become 1080x1920 videos with a music bed, which TikTok Studio can schedule and the
+outbox cross-posts to Reels and Shorts by itself. Each week:
+
+1. Make about 7 topic slideshows (`npm run carousel`, above), mostly `vs` and `phrase`, none
+   already in `metrics/posts.csv`. Check every slide as in step 2 above.
+2. Write `schedules/<year>-w<week>.json`:
+   `[{ "dir": "output/<id>", "id": "<short-ascii-id>", "date": "YYYY-MM-DD" }]`, one per day.
+   You can add `"time"` (US Eastern, default 19:00) and `"music"` to an entry.
+3. Run `node video/scripts/weekly-batch.mjs schedules/<file>.json --outbox <outbox checkout> --handoff <folder>`.
+   It renders `video.mp4` with `video/scripts/slides-to-video.mjs` (music beds in
+   `video/public/music/`, made with ElevenLabs Music), writes the outbox posts with `scheduledFor`,
+   and puts the numbered videos and `SCHEDULE.md` in the handoff folder for TikTok scheduling.
+4. Open a PR on the outbox with the new posts. Once it's merged, cross-posting runs on its own.
+5. Use `metrics/posts.csv` (views per post and platform) to pick next week's topics: more of what
+   gets watched, less of what doesn't.
+
 ## Manga episodes ("Sora in Seoul")
 
 A separate, black-and-white comic slideshow with custom art for every episode. Its art is made by
